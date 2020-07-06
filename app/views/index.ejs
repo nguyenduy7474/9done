@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+  <meta charset="UTF-8">
+  <title>9done</title>
+  <link rel="icon" href="/imgs/icon.ico">
+  <!-- HEADER -->
+    <header>
+      <div class="netflixLogo">
+        <a id="logo" href="/"><img src="/imgs/logo.png" id="logo" alt="Logo Image"></a>
+      </div>      
+      <nav class="main-nav">
+        <a href="/acceptsongs">Yêu cầu bài hát</a>
+        <a href="/FAQ">FAQ</a>
+        
+      </nav>
+    </header>
+    <!-- END OF HEADER -->
+
+</head>
+<body> 
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Netflix</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/netflix.css">
+  <style>
+    #vipsilip {
+      cursor: pointer; /* or the one which you would like to have */
+    }
+    #showname{
+      font-size: 150%;
+      cursor: pointer; /* or the one which you would like to have */
+    }
+    .form-control {
+      display: inline;
+    }
+
+  </style>
+  </br>
+  <center><div id="controls">
+      <p style="color: red">Bắt buộc phải có headphone để thu âm</p>
+      <button id="recordButton" class="btn btn-success"><b>Thu âm luôn</b></button>
+      <button id="stopButton" class="btn btn-warning" disabled><b>Thu âm xong</b></button>&nbsp;</br></br>
+      <span id="remindChooseSong" style="color: red; display: none">*Chọn ca khúc đi nào</br></span>
+      <p id="namesingerplace" style='display: inline-block'><span id="remindName" style="color: red; display: none">*Nhập nghệ danh trước đã, gấp gáp quá</br></span><span></span>&nbsp;<input type="text" id="namesinger" class="form-control" style="width: 60%;" placeholder="Nhập nghệ danh"/>
+      <button class="btn btn-success" onclick="chooseName()">OK</button></p></br>
+      <span id="countdown" style="font-size: 150%"></span>
+    </div>
+    <div id="containerplayer">
+      <div id="player">
+      </div>
+    </div>
+
+    <h3>Danh sách đã thu âm</h3><span id="loading"></span>
+    <ol id="recordingsList"></ol>
+    <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
+
+  </center>
+  <div class="wrapper">
+    <!-- MAIN CONTAINER -->
+
+    <section class="main-container" >
+      <div class="location" id="www">
+          <div class="box" id="listrecords" style="overflow: auto;">
+          </div>
+      </div>
+
+      <div class="location" id="home">
+          <center>
+          <input class="form-control w-50 p-3" type="text" id="searchsong" placeholder="Nhập tên bài hát, ca sĩ..." aria-label="Search"></center></br></br>
+          <div class="box" id="boxnewsong">
+
+          </div>
+      </div>
+      <div style="color: #06121e;margin: 0 auto; ;display: table;margin-top: 1rem" class="pagination">
+                    </div>
+    </section>
+    <!-- END OF MAIN CONTAINER -->
+  </div>
+
+  <script src="/js/recorder.js"></script>
+  <script src="/js/jquery.min.js"></script>
+  <script src="/js/mainfile.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+</body>
+</html>
