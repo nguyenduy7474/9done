@@ -1,0 +1,62 @@
+<head>
+  <link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
+  <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+  <link href="https://unpkg.com/@videojs/themes@1/dist/city/index.css" rel="stylesheet">
+
+  <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+</head>
+
+<body>
+  <button onclick="aaa('/9donesing/public/hazard-9done.mp4', '/9donesing/public/thumbnails/2_4u5ULOnNo.jpg')">aaa</button>
+  <button onclick="aaa('/9donesing/public/adama_traore_dance_monkey_9done.mp4', '/9donesing/public/thumbnails/2-k2ziSu9b8.jpg')">bbbb</button>
+  <div id="chodevideo">
+      <video id="my-player" class="video-js vjs-theme-city">
+      </video>
+  </div>
+
+<!--   <video id="my-player" class="video-js vjs-theme-city">
+    <source src="/9donesing/public/hazard-9done.mp4" type="video/mp4">
+  </video> -->
+  <!-- <video
+    id="my-video"
+    class="video-js"
+    controls
+    preload="auto"
+    width="640"
+    height="264"
+    poster="/9donesing/public/thumbnails/2-k2ziSu9b8.jpg"
+    data-setup="{}"
+  >
+    <source src="/9donesing/public/hazard-9done.mp4" type="video/mp4" />
+    <p class="vjs-no-js">
+      To view this video please enable JavaScript, and consider upgrading to a
+      web browser that
+      <a href="https://videojs.com/html5-video-support/" target="_blank"
+        >supports HTML5 video</a
+      >
+    </p>
+  </video> -->
+
+  <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <script>
+
+  var player
+  var player2
+  player = videojs('my-player', {
+    controls: true,
+    autoplay: true,
+    preload: 'auto',
+    width: "1280",
+    height: "720",
+    poster: "/9donesing/public/thumbnails/2-k2ziSu9b8.jpg"
+  });
+  player.src({type: 'video/mp4', src: '/9donesing/public/hazard-9done.mp4'});
+  function aaa(location, thumbnails){
+    player.src({type: 'video/mp4', src: location});
+    player.poster(thumbnails);
+    player.autoplay(false)
+  }
+  </script>
+</body>

@@ -12,20 +12,31 @@ const youtubedl = require('youtube-dl')
 var SongsReview = require('../models/songsreview');
 var async = require('async');
 const got = require('got');
+var path = require('path');
+var appDir = path.dirname(require.main.filename);
+var ffmpeg = require('fluent-ffmpeg');
+const { getAudioDurationInSeconds } = require('get-audio-duration');
 
 class Home{
-	static home(req, res) {
+	static async home(req, res) {
+		let userinfo
+		if(req.session.user){
+			userinfo = req.session.user
+		}
 		res.render('index.ejs', {
 			error : req.flash("error"),
 			success: req.flash("success"),
-			session:req.session,
-		
+			userinfo: userinfo,
 		 });
 	}
 
 	static async searchSongs(req, res){
-		var namesong = req.body.namesong
-		console.log(namesong)
+		var namesong = req.body.namesong.trim()
+		var singer
+		if(req.body.singer){
+			singer = req.body.singer.trim()
+		}
+		
 		let match = {
             $and: [ { datatype: 'mp3', reviewed: 1 } ] 
         }
@@ -36,18 +47,25 @@ class Home{
 			singger : '$singger',
 			lengthsong: '$lengthsong',   
 			songid: '$songid',
+			songtags: '$songtags',
+			counttimesing: '$counttimesing',
 			datecreated: '$datecreated'
         }
         let sort= {
             datecreated: -1
         }
         if(namesong){
-            match.$and.push({$or: [{'songname': {$regex: namesong,$options:"xi"}}, {'singger': {$regex: namesong,$options:"xi"}}, {'songnameremoveaccent': {$regex: namesong,$options:"xi"}}]})
+            match.$and.push({$or: [
+            	{'songname': {$regex: namesong, $options:"i"}}, 
+            	{'songnameremoveaccent': {$regex: namesong, $options:"i"}}]})
+        }
+        if(singer){
+        	match.$and.push({'singger': {$regex: singer, $options:"i"}})
         }
 
         try{
             //set default variables
-            let pageSize = 8
+            let pageSize = 12
             let currentPage = req.body.paging_num || 1
     
             // find total item
@@ -57,6 +75,20 @@ class Home{
             // find total pages
             let pageCount = Math.ceil(pages/pageSize)
             let data = await Songs.aggregate([{$match:match},{$project:project},{$sort:sort},{$skip:(pageSize * currentPage) - pageSize},{$limit:pageSize}])
+            if(data.length < pageSize){
+            	if(data.length != 0){
+            		let arrtags = data[0].songtags
+            		let limitcount = pageSize - data.length
+            		let arraysongname = []
+            		for(var i=0; i<data.length; i++){
+            			arraysongname.push(data[i].songname)
+            		}
+            		let songadmore = await Songs.find({"datatype" : "mp3", "reviewed" : 1, "songtags": {$in: arrtags}, "songname": {$nin: arraysongname}}).limit(limitcount)
+            		data = data.concat(songadmore)
+            	}else{
+
+            	}
+            }
             res.send({data, pageSize, pageCount, currentPage});
         }catch(err) {
             console.log(err.message)
@@ -65,23 +97,51 @@ class Home{
 	}
 
 	static async uploadSing(req, res){
-		var filesinger = req.files[0].fieldname + "_" + Date.now()
+		var songvolume = req.body.songvolume
+		console.log(req.files[0])
+		//var filesinger = req.files[0].fieldname + "_" + Date.now()
+		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
     	var pathsinger = "public/uploads/" + filesinger + ".wav"
 		pathsinger = removeSpace(pathsinger)
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
-		var despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".wav"
+		var despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
+		var songchoose = await Songs.findOne({songid: req.body.songid})
 
-		exec(`python public/pydub/mergewav.py ${pathsong} ${pathsinger} ${pathmergerfile}`, (error, stdout, stderr) => {
+		var duration = await getAudioDurationInSeconds(`./${pathsinger}`)
+		if(duration > 15){
+			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
+		}
+
+		new ffmpeg()
+			.addInput(`./${pathsong}`)
+			.addInput(`./${pathsinger}`)
+			.complexFilter([
+				`[0:a]volume=${songvolume/100},adelay=delays=110:all=1[s1]`,
+				"[1:0]volume=1[s2]",
+				{
+					filter : 'amix',
+					options: { inputs : 2, duration : 'first'},
+					inputs: ["s1","s2"]
+				}
+			])
+			.output(`./${pathmergerfile}`)
+			.on('progress', function(progress) {
+				console.log('Processing: ' + progress.percent + '% done');
+			})
+			.on('end', function(stdout, stderr) {
+				return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
+			})
+			.run()
+/*		exec(`python public/pydub/mergewav.py ${pathsong} ${pathsinger} ${pathmergerfile} ${songvolume}`, (error, stdout, stderr) => {
 		  if (error) {
 		    console.error(`exec error: ${error}`);
 		    return;
 		  }
-		  	console.log(stdout.trim())
 		  	return res.json({"status": "success", "despath": despath})
-		});
+		});*/
 
 		function removeSpace(string){
 			string = string.split(" ").join("_")
@@ -90,10 +150,14 @@ class Home{
 	}
 
 	static async acceptSongs(req, res){
+		let userinfo
+		if(req.session.user){
+			userinfo = req.session.user
+		}
 		res.render('acceptsongs.ejs', {
 			error : req.flash("error"),
 			success: req.flash("success"),
-			session:req.session,
+			userinfo: userinfo,
 		
 		 });
 	}
@@ -104,6 +168,7 @@ class Home{
 		var linkyoutube = req.body.linkyoutube
 		var flag = ""
 		var songid
+		res.send("Hệ thống đã tiếp nhận hãy check lại danh sách chờ duyệt sau ít phút")
 		if(extractVideoID(linkyoutube)){
 			songid = extractVideoID(linkyoutube)
 			var respone = await got("https://www.googleapis.com/youtube/v3/videos?id="+ songid +"&part=status&key=AIzaSyClczvGfPuaOcbR5exPpI2QDEqXkwIgyFo")
@@ -116,26 +181,11 @@ class Home{
 			flag = "Link Youtube không chính xác"
 		}
 		if(flag != ""){
-			res.send(flag)
-			return	
+			console.log(flag)
 		}
 
-		if(songname.indexOf("9done") != -1){
-			songname = songname.replace("9done", "")
-			flag = "success"
-			var found = await Songs.findOne({songid: songid})
-			if(found){
-				found.reviewed = 1
-				await found.save()
-			}else{
-				await AddSong(1)
-			}
-			console.log("doneeeeeeeeeeeeeeeeeeeeeee")
-		}else{ 
-			flag = await AddSong(0)
-			console.log("done")
-		}
-		res.send(flag)
+		flag = await AddSong(0)
+
 
 		function checkYtURLandDBexist(url){
 			return new Promise(function(ok, notok){
@@ -212,7 +262,9 @@ class Home{
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 
-		exec(`python public/pydub/mergemp3.py ${pathsong} ${pathsinger} ${pathmergerfile}`, async (error, stdout, stderr) => {
+
+		exec(`python public/pydub/mergemp3.py ${pathsong} ${pathsinger} ${pathmergerfile}`, async (error, stdout, 
+			) => {
 		  if (error) {
 		    console.error(`exec error: ${error}`);
 		    return;
@@ -241,6 +293,60 @@ class Home{
 			res.send(found)
 		})
 	}
+
+	static async ImageForAudio(req, res){
+		console.log(req.body.songid)
+		console.log("----------------------------------------------------")
+		console.log(req.file)
+		
+		var songid = req.body.songid
+		var singer = req.body.singer
+		songid = req.body.songid.split("_")[0]
+		
+		var datesong = req.body.songid.split("_")[1]
+		var pathimage = "./public/uploads/" + req.file.filename
+		pathimage = removeSpace(pathimage)
+		//await writeFile(pathimage, Buffer.from(req.file))
+		var imagename = req.file.filename.split('.')
+		imagename = imagename[0]
+		var videoname = imagename + "_" + songid
+		new ffmpeg()
+			.addInput(`${pathimage}`)
+			.addInput(`./public/songhandled/${songid}_${singer}.mp3`)
+			.output(`./public/uploads/${videoname}.webm`)
+			.on('progress', function(progress) {
+				console.log('Processing: ' + progress.percent + '% done')
+			})
+			.on('end', function(stdout, stderr) {
+				res.send({videoname: videoname, divid: req.body.songid})
+			})
+			.run()
+
+		function removeSpace(string){
+			string = string.split(" ").join("_")
+			return string
+		}
+	}
+
+	static checkLogin(req, res, next) {
+        try {
+        	if(req.session.user){
+        		let data = req.session.user;
+	            data.user_public_folder = "/public/users/" + data._id;
+	            //Crate folder for temp
+	            if (!fs.existsSync(appDir + data.user_public_folder)) {
+	                fs.mkdirSync(appDir + data.user_public_folder);
+	            }
+        	}
+
+        }catch(ex) {
+            console.dir(ex);
+			next()
+			return;
+        }
+		next()
+	}
+
 }
 
 module.exports = Home

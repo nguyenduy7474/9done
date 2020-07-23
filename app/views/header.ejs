@@ -1,0 +1,43 @@
+<head>
+  <meta charset="UTF-8">
+  <title>9done</title>
+  <link rel="icon" href="/imgs/icon.ico">
+  <!-- HEADER -->
+    <style>
+    #vipsilip {
+      cursor: pointer; /* or the one which you would like to have */
+    }
+    #showname{
+      font-size: 150%;
+      cursor: pointer; /* or the one which you would like to have */
+    }
+    .form-control {
+      display: inline;
+    }
+    #buttonlogin:hover{
+      color: white;
+      background-color: #007bff;
+    }
+  </style>
+    <header>
+      <div class="netflixLogo">
+        <a id="logo" href="/"><img src="/imgs/logo.png" id="logo" alt="Logo Image"></a>
+      </div>      
+      <nav class="main-nav">
+        <a href="/acceptsongs">Yêu cầu bài hát</a>
+        <a href="/FAQ">FAQ</a>
+        
+      </nav>
+      <%if(userinfo){%>
+        <nav class="sub-nav">
+          <p style="padding-top: 10px; padding-right: 10px"><a href="/user/<%=userinfo._id%>"><%=userinfo.full_name%></a></p>
+        </nav>
+      <%}else{%>
+      <nav class="sub-nav">
+        <a class="btn btn-primary" href="/auth/facebook" id="buttonlogin">Đăng nhập với facebook</a>
+      </nav>
+      <%}%>
+    </header>
+    <!-- END OF HEADER -->
+
+</head>

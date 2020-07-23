@@ -1,59 +1,53 @@
 <!DOCTYPE html>
 <html lang="en" >
-<head>
-  <meta charset="UTF-8">
-  <title>9done</title>
-  <link rel="icon" href="/imgs/icon.ico">
-  <!-- HEADER -->
-    <header>
-      <div class="netflixLogo">
-        <a id="logo" href="/"><img src="/imgs/logo.png" id="logo" alt="Logo Image"></a>
-      </div>      
-      <nav class="main-nav">
-        <a href="/acceptsongs">Yêu cầu bài hát</a>
-        <a href="/FAQ">FAQ</a>
-        
-      </nav>
-    </header>
-    <!-- END OF HEADER -->
-
-</head>
+<% include ./header %>
 <body> 
+  <style type="text/css">
+    .jumplentren:hover{
+      cursor: pointer;
+    }
+  #slider-vertical .ui-slider-range { background: #0666ce; }
+  #slider-vertical {border: 0; width: 1.5em; }
+  #custom-handle {width: 2em; text-align: center; border: 0}
+  div#custom-handle.ui-slider-handle.ui-corner-all.ui-state-default.ui-state-focus{
+    color: black;
+    border: 0;
+  }
+    div#custom-handle.ui-slider-handle.ui-corner-all.ui-state-default.ui-state-focus:focus{
+    outline: none;
+  }
+  </style>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Netflix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
   <link rel="stylesheet" href="/css/netflix.css">
-  <style>
-    #vipsilip {
-      cursor: pointer; /* or the one which you would like to have */
-    }
-    #showname{
-      font-size: 150%;
-      cursor: pointer; /* or the one which you would like to have */
-    }
-    .form-control {
-      display: inline;
-    }
-
-  </style>
+  <link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
+  <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+  <link href="https://unpkg.com/@videojs/themes@1/dist/city/index.css" rel="stylesheet">
+  <link href="https://unpkg.com/@videojs/themes@1/dist/sea/index.css" rel="stylesheet">
+  <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   </br>
   <center><div id="controls">
-      <p style="color: red">Bắt buộc phải có headphone để thu âm</p>
+      <p style="color: red" id="jumpto">Cần có headphone để thu âm đúng chuẩn nhé</p>
+      <button id="listensong" class="btn btn-primary"><b>Nghe</b></button>
       <button id="recordButton" class="btn btn-success"><b>Thu âm luôn</b></button>
       <button id="stopButton" class="btn btn-warning" disabled><b>Thu âm xong</b></button>&nbsp;</br></br>
       <span id="remindChooseSong" style="color: red; display: none">*Chọn ca khúc đi nào</br></span>
-      <p id="namesingerplace" style='display: inline-block'><span id="remindName" style="color: red; display: none">*Nhập nghệ danh trước đã, gấp gáp quá</br></span><span></span>&nbsp;<input type="text" id="namesinger" class="form-control" style="width: 60%;" placeholder="Nhập nghệ danh"/>
-      <button class="btn btn-success" onclick="chooseName()">OK</button></p></br>
       <span id="countdown" style="font-size: 150%"></span>
     </div>
     <div id="containerplayer">
-      <div id="player">
-      </div>
+    <div id="volumebackgroundmusic" style="float: left;display: none">
+      <div id="slider-vertical"><div id="custom-handle" class="ui-slider-handle"></div></div>
+      <img src="https://img.icons8.com/color/48/000000/audio-wave2.png"/>
+    </div>
+      <video id="my-player" class="video-js vjs-theme-city">
+      </video>
     </div>
 
-    <h3>Danh sách đã thu âm</h3><span id="loading"></span>
+    <div id="dsthuam" style="display: none; font-size: 150%">Danh sách đã thu âm<span id="loading"><img width='80px' height='80px' src='/imgs/loadings.gif'></span></div>
     <ol id="recordingsList"></ol>
     <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
 
@@ -68,8 +62,14 @@
       </div>
 
       <div class="location" id="home">
-          <center>
-          <input class="form-control w-50 p-3" type="text" id="searchsong" placeholder="Nhập tên bài hát, ca sĩ..." aria-label="Search"></center></br></br>
+          
+          <div class="box">
+            <input class="form-control p-3 mr-3" type="text" id="searchsong" placeholder="Tìm bài hát..."
+           aria-label="Search">
+           <input class="form-control p-3" type="text" id="searchsinger" placeholder="Tìm ca sĩ(tên tiếng việt)..."
+           aria-label="Search">
+          </div></br>
+
           <div class="box" id="boxnewsong">
 
           </div>
@@ -79,9 +79,14 @@
     </section>
     <!-- END OF MAIN CONTAINER -->
   </div>
+<div id="fb-root"></div>
 
+
+<script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v7.0&appId=311431150032339&autoLogAppEvents=1" nonce="VKSppomw"></script>
   <script src="/js/recorder.js"></script>
+  <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
   <script src="/js/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <script src="/js/mainfile.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>

@@ -7,6 +7,8 @@ var Songs = mongoose.Schema({
 	songname: String,
 	songnameremoveaccent: String,
 	singger: String,
+	songtags: { type : Array , "default" : [] },
+	counttimesing: { type : Number , "default" : 1},
 	lengthsong: Number,
 	songid: String,
 	datecreated: Date,

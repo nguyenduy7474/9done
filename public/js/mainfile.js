@@ -1,13 +1,5 @@
 $( document ).ready(function() {
   searchsong()
-  var nghedanh = document.cookie;
-  if(nghedanh.indexOf("nghedanh") != -1){
-    nghedanh = nghedanh.split(";")
-    nghedanh = nghedanh[1].split("=")
-    nghedanh = nghedanh[1]
-    $("#namesingerplace").html("<p id='showname' onclick='editName()'><b>"+ nghedanh +"</b></p>")
-  }
-  //document.cookie = "nghedanh=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
   document.addEventListener('play', function(e){
       audios = document.getElementsByTagName('audio');
       for(var i = 0, len = audios.length; i < len;i++){
@@ -16,14 +8,63 @@ $( document ).ready(function() {
           }
       }
   }, true);
+
   $("#searchsong").on('keypress',function(e) {
     if(e.which == 13) {
         searchsong()
     }
   });
-});
-var audios
+  $("#searchsinger").on('keypress',function(e) {
+    if(e.which == 13) {
+        searchsong()
+    }
+  });
 
+/*  document.onkeydown = function(e) {
+    if(event.keyCode == 123) {
+      console.log('You cannot inspect Element');
+       return false;
+    }
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) {
+      console.log('You cannot inspect Element');
+      return false;
+    }
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'C'.charCodeAt(0)) {
+      console.log('You cannot inspect Element');
+      return false;
+    }
+    if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) {
+      console.log('You cannot inspect Element');
+      return false;
+    }
+    if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) {
+      console.log('You cannot inspect Element');
+      return false;
+    }
+  } 
+// prevents right clicking
+document.addEventListener('contextmenu', e => e.preventDefault());*/
+  navigator.mediaDevices.enumerateDevices()
+  .then(function(devices) {
+    console.log(devices)
+/*    devices.forEach(function(device) {
+      if (device.kind == 'audioinput') {
+        console.log(device)
+      }
+    });*/
+  })
+  .catch(function(err) {
+    console.log(err.name + ": " + err.message);
+  });
+
+});
+
+$(".pagination").on('click', function (e){
+  e.preventDefault();
+  goToByScroll(this.id);
+});
+var volumevalue = 85
+var audios
 var width
 var height
 window.mobilecheck = function() {
@@ -36,9 +77,11 @@ if(!window.mobilecheck()){
   width = window.screen.width - 200
   height = width * 9 / 16
 }else{
+  $("#searchsong").css("width", "100%")
   width = window.screen.width
   height = window.screen.width * 9 / 16
 }
+var recording = false
 var allsongs
 var pause = false;
 var singed = false
@@ -64,16 +107,28 @@ stopButton.addEventListener("click", stopRecording);
 
 recordButton.disabled = false;
 stopButton.disabled = true;
-
 var player = null;
 var tag = document.createElement('script');
 var songchooseid = ""
 var loaddone = false
 var songName
+
+
+var player
+player = videojs('my-player', {
+  controls: true,
+  preload: 'auto',
+  width: width,
+  height: height
+});
+$("#my-player").hide()
+
 function chooseSong(idsong){
+
   stopAudio()
   $("#remindChooseSong").css("display", "none");
   $("#countdown").css("display", "none");
+  goToByScroll("jumpto");
   if(rec != null){
     pause = false
     stopButton.disabled = true;
@@ -82,57 +137,24 @@ function chooseSong(idsong){
   }
   // 2. This code loads the IFrame Player API code asynchronously.
   songchooseid = idsong
-  tag.src = "https://www.youtube.com/iframe_api";
-  var firstScriptTag = document.getElementsByTagName('script')[0];
-  firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
-  // 3. This function creates an <iframe> (and YouTube player)
-  //    after the API code downloads.
-  if(loaddone == true){
-    $("#containerplayer").empty();
-    let playernew = document.createElement("div");
-    playernew.setAttribute("id", "player");
-    $("#containerplayer").append(playernew)
-    onYouTubeIframeAPIReady(idsong)
-  }
-  loaddone = true
-}
-function onYouTubeIframeAPIReady(idsong, record) {
-  if(idsong){
-    songchooseid = idsong
-  }
-  if(record){
-    player = new YT.Player('player', {
-      height: height,
-      width: width,
-      videoId: songchooseid,
-      playerVars: {modestbranding: 1, disablekb: 1, rel: 0, controls: 0, start: 0, rel: 0, iv_load_policy: 3},
-      events: {
-        'onReady': onPlayerReady,
-        'onStateChange': onPlayerStateChange
-      }
-    });
-  }else{
-    player = new YT.Player('player', {
-      height: height,
-      width: width,
-      videoId: songchooseid,
-      playerVars: {modestbranding: 1, disablekb: 0, rel: 0, controls: 1, start: 0, rel: 0, iv_load_policy: 3},
-      events: {
-        'onReady': onPlayerReady,
-        /*'onStateChange': onPlayerStateChange*/
-      }
-    });
-  }
+  $("#my-player").show()
+  player.src({type: 'video/webm', src: '/videos/'+idsong+'.webm'});
+  player.poster('/thumbnails/'+idsong+'.jpg');
+  player.autoplay(true)
+  player.controls(true)
+
 
 }
+
 
 function searchsong(paging_num){
   var namesong = $("#searchsong").val()
+  var singer = $("#searchsinger").val()
   $.ajax({
     url: '/searchsongs',
     type: 'POST',
-    data: {namesong: namesong, paging_num: paging_num}
+    data: {namesong: namesong, singer: singer, paging_num: paging_num}
   })
   .then(res => {
     console.log(res)
@@ -140,12 +162,20 @@ function searchsong(paging_num){
     let pageCount = res.pageCount
     let currentPage = res.currentPage
     var listsong = ""
+    var checkfirstid = false
     for(var i=0; i<allsongs.length; i++){
       var lengthsong = secondToMinutes(allsongs[i].lengthsong)
-      listsong +=`<a href="#" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img src="/thumbnails/${allsongs[i].songid}.jpg">${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger}</p></a>`
+      if(checkfirstid){
+        listsong +=`<div class="jumplentren" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
+      }else{
+        listsong +=`<div class="jumplentren" id="firstsong" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
+        checkfirstid = true
+      }
     }
     $("#boxnewsong").html(listsong)
 
+    
+    
     let pageination = ''
     if (pageCount > 1) {
         let i = Number(currentPage) > 5 ? (Number(currentPage) - 4) : 1
@@ -185,12 +215,8 @@ function searchsong(paging_num){
 }
 
 
-function GrantPermission(idvideo) {
+function GrantPermission() {
   stopAudio()
-  if(document.cookie.indexOf("nghedanh") == -1){
-    $("#remindName").css("display", "inline");
-    return
-  }
   if(!songchooseid){
     $("#remindChooseSong").css("display", "inline");
     return
@@ -199,15 +225,24 @@ function GrantPermission(idvideo) {
     audio: true,
     video: false
   } 
+/*  constraints: {
+ "audio": {
+  "deviceId": "xkcTfaf1uUJ/q1po904WtoZqV1P/rsUjp889EOO0j6Q="
+ },
+ "video": false
+}*/
   navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-    $("#containerplayer").empty();
-    let playernew = document.createElement("div");
-    playernew.setAttribute("id", "player");
-    $("#containerplayer").append(playernew)
-
+    
     recordButton.disabled = true;
     stopButton.disabled = true;
-    onYouTubeIframeAPIReady(songchooseid, "karaluon")
+
+    $("#my-player").show()
+    player.src({type: 'video/webm', src: '/videos/'+songchooseid+'.webm'});
+    player.poster('/thumbnails/'+songchooseid+'.jpg');
+    player.controls(false)
+    player.autoplay(false)
+
+    //onYouTubeIframeAPIReady(songchooseid, "karaluon")
     countDown(stream)
   }).catch(function(err) {
       //enable the record button if getUserMedia() fails 
@@ -217,6 +252,7 @@ function GrantPermission(idvideo) {
 }
 
 function singNow(stream){
+  console.log("aaa")
   stopButton.disabled = false;
   document.getElementById("containerplayer").scrollIntoView({behavior: "smooth"});
 
@@ -224,21 +260,25 @@ function singNow(stream){
   input = audioContext.createMediaStreamSource(stream);
   rec = new Recorder(input, {
       numChannels: 1
-  }) 
-  //start the recording process 
-  rec.record()
+  })
+  //start the recording process
+    rec.record()
+
 }
 
 function stopRecording() {
-    $("#loading").html("<img src='/imgs/loading.gif'>")
+    $("#loading").css("display", "");
     $("#countdown").css("display", "none");
+    $("#dsthuam").css("display", "");
+    
     pause = false
-    player.stopVideo()
+    recording = false
+    player.pause()
     //disable the stop button, enable the record too allow for new recordings 
     stopButton.disabled = true;
     recordButton.disabled = false;
 
-    rec.stop(); //stop microphone access 
+    rec.stop(); //stop microphone access
     gumStream.getAudioTracks()[0].stop();
     //create the wav blob and pass it on to createDownloadLink 
     rec.exportWAV(uploadToServer);
@@ -250,32 +290,37 @@ function uploadToServer(blob){
   var xhr = new XMLHttpRequest();
   xhr.onload = function(e) {
       if (this.readyState === 4) {
-          $("#loading").html("")
-          let namesong
-          let singer
+          $("#loading").css("display", "none");
+
+          console.log(JSON.parse(e.target.responseText))
           let filenamesave
           let path = JSON.parse(e.target.responseText).despath
-          var audio = `<center><div style="float: left;margin-bottom: 10px;width: 100%"><audio id="player" controls preload style="width: 100%">
-              <source src="${path}" type="audio/mpeg">
-             </audio></br>`
-          
-          for(var i=0;i<allsongs.length;i++){
+          let songid = JSON.parse(e.target.responseText).songid
+          let singer = JSON.parse(e.target.responseText).filesinger
+          let namesong = JSON.parse(e.target.responseText).namesong
+/*          for(var i=0;i<allsongs.length;i++){
             
             if(path.indexOf(allsongs[i].songid) != -1){
+              songid = allsongs[i].songid
               singer = path.split("/")
               singer = singer[2].replace(allsongs[i].songid, "")
               singer = singer.split("_")
               singer.shift()
               singer.pop()
-              namesong = allsongs[i].songname + " - " + singer.join(" ")
+              namesong = allsongs[i].songname
               break;
             }
-          }
+          }*/
+
+          songid = songid + "_" + Date.now();
+          var audio = `<center><div style="float: left;margin-bottom: 10px;width: 100%" id="${songid}"><audio id="player" controls preload style="width: 100%">
+              <source src="${path}" type="audio/mpeg">
+             </audio></br>`
 
           audio += namesong
           filenamesave = path.split("/")[path.split("/").length-1]
           audio += `</br><a class="btn btn-primary" href='${path}' download='${namesong}.wav' style="color: white;">Tải về</a>
-                    <button class="btn btn-success" id="uploadrank" onclick="Uploadmusic('${filenamesave}')">Upload để tăng danh vọng</button>
+                    <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đăng ảnh cho audio<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}', '${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
                    </div></center>
                    `
           $("#listrecords").append(audio)
@@ -283,7 +328,8 @@ function uploadToServer(blob){
   };
   var fd = new FormData();
   fd.append("songid", songchooseid);
-  fd.append(nghedanh, blob, filename);
+  fd.append("songvolume", volumevalue);
+  fd.append("duy", blob, filename);
   xhr.open("POST", "/uploadsing");
   xhr.send(fd);
 }
@@ -309,47 +355,37 @@ function secondToMinutes(time){
   return minutes + ":" + seconds
 }
 
-function onPlayerStateChange(event) {
-  if(pause == true){
-    if(event.data == YT.PlayerState.PAUSED){
-      $("#countdown").html("Bản đã ngừng video, bản thu đã bị hủy bỏ")
-        pause = false
-        player.stopVideo()
-        //disable the stop button, enable the record too allow for new recordings 
-        stopButton.disabled = true;
-        recordButton.disabled = false;
-
-        rec.stop(); //stop microphone access 
-        gumStream.getAudioTracks()[0].stop();
+player.on('ended', function() {
+    if(recording){
+        stopRecording()
     }
-  }
-  if(event.data == YT.PlayerState.PLAYING){
-    if(pause == false){
-      pauseVideo()
-    }
-  }
-
-  if(event.data == YT.PlayerState.ENDED){
-    stopRecording()
-  }
-}
+});
 // 4. The API will call this function when the video player is ready.
 function countDown(stream) {
+  recording = true
+  if(!window.mobilecheck()){
+    musicslider(0, height)
+  }else{
+    musicslider(width, height)
+  }
+  
+  $("#volumebackgroundmusic").css("display", "")
+  
   fiveSecondsForSing(5)
   setTimeout(()=>{
     singNow(stream)
-    player.playVideo()
+      player.play()
     pause = true
   }, 5000)
 }
 
-function pauseVideo() {
+/*function pauseVideo() {
   player.pauseVideo();
-}
+}*/
 
-function onPlayerReady(event){
+/*function onPlayerReady(event){
   event.target.playVideo();
-}
+}*/
 
 function fiveSecondsForSing(seconds){
   var n = 5;
@@ -369,26 +405,120 @@ function fiveSecondsForSing(seconds){
   }
 }
 
-function chooseName(){
-  nghedanh = $("#namesinger").val()
-  if(nghedanh == ""){
-    return
-  }
-  document.cookie = "nghedanh=" + nghedanh + ";expires=Thu, 18 Dec 2021 12:00:00 UTC";
-  $("#namesingerplace").html("<p id='showname' onclick='editName()'><b>"+ nghedanh +"</b></p>")
-}
-
-function editName(){
-  $("#namesingerplace").css("display", "inline");
-  $("#namesingerplace").html(`<span><b>Xin cái nghệ danh</b></span>&nbsp;<input type="text" id="namesinger" class="form-control" style="width: 10%;" />
-      <button class="btn btn-success" onclick="chooseName()">OK</button>`)
-}
-
 function stopAudio(){
+  $("#volumebackgroundmusic").css("display", "none")
+  player.pause()
   //stop audio khi nghe bài hát
   if(audios){
     for(var i = 0, len = audios.length; i < len;i++){
             audios[i].pause();
     }
   }
+}
+
+function goToByScroll(id) {
+  // Remove "link" from the ID
+  id = id.replace("link", "");
+  console.log(id)
+  // Scroll
+  if(id){
+    $('html,body').animate({
+      scrollTop: $("#"+id).offset().top
+    }, 'slow');
+  }else{
+    $('html,body').animate({
+      scrollTop: $("#boxnewsong").offset().top
+    }, 'slow');
+  }
+
+}
+
+$("#listensong").on("click", () => {
+    if(!songchooseid){
+    $("#remindChooseSong").css("display", "inline");
+    return
+  }
+  chooseSong(songchooseid)
+})
+
+function musicslider(width, height) {
+  if(width == 0){
+    $("#slider-vertical").css("height", height/2)
+    $("#volumebackgroundmusic").css("padding-top", height/4)
+    $("#volumebackgroundmusic").css("padding-left", "10px")
+  }else{
+    $("#slider-vertical").css("width", width/2)
+    $("#volumebackgroundmusic").css("padding-top", `${20+height}px`)
+    $("#recordingsList").css("padding-bottom", `${height/2}px`)
+    $("#volumebackgroundmusic").css("width", `100%`)
+  }
+  var handle = $( "#custom-handle" );
+  var sliderobject = {
+    range: "min",
+    min: 0,
+    max: 100,
+    value: volumevalue,
+    create: function() {
+      handle.text( $( this ).slider( "value"));
+      player.volume(volumevalue/100)
+    },
+    slide: function( event, ui ) {
+      handle.text( ui.value )
+      volumevalue = ui.value
+      player.volume(volumevalue/100)
+    }
+  }
+  if(width == 0){
+    sliderobject.orientation = "vertical"
+  }
+  $( "#slider-vertical" ).slider(sliderobject);
+  $( "#amount" ).val( $( "#slider-vertical" ).slider( "value" ) );
+}
+
+function UploadImage(songid, namesong, singer) {
+    $("#loading").css("display", "")
+    var blobFile = $(`#chooseimage_${singer}`)[0].files[0];
+    var formData = new FormData();
+    formData.append("imageforaudio", blobFile);
+    formData.append("songid", songid);
+    formData.append("singer", singer);
+    
+    $.ajax({
+       url: "/imageforaudio",
+       type: "POST",
+       data: formData,
+       processData: false,
+       contentType: false,
+       success: function(response) {
+          let player2
+          $("#loading").css("display", "none");
+          $("#"+response.divid).html()
+          var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js vjs-theme-city">
+          </video>${namesong}</br><a class="btn btn-primary" href='/uploads/${response.videoname}.webm' download='${namesong}.webm' style="color: white;">Tải về</a>
+          <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đổi ảnh khác<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange="UploadImage('${songid}', '${namesong}', '${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
+          `
+          $("#"+response.divid).html(htmlvideo)
+
+          if(!window.mobilecheck()){
+            player2 = videojs(`my-player-${response.videoname}`, {
+              controls: true,
+              preload: 'auto',
+              width: width/4,
+              height: height/4
+            })
+          }else{
+            player2 = videojs(`my-player-${response.videoname}`, {
+              controls: true,
+              preload: 'auto',
+              width: width,
+              height: height
+            })
+          }
+
+          player2.src({type: 'video/webm', src: '/uploads/'+ response.videoname +'.webm'});
+       },
+       error: function(jqXHR, textStatus, errorMessage) {
+           console.log(errorMessage); // Optional
+       }
+    });
 }
