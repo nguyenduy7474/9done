@@ -19,7 +19,8 @@ class DownloadYTMp3AndThumbnail{
 	getMp3(url, desmp3){
 		return new Promise(function(ok, notok){
 			youtubedl.getInfo(url, [],  function(err, info) {
-				youtubedl.exec(url, ['-x', '--audio-format', 'mp3', "-o"+ desmp3 + info.id + ".jpg"], {}, function(err, output) {
+				console.log(desmp3)
+				youtubedl.exec(url, ['-x', '--audio-format', 'mp3', "-o"+ desmp3 + info.id + ".mp3"], {}, function(err, output) {
 					if(err) console.log(err)
 					ok()
 				})

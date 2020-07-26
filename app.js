@@ -4,7 +4,7 @@ var app = express();
 var constants = require('constants');
 var constant = require('./config/constants');
 
-var port = process.env.PORT || 3000;
+var port = process.env.PORT || process.argv.slice(2)[0] || 3000;
 var mongoose = require('mongoose');
 var passport = require('passport');
 var flash = require('connect-flash');

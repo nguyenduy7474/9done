@@ -137,16 +137,18 @@ class AdminPage{
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
 					var arrwebm = []
-
+					
 					for(var i=0; i<info.formats.length; i++){
 						if(info.formats[i].container == "webm"){
 							arrwebm.push(info.formats[i])
 						}
 					}
+					
 					fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
 					new ffmpeg()
 						.addInput(`./${songid}.webm`)
 						.addInput(`./public/allsongs/${songid}.mp3`)
+						.addOption('-codec', 'copy')
 						.output(`./public/videos/${songid}.webm`)
 						.on('progress', function(progress) {
 							console.log('Processing: ' + progress.percent + '% done');

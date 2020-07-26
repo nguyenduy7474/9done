@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "async": "latest",
     "basic-auth-connect": "latest",
     "bcrypt-nodejs": "0.0.3",
@@ -30,7 +31,7 @@
     "image-downloader": "^4.0.1",
     "md5": "latest",
     "mime": "latest",
-    "mongoose": "latest",
+    "mongoose": "^5.9.25",
     "morgan": "^1.9.1",
     "multer": "^1.4.2",
     "mysql": "latest",
@@ -43,7 +44,7 @@
     "passport-facebook": "^3.0.0",
     "passport-local": "latest",
     "peer": "^0.5.3",
-    "pm2": "latest",
+    "pm2": "^4.4.0",
     "rangeslider-js": "^3.2.5",
     "request": "latest",
     "serve-favicon": "^2.5.0",

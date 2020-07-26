@@ -102,7 +102,7 @@ class Home{
 		//var filesinger = req.files[0].fieldname + "_" + Date.now()
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
-    	var pathsinger = "public/uploads/" + filesinger + ".wav"
+    		var pathsinger = "public/uploads/" + filesinger + ".wav"
 		pathsinger = removeSpace(pathsinger)
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
 		var despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
@@ -114,17 +114,19 @@ class Home{
 		if(duration > 15){
 			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
 		}
-
+		
+		/*var volume = songvolume/100
+                var option = "[0:a]volume="+ volume +",adelay=delays=110:all=1[s1]"
 		new ffmpeg()
 			.addInput(`./${pathsong}`)
 			.addInput(`./${pathsinger}`)
 			.complexFilter([
-				`[0:a]volume=${songvolume/100},adelay=delays=110:all=1[s1]`,
+				option,
 				"[1:0]volume=1[s2]",
 				{
 					filter : 'amix',
 					options: { inputs : 2, duration : 'first'},
-					inputs: ["s1","s2"]
+					inputs: ['s1','s2']
 				}
 			])
 			.output(`./${pathmergerfile}`)
@@ -134,18 +136,36 @@ class Home{
 			.on('end', function(stdout, stderr) {
 				return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
 			})
-			.run()
-/*		exec(`python public/pydub/mergewav.py ${pathsong} ${pathsinger} ${pathmergerfile} ${songvolume}`, (error, stdout, stderr) => {
+			.run()*/
+		var filter = "'[0:a]volume=" + songvolume/100 + ",adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2'"
+		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
+		var check = await mixaudio(ffmpegcmd)
+        	if(check){
+            		return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
+        	}
+		/*exec(ffmpegcmd, (error, stdout, stderr) => {
 		  if (error) {
 		    console.error(`exec error: ${error}`);
 		    return;
 		  }
-		  	return res.json({"status": "success", "despath": despath})
+		  	return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
 		});*/
 
 		function removeSpace(string){
 			string = string.split(" ").join("_")
 			return string
+		}
+
+		async function mixaudio(ffmpegcmd){
+			return new Promise((ok, notok) => {
+				exec(ffmpegcmd, (error, stdout, stderr) => {
+		          if (error) {
+		            console.error(`exec error: ${error}`);
+		            return;
+		          	}
+		            	ok(true)
+		        	});
+			})
 		}
 	}
 

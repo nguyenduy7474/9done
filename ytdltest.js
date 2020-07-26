@@ -5,7 +5,5 @@ var command = ffmpeg();
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 
 
-(async() =>{
-	var duration = await getAudioDurationInSeconds('./public/uploads/1595417885259.wav')
-	console.log(duration)
-})()	
+ytdl('http://www.youtube.com/watch?v=A02s8omM_hI', {quality: 'highest'})
+  .pipe(fs.createWriteStream('video.mp4'));	
