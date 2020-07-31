@@ -542,8 +542,8 @@ function UploadImage(songid, namesong, singer) {
                 player2 = videojs(`my-player-${response.videoname}`, {
                     controls: true,
                     preload: 'auto',
-                    width: width/4,
-                    height: height/4
+                    width: width,
+                    height: height
                 })
             }
 
