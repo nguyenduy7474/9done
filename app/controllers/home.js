@@ -16,6 +16,7 @@ var path = require('path');
 var appDir = path.dirname(require.main.filename);
 var ffmpeg = require('fluent-ffmpeg');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
+var { Readable } = require('stream') ;
 
 class Home{
 	static async home(req, res) {
@@ -98,20 +99,19 @@ class Home{
 
 	static async uploadSing(req, res){
 		var songvolume = req.body.songvolume
-		console.log(req.files[0])
-		//var filesinger = req.files[0].fieldname + "_" + Date.now()
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
-    		var pathsinger = "public/uploads/" + filesinger + ".wav"
+		var pathsinger = "public/uploads/" + filesinger + ".webm"
 		pathsinger = removeSpace(pathsinger)
+
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
 		var despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 		var songchoose = await Songs.findOne({songid: req.body.songid})
 
-		var duration = await getAudioDurationInSeconds(`./${pathsinger}`)
-		if(duration > 15){
+		var duration = req.body.lengthaudio
+		if(duration > 30){
 			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
 		}
 		
@@ -137,19 +137,12 @@ class Home{
 				return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
 			})
 			.run()*/
-		var filter = "'[0:a]volume=" + songvolume/100 + ",adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2'"
+		var filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
 		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
 		var check = await mixaudio(ffmpegcmd)
         	if(check){
             		return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
         	}
-		/*exec(ffmpegcmd, (error, stdout, stderr) => {
-		  if (error) {
-		    console.error(`exec error: ${error}`);
-		    return;
-		  }
-		  	return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
-		});*/
 
 		function removeSpace(string){
 			string = string.split(" ").join("_")
@@ -166,6 +159,24 @@ class Home{
 		            	ok(true)
 		        	});
 			})
+		}
+
+		function toArrayBuffer(blob, cb) {
+			let fileReader = new FileReader();
+			fileReader.onload = function() {
+				let arrayBuffer = this.result;
+				cb(arrayBuffer);
+			};
+			fileReader.readAsArrayBuffer(blob);
+		}
+
+		function toBuffer(ab) {
+			let buffer = new Buffer(ab.byteLength);
+			let arr = new Uint8Array(ab);
+			for (let i = 0; i < arr.byteLength; i++) {
+				buffer[i] = arr[i];
+			}
+			return buffer;
 		}
 	}
 

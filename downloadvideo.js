@@ -8,6 +8,7 @@ const download = require('image-downloader')
 class DownloadYTMp3AndThumbnail{
 
 	async downloadMp3AndThumnailAndGetID(url, desmp3, desthumbnail){
+		console.log("111")
 		await this.getMp3(url, desmp3)
 		console.log("mp3 done")
 		await this.getThumbnail(url, desthumbnail)

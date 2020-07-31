@@ -41,22 +41,32 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
   <script>
+    const record = document.querySelector('.record');
+    const stop = document.querySelector('.stop');
+    const soundClips = document.querySelector('.sound-clips');
 
-  var player
-  var player2
-  player = videojs('my-player', {
-    controls: true,
-    autoplay: true,
-    preload: 'auto',
-    width: "1280",
-    height: "720",
-    poster: "/9donesing/public/thumbnails/2-k2ziSu9b8.jpg"
-  });
-  player.src({type: 'video/mp4', src: '/9donesing/public/hazard-9done.mp4'});
-  function aaa(location, thumbnails){
-    player.src({type: 'video/mp4', src: location});
-    player.poster(thumbnails);
-    player.autoplay(false)
-  }
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      console.log('getUserMedia supported.');
+      navigator.mediaDevices.getUserMedia (
+              // constraints - only audio needed for this app
+              {
+                audio: true
+              })
+
+              // Success callback
+              .then(function(stream) {
+                const mediaRecorder = new MediaRecorder(stream);
+
+
+              })
+
+              // Error callback
+              .catch(function(err) {
+                        console.log('The following getUserMedia error occured: ' + err);
+                      }
+              );
+    } else {
+      console.log('getUserMedia not supported on your browser!');
+    }
   </script>
 </body>
