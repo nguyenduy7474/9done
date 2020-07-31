@@ -259,7 +259,7 @@ function singNow(stream){
   gumStream = stream;
   input = audioContext.createMediaStreamSource(stream);
   rec = new Recorder(input, {
-      numChannels: 1
+      numChannels: 2
   })
   //start the recording process
     rec.record()
@@ -281,7 +281,7 @@ function stopRecording() {
     rec.stop(); //stop microphone access
     gumStream.getAudioTracks()[0].stop();
     //create the wav blob and pass it on to createDownloadLink 
-    rec.exportWAV(uploadToServer);
+    rec.exportWAV(uploadToServer, 'audio/wav');
     countrec++
 }
 
