@@ -24,10 +24,11 @@ class AdminPage{
 		res.render('adminsongreview.ejs', {
 			error : req.flash("error"),
 			success: req.flash("success")
-		 });
+		});
 	}
 
 	static async adminAdNewSong(req, res){
+		console.log("linkyoutube")
 		var songname = req.body.namesong
 		var singger = req.body.singgername
 		var linkyoutube = req.body.linkyoutube
@@ -37,33 +38,29 @@ class AdminPage{
 		songtags = songtags.trim()
 		songtags = songtags.split(",")
 		flag = ""
-		if(extractVideoID(linkyoutube)){
-			songid = extractVideoID(linkyoutube)
-			var respone = await got("https://www.googleapis.com/youtube/v3/videos?id="+ songid +"&part=status&key=AIzaSyClczvGfPuaOcbR5exPpI2QDEqXkwIgyFo")
-			respone = JSON.parse(respone.body)
-			if(respone.items[0].status.embeddable == false){
-				flag = "Không thể thêm video này vì tác giả không cho phép"
-			}
-		}else{
+		if(!extractVideoID(linkyoutube)){
 			flag = "Link Youtube không chính xác"
 		}
 		if(flag != ""){
 			res.send(flag)
-			return	
+			return
 		}
 		for(var i=0; i<songtags.length;i++){
 			songtags[i] = songtags[i].trim()
 		}
+		console.log("linkyoutube111")
 		var found = await Songs.findOne({songid: songid})
 		res.send("Hệ thống đã nhận lát anh check lại nha anh admin")
 		console.log("xu ly video ben duoi")
 		if(found){
+			console.log("linkyoutube222")
 			found.reviewed = 1
 			found.songtags = songtags
 			await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
 			fs.unlinkSync(`./${found.songid}.webm`)
 			await found.save()
 		}else{
+			console.log("linkyoutube333")
 			await AddSong(1)
 		}
 
@@ -73,10 +70,11 @@ class AdminPage{
 		function checkYtURLandDBexist(url){
 			return new Promise(function(ok, notok){
 				youtubedl.getInfo(url, [],  function(err, info) {
-					if(err || info == undefined){ok(false);return}
+
+					if(err || info == undefined){console.log("err" + err); ok(false);return}
 					Songs.findOne({songid: info.id}, (err2, found)=>{
-						if(err2) ok(false)
-						if(found) ok(false)
+						if(err2) {console.log("err2" + err2); ok(false)}
+						if(found) {console.log("found" + found); ok(false)}
 						ok(true)
 					})
 				})
@@ -84,32 +82,36 @@ class AdminPage{
 		}
 
 		function extractVideoID(url){
-		  var regExp = /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/;
-		  var match = url.match(regExp);
-		  if(match){
-		    return match[1]
-		  }
+			var regExp = /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/;
+			var match = url.match(regExp);
+			if(match){
+				return match[1]
+			}
 		}
 
 		function removeAccents(str) {
-		return str.normalize('NFD')
-		          .replace(/[\u0300-\u036f]/g, '')
-		          .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+			return str.normalize('NFD')
+				.replace(/[\u0300-\u036f]/g, '')
+				.replace(/đ/g, 'd').replace(/Đ/g, 'D');
 		}
 
 		function AddSong(reviewed){
+
 			return new Promise(async(ok, notok) =>{
 				var getall = new DownloadYTMp3AndThumbnail()
+				console.log("www")
 				let flag = "OK gòi"
 				var check = await checkYtURLandDBexist(linkyoutube)
+				console.log(check)
 				if(!check){
 					flag = "Link Youtube không chính xác hoặc bài hát đã tồn tại"
 					ok(flag)
 					return
 				}
+				console.log("linkyoutube44444")
 				if(extractVideoID(linkyoutube)){
 					let songid = extractVideoID(linkyoutube)
-
+					console.log("linkyoutube6666")
 					let infor = await getall.downloadMp3AndThumnailAndGetID(linkyoutube, "public/allsongs/", "public/thumbnails/")
 					await downloadVideoAndMix(linkyoutube, infor.id)
 					fs.unlinkSync(`./${songid}.webm`)
@@ -137,13 +139,13 @@ class AdminPage{
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
 					var arrwebm = []
-					
+
 					for(var i=0; i<info.formats.length; i++){
 						if(info.formats[i].container == "webm"){
 							arrwebm.push(info.formats[i])
 						}
 					}
-					
+
 					fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
 					new ffmpeg()
 						.addInput(`./${songid}.webm`)

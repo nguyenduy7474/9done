@@ -16,6 +16,7 @@ var path = require('path');
 var appDir = path.dirname(require.main.filename);
 var ffmpeg = require('fluent-ffmpeg');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
+var { Readable } = require('stream') ;
 
 class Home{
 	static async home(req, res) {
@@ -27,7 +28,7 @@ class Home{
 			error : req.flash("error"),
 			success: req.flash("success"),
 			userinfo: userinfo,
-		 });
+		});
 	}
 
 	static async searchSongs(req, res){
@@ -36,120 +37,90 @@ class Home{
 		if(req.body.singer){
 			singer = req.body.singer.trim()
 		}
-		
+
 		let match = {
-            $and: [ { datatype: 'mp3', reviewed: 1 } ] 
-        }
-        // defined data will send to client
-        let project = {
-            yttitle :'$yttitle',
+			$and: [ { datatype: 'mp3', reviewed: 1 } ]
+		}
+		// defined data will send to client
+		let project = {
+			yttitle :'$yttitle',
 			songname : '$songname',
 			singger : '$singger',
-			lengthsong: '$lengthsong',   
+			lengthsong: '$lengthsong',
 			songid: '$songid',
 			songtags: '$songtags',
 			counttimesing: '$counttimesing',
 			datecreated: '$datecreated'
-        }
-        let sort= {
-            datecreated: -1
-        }
-        if(namesong){
-            match.$and.push({$or: [
-            	{'songname': {$regex: namesong, $options:"i"}}, 
-            	{'songnameremoveaccent': {$regex: namesong, $options:"i"}}]})
-        }
-        if(singer){
-        	match.$and.push({'singger': {$regex: singer, $options:"i"}})
-        }
+		}
+		let sort= {
+			datecreated: -1
+		}
+		if(namesong){
+			match.$and.push({$or: [
+					{'songname': {$regex: namesong, $options:"i"}},
+					{'songnameremoveaccent': {$regex: namesong, $options:"i"}}]})
+		}
+		if(singer){
+			match.$and.push({'singger': {$regex: singer, $options:"i"}})
+		}
 
-        try{
-            //set default variables
-            let pageSize = 12
-            let currentPage = req.body.paging_num || 1
-    
-            // find total item
-            let pages = await Songs.find(match).countDocuments()
-    
-    
-            // find total pages
-            let pageCount = Math.ceil(pages/pageSize)
-            let data = await Songs.aggregate([{$match:match},{$project:project},{$sort:sort},{$skip:(pageSize * currentPage) - pageSize},{$limit:pageSize}])
-            if(data.length < pageSize){
-            	if(data.length != 0){
-            		let arrtags = data[0].songtags
-            		let limitcount = pageSize - data.length
-            		let arraysongname = []
-            		for(var i=0; i<data.length; i++){
-            			arraysongname.push(data[i].songname)
-            		}
-            		let songadmore = await Songs.find({"datatype" : "mp3", "reviewed" : 1, "songtags": {$in: arrtags}, "songname": {$nin: arraysongname}}).limit(limitcount)
-            		data = data.concat(songadmore)
-            	}else{
+		try{
+			//set default variables
+			let pageSize = 12
+			let currentPage = req.body.paging_num || 1
 
-            	}
-            }
-            res.send({data, pageSize, pageCount, currentPage});
-        }catch(err) {
-            console.log(err.message)
-            res.send({"fail": "fail"});
-        }
+			// find total item
+			let pages = await Songs.find(match).countDocuments()
+
+
+			// find total pages
+			let pageCount = Math.ceil(pages/pageSize)
+			let data = await Songs.aggregate([{$match:match},{$project:project},{$sort:sort},{$skip:(pageSize * currentPage) - pageSize},{$limit:pageSize}])
+			if(data.length < pageSize){
+				if(data.length != 0){
+					let arrtags = data[0].songtags
+					let limitcount = pageSize - data.length
+					let arraysongname = []
+					for(var i=0; i<data.length; i++){
+						arraysongname.push(data[i].songname)
+					}
+					let songadmore = await Songs.find({"datatype" : "mp3", "reviewed" : 1, "songtags": {$in: arrtags}, "songname": {$nin: arraysongname}}).limit(limitcount)
+					data = data.concat(songadmore)
+				}else{
+
+				}
+			}
+			res.send({data, pageSize, pageCount, currentPage});
+		}catch(err) {
+			console.log(err.message)
+			res.send({"fail": "fail"});
+		}
 	}
 
 	static async uploadSing(req, res){
 		var songvolume = req.body.songvolume
-		console.log(req.files[0])
-		//var filesinger = req.files[0].fieldname + "_" + Date.now()
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
-    		var pathsinger = "public/uploads/" + filesinger + ".wav"
+		var pathsinger = "public/uploads/" + filesinger + ".webm"
 		pathsinger = removeSpace(pathsinger)
+
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
 		var despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 		var songchoose = await Songs.findOne({songid: req.body.songid})
 
-		var duration = await getAudioDurationInSeconds(`./${pathsinger}`)
-		if(duration > 15){
+		var duration = req.body.lengthaudio
+		if(duration > 30){
 			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
 		}
-		
-		/*var volume = songvolume/100
-                var option = "[0:a]volume="+ volume +",adelay=delays=110:all=1[s1]"
-		new ffmpeg()
-			.addInput(`./${pathsong}`)
-			.addInput(`./${pathsinger}`)
-			.complexFilter([
-				option,
-				"[1:0]volume=1[s2]",
-				{
-					filter : 'amix',
-					options: { inputs : 2, duration : 'first'},
-					inputs: ['s1','s2']
-				}
-			])
-			.output(`./${pathmergerfile}`)
-			.on('progress', function(progress) {
-				console.log('Processing: ' + progress.percent + '% done');
-			})
-			.on('end', function(stdout, stderr) {
-				return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
-			})
-			.run()*/
-		var filter = "'[0:a]volume=" + songvolume/100 + ",adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2'"
+
+		var filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
 		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
 		var check = await mixaudio(ffmpegcmd)
-        	if(check){
-            		return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
-        	}
-		/*exec(ffmpegcmd, (error, stdout, stderr) => {
-		  if (error) {
-		    console.error(`exec error: ${error}`);
-		    return;
-		  }
-		  	return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
-		});*/
+		if(check){
+			return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
+		}
 
 		function removeSpace(string){
 			string = string.split(" ").join("_")
@@ -159,13 +130,31 @@ class Home{
 		async function mixaudio(ffmpegcmd){
 			return new Promise((ok, notok) => {
 				exec(ffmpegcmd, (error, stdout, stderr) => {
-		          if (error) {
-		            console.error(`exec error: ${error}`);
-		            return;
-		          	}
-		            	ok(true)
-		        	});
+					if (error) {
+						console.error(`exec error: ${error}`);
+						return;
+					}
+					ok(true)
+				});
 			})
+		}
+
+		function toArrayBuffer(blob, cb) {
+			let fileReader = new FileReader();
+			fileReader.onload = function() {
+				let arrayBuffer = this.result;
+				cb(arrayBuffer);
+			};
+			fileReader.readAsArrayBuffer(blob);
+		}
+
+		function toBuffer(ab) {
+			let buffer = new Buffer(ab.byteLength);
+			let arr = new Uint8Array(ab);
+			for (let i = 0; i < arr.byteLength; i++) {
+				buffer[i] = arr[i];
+			}
+			return buffer;
 		}
 	}
 
@@ -178,8 +167,8 @@ class Home{
 			error : req.flash("error"),
 			success: req.flash("success"),
 			userinfo: userinfo,
-		
-		 });
+
+		});
 	}
 
 	static async addNewSongReview(req, res){
@@ -196,7 +185,7 @@ class Home{
 			if(respone.items[0].status.embeddable == false){
 				flag = "Không thể thêm video này vì tác giả không cho phép"
 			}
-			
+
 		}else{
 			flag = "Link Youtube không chính xác"
 		}
@@ -221,17 +210,17 @@ class Home{
 		}
 
 		function extractVideoID(url){
-		  var regExp = /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/;
-		  var match = url.match(regExp);
-		  if(match){
-		    return match[1]
-		  }
+			var regExp = /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/;
+			var match = url.match(regExp);
+			if(match){
+				return match[1]
+			}
 		}
 
 		function removeAccents(str) {
-		return str.normalize('NFD')
-		          .replace(/[\u0300-\u036f]/g, '')
-		          .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+			return str.normalize('NFD')
+				.replace(/[\u0300-\u036f]/g, '')
+				.replace(/đ/g, 'd').replace(/Đ/g, 'D');
 		}
 
 		function AddSong(reviewed){
@@ -276,30 +265,30 @@ class Home{
 		filesinger = filesinger.split(".")[0]
 
 		var pathsong = "public/allsongs/" + songid + ".mp3"
-    	var pathsinger = "public/uploads/" + filesinger + ".wav"
+		var pathsinger = "public/uploads/" + filesinger + ".wav"
 		pathsinger = removeSpace(pathsinger)
 		var despath = "/songuploaded/" + songid + "_" + filesinger + ".mp3"
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 
 
-		exec(`python public/pydub/mergemp3.py ${pathsong} ${pathsinger} ${pathmergerfile}`, async (error, stdout, 
-			) => {
-		  if (error) {
-		    console.error(`exec error: ${error}`);
-		    return;
-		  }
-		  	var thissong = await Songs.findOne({songid: songid})
-		  	var ranksong = RankSong({
-		  		songname: thissong.songname,
-		  		singername: thissong.singger,
-		  		lengthsong: thissong.lengthsong,
-		  		songid: songid,
-		  		pathsong: despath,
-		  		countlisten: 0
-		  	})
-		  	await ranksong.save()
-		  	return res.json({"status": "success"})
+		exec(`python public/pydub/mergemp3.py ${pathsong} ${pathsinger} ${pathmergerfile}`, async (error, stdout,
+		) => {
+			if (error) {
+				console.error(`exec error: ${error}`);
+				return;
+			}
+			var thissong = await Songs.findOne({songid: songid})
+			var ranksong = RankSong({
+				songname: thissong.songname,
+				singername: thissong.singger,
+				lengthsong: thissong.lengthsong,
+				songid: songid,
+				pathsong: despath,
+				countlisten: 0
+			})
+			await ranksong.save()
+			return res.json({"status": "success"})
 		});
 
 		function removeSpace(string){
@@ -318,11 +307,11 @@ class Home{
 		console.log(req.body.songid)
 		console.log("----------------------------------------------------")
 		console.log(req.file)
-		
+
 		var songid = req.body.songid
 		var singer = req.body.singer
 		songid = req.body.songid.split("_")[0]
-		
+
 		var datesong = req.body.songid.split("_")[1]
 		var pathimage = "./public/uploads/" + req.file.filename
 		pathimage = removeSpace(pathimage)
@@ -349,21 +338,21 @@ class Home{
 	}
 
 	static checkLogin(req, res, next) {
-        try {
-        	if(req.session.user){
-        		let data = req.session.user;
-	            data.user_public_folder = "/public/users/" + data._id;
-	            //Crate folder for temp
-	            if (!fs.existsSync(appDir + data.user_public_folder)) {
-	                fs.mkdirSync(appDir + data.user_public_folder);
-	            }
-        	}
+		try {
+			if(req.session.user){
+				let data = req.session.user;
+				data.user_public_folder = "/public/users/" + data._id;
+				//Crate folder for temp
+				if (!fs.existsSync(appDir + data.user_public_folder)) {
+					fs.mkdirSync(appDir + data.user_public_folder);
+				}
+			}
 
-        }catch(ex) {
-            console.dir(ex);
+		}catch(ex) {
+			console.dir(ex);
 			next()
 			return;
-        }
+		}
 		next()
 	}
 
@@ -374,4 +363,3 @@ module.exports = Home
 
 
 
-    
