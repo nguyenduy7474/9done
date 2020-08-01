@@ -46,7 +46,6 @@ $( document ).ready(function() {
     document.addEventListener('contextmenu', e => e.preventDefault());*/
     navigator.mediaDevices.enumerateDevices()
         .then(function(devices) {
-            console.log(devices)
             /*    devices.forEach(function(device) {
                   if (device.kind == 'audioinput') {
                     console.log(device)
@@ -63,7 +62,6 @@ $(".pagination").on('click', function (e){
     e.preventDefault();
     goToByScroll(this.id);
 });
-console.log(MediaRecorder.isTypeSupported("audio/webm\;codecs=opus"))
 var chunks = []
 var mediaRecorder
 var volumevalue = 85
@@ -162,7 +160,6 @@ function searchsong(paging_num){
         data: {namesong: namesong, singer: singer, paging_num: paging_num}
     })
         .then(res => {
-            console.log(res)
             allsongs = res.data
             let pageCount = res.pageCount
             let currentPage = res.currentPage
@@ -253,7 +250,6 @@ function GrantPermission() {
 
 
 function singNow(stream){
-    console.log("aaa")
     stopButton.disabled = false;
     document.getElementById("containerplayer").scrollIntoView({behavior: "smooth"});
     mediaRecorder = new MediaRecorder(stream)
@@ -264,6 +260,8 @@ function singNow(stream){
     }
 
     mediaRecorder.onstop = function(e) {
+        console.log("ww")
+
         clearInterval(interVal)
         var blob = new Blob(chunks, {"type": "audio/webm\;codecs=opus"});
         /*        var reader = new FileReader();
@@ -274,6 +272,9 @@ function singNow(stream){
         chunks = [];
         var length = duration
         duration = 0;
+        stream.getTracks().forEach(function(track) {
+          track.stop();
+        });
         uploadToServer(blob, length);
     }
 }
@@ -291,25 +292,13 @@ function stopRecording() {
     stopButton.disabled = true;
     recordButton.disabled = false;
 
-    /*    rec.stop(); //stop microphone access
-        gumStream.getAudioTracks()[0].stop();
-        //create the wav blob and pass it on to createDownloadLink
-        rec.exportWAV(uploadToServer, 'audio/wav');
-        //rec.getBuffer(uploadToServerGetBuffer)
-        rec.clear()*/
     mediaRecorder.stop();
     countrec++
 }
 
-/*function uploadToServerGetBuffer(buffers) {
-    console.log(buffers)
-    var blob = new Blob(buffers);
-    console.log(blob)
-}*/
 
 function uploadToServer(blob, length){
-    /*    var file = dataUrlToFile(dataURL);
-        console.log(file);*/
+
     // upload file to the server.
     var filename = new Date().toISOString();
     var xhr = new XMLHttpRequest();
@@ -317,7 +306,6 @@ function uploadToServer(blob, length){
         if (this.readyState === 4) {
             $("#loading").css("display", "none");
 
-            console.log(JSON.parse(e.target.responseText))
             let filenamesave
             let path = JSON.parse(e.target.responseText).despath
             let songid = JSON.parse(e.target.responseText).songid
@@ -445,7 +433,6 @@ function stopAudio(){
 function goToByScroll(id) {
     // Remove "link" from the ID
     id = id.replace("link", "");
-    console.log(id)
     // Scroll
     if(id){
         $('html,body').animate({
