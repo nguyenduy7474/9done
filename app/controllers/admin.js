@@ -136,7 +136,7 @@ class AdminPage{
 							arrwebm.push(info.formats[i])
 						}
 					}
-					
+					console.log(arrwebm[0].url)
 					fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
 					new ffmpeg()
 						.addInput(`./${songid}.webm`)
