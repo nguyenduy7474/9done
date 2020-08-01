@@ -131,13 +131,27 @@ class AdminPage{
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
 					var arrwebm = []
-					for(var i=0; i<info.formats.length; i++){
-						if(info.formats[i].container == "webm"){
-							arrwebm.push(info.formats[i])
+					var arrmp4 = []
+					var mp4file = false
+					var listformat = info.player_response.streamingData.adaptiveFormats
+					for(var i=0; i<listformat.length; i++){
+						if(listformat[i].mimeType.indexOf("webm") != -1){
+							arrwebm.push(listformat[i])
+						}else{
+							arrmp4.push(listformat[i])
 						}
 					}
-					console.log(arrwebm[0].url)
-					fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
+					try{
+						console.log("file webm")
+						fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
+					}catch(e){
+						console.log("file mp4")
+						fs.writeFileSync(`./${songid}.mp4`, await download(arrmp4[0].url));
+						var ffmpegcmd = "ffmpeg -i ./" + songid + ".mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 " + songid + ".webm"
+						console.log("convert to webm")
+						await convertmp4towebm(ffmpegcmd)
+						fs.unlinkSync(`./${songid}.mp4`)
+					}
 					new ffmpeg()
 						.addInput(`./${songid}.webm`)
 						.addInput(`./public/allsongs/${songid}.mp3`)
@@ -153,6 +167,18 @@ class AdminPage{
 				})
 			})
 
+		}
+
+		async function convertmp4towebm(ffmpegcmd){
+			return new Promise((ok, notok) => {
+				exec(ffmpegcmd, (error, stdout, stderr) => {
+					if (error) {
+						console.error(`exec error: ${error}`);
+						return;
+					}
+					ok(true)
+				});
+			})
 		}
 	}
 }
