@@ -55,6 +55,7 @@ class AdminPage{
 			found.songtags = songtags
 			found.songname = songname
 			found.singger = singger
+			found.datecreated = new Date()
 			await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
 			fs.unlinkSync(`./${found.songid}.webm`)
 			await found.save()

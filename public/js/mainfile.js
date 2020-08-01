@@ -167,15 +167,9 @@ function searchsong(paging_num){
             let pageCount = res.pageCount
             let currentPage = res.currentPage
             var listsong = ""
-            var checkfirstid = false
             for(var i=0; i<allsongs.length; i++){
                 var lengthsong = secondToMinutes(allsongs[i].lengthsong)
-                if(checkfirstid){
-                    listsong +=`<div class="jumplentren" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
-                }else{
-                    listsong +=`<div class="jumplentren" id="firstsong" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
-                    checkfirstid = true
-                }
+                listsong +=`<div class="jumplentren" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
             }
             $("#boxnewsong").html(listsong)
 
