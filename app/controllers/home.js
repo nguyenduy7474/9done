@@ -195,7 +195,6 @@ class Home{
 
 		flag = await AddSong(0)
 
-
 		function checkYtURLandDBexist(url){
 			return new Promise(function(ok, notok){
 				youtubedl.getInfo(url, [],  function(err, info) {
@@ -304,9 +303,6 @@ class Home{
 	}
 
 	static async ImageForAudio(req, res){
-		console.log(req.body.songid)
-		console.log("----------------------------------------------------")
-		console.log(req.file)
 
 		var songid = req.body.songid
 		var singer = req.body.singer
