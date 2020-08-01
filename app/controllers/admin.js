@@ -147,7 +147,7 @@ class AdminPage{
 					}catch(e){
 						console.log("file mp4")
 						fs.writeFileSync(`./${songid}.mp4`, await download(arrmp4[0].url));
-						var ffmpegcmd = "ffmpeg -i ./" + songid + ".mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 " + songid + ".webm"
+						var ffmpegcmd = "ffmpeg -i ./" + songid + ".mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 ./" + songid + ".webm"
 						console.log("convert to webm")
 						await convertmp4towebm(ffmpegcmd)
 						fs.unlinkSync(`./${songid}.mp4`)
