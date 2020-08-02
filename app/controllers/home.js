@@ -2,6 +2,7 @@ var numeral = require('numeral');
 var bcrypt = require('bcrypt-nodejs');
 var dateFormat = require('dateformat');
 var Songs = require('../models/songs');
+var SongUserSing = require('../models/songusersing');
 var RankSong = require('../models/ranksong');
 const fs = require('fs');
 var exec = require("child_process").exec;
@@ -118,6 +119,14 @@ class Home{
 		var filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
 		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
 		var check = await mixaudio(ffmpegcmd)
+		var plustime = new Date()
+		plustime = plustime.getTime() + (60*60*1000)
+		var savesong = SongUserSing({
+			uploadsname: pathsinger,
+			handledname: pathmergerfile,
+			expiretime: plustime
+		})
+		await savesong.save()
 		if(check){
 			return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
 		}
@@ -304,10 +313,16 @@ class Home{
 
 	static async ImageForAudio(req, res){
 
-		var songid = req.body.songid
+		var songid
 		var singer = req.body.singer
-		songid = req.body.songid.split("_")[0]
-
+		var arrsplit = req.body.songid.split("_")
+		if(arrsplit.length > 2){
+			arrsplit.pop()
+			songid = arrsplit.join("_")
+		}else{
+			songid = req.body.songid.split("_")[0]
+		}
+		console.log(songid)
 		var datesong = req.body.songid.split("_")[1]
 		var pathimage = "./public/uploads/" + req.file.filename
 		pathimage = removeSpace(pathimage)

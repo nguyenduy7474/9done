@@ -521,13 +521,20 @@ function UploadImage(songid, namesong, singer) {
                 })
             }else{
                 player2 = videojs(`my-player-${response.videoname}`, {
-                    controls: true,
-                    preload: 'auto',
-                    width: width,
-                    height: height
+                    "controls": false,
+                    "preload": 'auto',
+                    "width": width,
+                    "height": height,
+/*                    "controlBar": {
+                        fullscreenToggle: true,
+                        progressControl: false,
+                        remainingTimeDisplay: false,
+                        playToggle: true,
+                        pictureInPictureToggle: false
+                    }*/
                 })
             }
-
+            //player2.controls(true)
             player2.src({type: 'video/webm', src: '/uploads/'+ response.videoname +'.webm'});
         },
         error: function(jqXHR, textStatus, errorMessage) {
