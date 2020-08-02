@@ -324,20 +324,29 @@ class Home{
 		}
 		console.log(songid)
 		var datesong = req.body.songid.split("_")[1]
-		var pathimage = "./public/uploads/" + req.file.filename
+		var pathimage = "public/uploads/" + req.file.filename
 		pathimage = removeSpace(pathimage)
 		//await writeFile(pathimage, Buffer.from(req.file))
 		var imagename = req.file.filename.split('.')
 		imagename = imagename[0]
 		var videoname = imagename + "_" + songid
 		new ffmpeg()
-			.addInput(`${pathimage}`)
+			.addInput(`./${pathimage}`)
 			.addInput(`./public/songhandled/${songid}_${singer}.mp3`)
 			.output(`./public/uploads/${videoname}.webm`)
 			.on('progress', function(progress) {
 				console.log('Processing: ' + progress.percent + '% done')
 			})
-			.on('end', function(stdout, stderr) {
+			.on('end', async function(stdout, stderr) {
+				var plustime = new Date()
+				plustime = plustime.getTime() + (60*60*1000)
+				var savesong = SongUserSing({
+					uploadsname: `public/uploads/${videoname}.webm`,
+					handledname: `public/songhandled/${songid}_${singer}.mp3`,
+					imagename: pathimage,
+					expiretime: plustime
+				})
+				await savesong.save()
 				res.send({videoname: videoname, divid: req.body.songid})
 			})
 			.run()

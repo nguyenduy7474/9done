@@ -5,6 +5,7 @@ var SongUserSing = mongoose.Schema({
 	datatype: { type : String , "default" : "mp3" },
 	uploadsname: String,
 	handledname: String,
+	imagename: String,
 	expiretime: Date
 });
 

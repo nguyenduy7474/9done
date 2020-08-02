@@ -1,6 +1,6 @@
 var CronJob = require('cron').CronJob;
 
-var job = new CronJob('00 59 * * * *', function() {
+var job = new CronJob('00 00 2 * * *', function() {
 	const mongoose = require('mongoose');
 	var Songs = require('./app/models/songs');
 	var SongUserSing = require('./app/models/songusersing');
@@ -12,11 +12,17 @@ var job = new CronJob('00 59 * * * *', function() {
 	db.once('open', function() {
 		SongUserSing.find({}, async (err, found) => {
 			var now = new Date()
+			console.log(now)
 			for(var i=0; i<found.length; i++){
 				if((now.getTime() - found[i].expiretime.getTime()) > 0){
 					console.log(found[i])
 					fs.unlinkSync(`./${found[i].uploadsname}`)
-					fs.unlinkSync(`./${found[i].handledname}`)
+					if(fs.existsSync(`./${found[i].handledname}`)){
+						fs.unlinkSync(`./${found[i].handledname}`)
+					}
+					if(found[i].imagename){
+						fs.unlinkSync(`./${found[i].imagename}`)
+					}
 					await SongUserSing.deleteOne({_id: found[i]._id})
 				}
 			}
