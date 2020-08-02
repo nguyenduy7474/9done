@@ -322,7 +322,6 @@ class Home{
 		}else{
 			songid = req.body.songid.split("_")[0]
 		}
-		console.log(songid)
 		var datesong = req.body.songid.split("_")[1]
 		var pathimage = "public/uploads/" + req.file.filename
 		pathimage = removeSpace(pathimage)
