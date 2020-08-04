@@ -4,6 +4,9 @@ var ffmpeg = require('fluent-ffmpeg');
 var command = ffmpeg();
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 
+var rawStr = "nguyễn '"
+var encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+    return '&#'+i.charCodeAt(0)+';';
+});
 
-ytdl('http://www.youtube.com/watch?v=A02s8omM_hI', {quality: 'highest'})
-  .pipe(fs.createWriteStream('video.mp4'));	
+console.log(encodedStr)

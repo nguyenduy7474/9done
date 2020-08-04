@@ -319,8 +319,13 @@ function uploadToServer(blob, length){
 
             audio += namesong
             filenamesave = path.split("/")[path.split("/").length-1]
-            audio += `</br><a class="btn btn-primary" href='${path}' download='${namesong}.wav' style="color: white;">Tải về</a>
-                    <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đăng ảnh cho audio<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange=` + "UploadImage(`" + songid + "`, `" + namesong + "`, `" + singer + "`)" + `style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
+
+            namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
+                var a = "\\" + x
+                return a
+            });
+            audio += `</br><a class="btn btn-primary" href='${path}' download="${namesong}.wav" style="color: white;">Tải về</a>
+                    <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đăng ảnh cho audio<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
                    </div></center>
                    `
             $("#listrecords").append(audio)
@@ -495,7 +500,10 @@ function UploadImage(songid, namesong, singer) {
     formData.append("imageforaudio", blobFile);
     formData.append("songid", songid);
     formData.append("singer", singer);
-
+    namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
+        var a = "\\" + x
+        return a
+    });
     $.ajax({
         url: "/imageforaudio",
         type: "POST",
@@ -507,8 +515,8 @@ function UploadImage(songid, namesong, singer) {
             $("#loading").css("display", "none");
             $("#"+response.divid).html()
             var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js vjs-theme-city">
-          </video>${namesong}</br><a class="btn btn-primary" href='/uploads/${response.videoname}.webm' download='${namesong}.webm' style="color: white;">Tải về</a>
-          <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đổi ảnh khác<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange=` + "UploadImage(`" + songid + "`, `" + namesong + "`, `" + singer + "`)" + `style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
+          </video>${namesong}</br><a class="btn btn-primary" href='/uploads/${response.videoname}.webm' download="${namesong}.webm" style="color: white;">Tải về</a>
+          <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đổi ảnh khác<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
           `
             $("#"+response.divid).html(htmlvideo)
 
