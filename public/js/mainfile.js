@@ -142,7 +142,11 @@ function chooseSong(idsong){
     songchooseid = idsong
 
     $("#my-player").show()
-    player.src({type: 'video/webm', src: '/videos/'+idsong+'.webm'});
+    if(!window.mobilecheck()){
+        player.src({type: 'video/webm', src: '/videos/'+idsong+'.webm'});
+    }else{
+        player.src({type: 'video/webm', src: '/videos/'+idsong+'480.webm'});
+    }
     player.poster('/thumbnails/'+idsong+'.jpg');
     player.autoplay(true)
     player.controls(true)
@@ -233,7 +237,12 @@ function GrantPermission() {
         stopButton.disabled = true;
 
         $("#my-player").show()
-        player.src({type: 'video/webm', src: '/videos/'+songchooseid+'.webm'});
+        if(!window.mobilecheck()){
+            player.src({type: 'video/webm', src: '/videos/'+songchooseid+'.webm'});
+        }else{
+            player.src({type: 'video/webm', src: '/videos/'+songchooseid+'480.webm'});
+        }
+
         player.poster('/thumbnails/'+songchooseid+'.jpg');
         player.controls(false)
         player.autoplay(false)
@@ -260,7 +269,6 @@ function singNow(stream){
     }
 
     mediaRecorder.onstop = function(e) {
-        console.log("ww")
 
         clearInterval(interVal)
         var blob = new Blob(chunks, {"type": "audio/webm\;codecs=opus"});

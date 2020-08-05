@@ -58,6 +58,9 @@ class AdminPage{
 			found.datecreated = new Date()
 			await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
 			fs.unlinkSync(`./${found.songid}.webm`)
+			if (fs.existsSync(`./${found.songid}480.webm`)) {
+				fs.unlinkSync(`./${found.songid}480.webm`)
+			}
 			await found.save()
 		}else{
 			await AddSong(1)
@@ -107,6 +110,9 @@ class AdminPage{
 					let infor = await getall.downloadMp3AndThumnailAndGetID(linkyoutube, "public/allsongs/", "public/thumbnails/")
 					await downloadVideoAndMix(linkyoutube, infor.id)
 					fs.unlinkSync(`./${songid}.webm`)
+					if (fs.existsSync(`./${songid}480.webm`)) {
+						fs.unlinkSync(`./${songid}480.webm`)
+					}
 					let songsave = Songs({
 						songname: songname,
 						songnameremoveaccent: removeAccents(songname),
@@ -133,6 +139,7 @@ class AdminPage{
 					var arrwebm = []
 					var arrmp4 = []
 					var mp4file = false
+					var position
 					var listformat = info.player_response.streamingData.adaptiveFormats
 					for(var i=0; i<listformat.length; i++){
 						if(listformat[i].mimeType.indexOf("webm") != -1){
@@ -142,15 +149,40 @@ class AdminPage{
 						}
 					}
 					try{
-						console.log("file webm")
 						fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
+						if(arrwebm[0].qualityLabel != "480p"){
+							for(var i=0; i< arrwebm.length; i++){
+								if(arrwebm[i].qualityLabel == "480p"){
+									position = i
+									break;
+								}
+							}
+							if(position){
+								fs.writeFileSync(`./${songid}480.webm`, await download(arrwebm[i].url));
+							}
+						}
 					}catch(e){
-						console.log("file mp4")
 						fs.writeFileSync(`./${songid}.mp4`, await download(arrmp4[0].url));
+						if(arrmp4[0].qualityLabel != "480p"){
+							for(var i=0; i< arrmp4.length; i++){
+								if(arrwebm[i].qualityLabel == "480p"){
+									position = i
+									break;
+								}
+							}
+							if(position){
+								fs.writeFileSync(`./${songid}480.mp4`, await download(arrmp4[i].url));
+							}
+						}
 						var ffmpegcmd = "ffmpeg -i ./" + songid + ".mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 ./" + songid + ".webm"
 						console.log("convert to webm")
 						await convertmp4towebm(ffmpegcmd)
 						fs.unlinkSync(`./${songid}.mp4`)
+						if(position){
+							var ffmpegcmd480 = "ffmpeg -i ./" + songid + "480.mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 ./" + songid + "480.webm"
+							await convertmp4towebm(ffmpegcmd480)
+							fs.unlinkSync(`./${songid}480.mp4`)
+						}
 					}
 					new ffmpeg()
 						.addInput(`./${songid}.webm`)
@@ -161,7 +193,22 @@ class AdminPage{
 							console.log('Processing: ' + progress.percent + '% done');
 						})
 						.on('end', function(stdout, stderr) {
-							ok('Transcoding succeeded!');
+							if(position){
+								new ffmpeg()
+									.addInput(`./${songid}480.webm`)
+									.addInput(`./public/allsongs/${songid}.mp3`)
+									.addOption('-codec', 'copy')
+									.output(`./public/videos/${songid}480.webm`)
+									.on('progress', function(progress) {
+										console.log('Processing: ' + progress.percent + '% done');
+									})
+									.on('end', function(stdout, stderr) {
+										ok('Transcoding succeeded!');
+									})
+									.run()
+							}else{
+								ok('Transcoding succeeded!');
+							}
 						})
 						.run()
 				})
