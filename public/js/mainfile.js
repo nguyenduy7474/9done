@@ -44,17 +44,17 @@ $( document ).ready(function() {
       }
     // prevents right clicking
     document.addEventListener('contextmenu', e => e.preventDefault());*/
-    navigator.mediaDevices.enumerateDevices()
+/*    navigator.mediaDevices.enumerateDevices()
         .then(function(devices) {
-            /*    devices.forEach(function(device) {
+                devices.forEach(function(device) {
                   if (device.kind == 'audioinput') {
                     console.log(device)
                   }
-                });*/
+                });
         })
         .catch(function(err) {
             console.log(err.name + ": " + err.message);
-        });
+        });*/
 
 });
 
@@ -122,7 +122,12 @@ player = videojs('my-player', {
     controls: true,
     preload: 'auto',
     width: width,
-    height: height
+    height: height,
+    plugins: {
+        videoJsResolutionSwitcher: {
+            default: 'high',
+        }
+    }
 });
 $("#my-player").hide()
 
@@ -140,16 +145,41 @@ function chooseSong(idsong){
     }
     // 2. This code loads the IFrame Player API code asynchronously.
     songchooseid = idsong
-
+//
     $("#my-player").show()
-    if(!window.mobilecheck()){
-        player.src({type: 'video/webm', src: '/videos/'+idsong+'.webm'});
-    }else{
-        player.src({type: 'video/webm', src: '/videos/'+idsong+'480.webm'});
-    }
-    player.poster('/thumbnails/'+idsong+'.jpg');
-    player.autoplay(true)
-    player.controls(true)
+
+    $.ajax({
+        url: '/check480resolution/',
+        type: 'POST',
+        data: {idsong: idsong}
+    }).then(res => {
+        if(res.check480){
+            if(!window.mobilecheck()){
+                player.updateSrc([
+                    {
+                        src: '/videos/'+idsong+'.webm', 
+                        type: 'video/webm', 
+                        label: 'full hd 1080',
+                        res: '1080'
+                    },
+                    {
+                        src: '/videos/'+idsong+'480.webm', 
+                        type: 'video/webm', 
+                        label: 'sd 480',
+                        res: '480'
+                    }
+                ]);
+            }else{
+                player.src({type: 'video/webm', src: '/videos/'+idsong+'480.webm'});
+            }
+        }else{
+            player.src({type: 'video/webm', src: '/videos/'+idsong+'.webm'});
+        }
+
+        player.poster('/thumbnails/'+idsong+'.jpg');
+        player.autoplay(true)
+        player.controls(true)
+    })
 
 
 }
@@ -235,12 +265,16 @@ function GrantPermission() {
 
         recordButton.disabled = true;
         stopButton.disabled = true;
-
         $("#my-player").show()
-        if(!window.mobilecheck()){
-            player.src({type: 'video/webm', src: '/videos/'+songchooseid+'.webm'});
-        }else{
+        if(window.mobilecheck()){
             player.src({type: 'video/webm', src: '/videos/'+songchooseid+'480.webm'});
+        }else{
+            if(player.currentResolution()){
+                var currentResolution = player.currentResolution()
+                player.src({type: 'video/webm', src: currentResolution.sources[0].src});
+            }else{
+                player.src({type: 'video/webm', src: '/videos/'+songchooseid+'.webm'});
+            }
         }
 
         player.poster('/thumbnails/'+songchooseid+'.jpg');
@@ -333,7 +367,7 @@ function uploadToServer(blob, length){
                 return a
             });
             audio += `</br><a class="btn btn-primary" href='${path}' download="${namesong}.wav" style="color: white;">Tải về</a>
-                    <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đăng ảnh cho audio<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
+                    <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Ghép ảnh dô<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
                    </div></center>
                    `
             $("#listrecords").append(audio)
@@ -341,6 +375,12 @@ function uploadToServer(blob, length){
     };
     var fd = new FormData();
 
+    if(!window.mobilecheck()){
+        fd.append("typedevice", "computer");
+    }else{
+        fd.append("typedevice", "mobile");
+    }
+    
     fd.append("lengthaudio", length);
     fd.append("songid", songchooseid);
     fd.append("songvolume", volumevalue);

@@ -100,6 +100,7 @@ class Home{
 
 	static async uploadSing(req, res){
 		var songvolume = req.body.songvolume
+		var typedevice = req.body.typedevice
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
 		var pathsinger = "public/uploads/" + filesinger + ".webm"
@@ -110,13 +111,17 @@ class Home{
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 		var songchoose = await Songs.findOne({songid: req.body.songid})
-
+		var filter
 		var duration = req.body.lengthaudio
 		if(duration > 30){
 			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
 		}
-
-		var filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
+		console.log(typedevice)
+		if(typedevice == "computer"){
+			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
+		}else{
+			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=200|200[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
+		}
 		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
 		var check = await mixaudio(ffmpegcmd)
 		var plustime = new Date()
@@ -373,6 +378,15 @@ class Home{
 			return;
 		}
 		next()
+	}
+
+	static check480Resolution(req, res){
+		console.log(req.body.idsong)
+		if (fs.existsSync(`./public/videos/${req.body.idsong}480.webm`)) {
+			res.send({check480: true})
+			return
+		}
+		res.send({check480: false})
 	}
 
 }
