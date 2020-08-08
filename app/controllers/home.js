@@ -120,7 +120,7 @@ class Home{
 		if(typedevice == "computer"){
 			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
 		}else{
-			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=350|350[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
+			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
 		}
 		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
 		var check = await mixaudio(ffmpegcmd)
