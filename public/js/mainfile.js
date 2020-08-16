@@ -176,7 +176,7 @@ function chooseSong(idsong){
                 }
 
         }else{
-            player.src({type: 'video/mp4', src: '/videos/'+res.link});
+            player.updateSrc([{type: 'video/mp4', src: '/videos/'+res.link, label: 'default'}]);
         }
         player.poster('/thumbnails/'+idsong+'.jpg');
         player.autoplay(true)
