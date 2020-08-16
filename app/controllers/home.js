@@ -18,6 +18,7 @@ var appDir = path.dirname(require.main.filename);
 var ffmpeg = require('fluent-ffmpeg');
 const { getAudioDurationInSeconds } = require('get-audio-duration');
 var { Readable } = require('stream') ;
+const { spawn } = require('child_process');
 
 class Home{
 	static async home(req, res) {
@@ -101,28 +102,49 @@ class Home{
 	static async uploadSing(req, res){
 		var songvolume = req.body.songvolume
 		var typedevice = req.body.typedevice
+		var typerecord = req.body.typerecord
+		var despath
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
 		var pathsinger = "public/uploads/" + filesinger + ".webm"
 		pathsinger = removeSpace(pathsinger)
 
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
-		var despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
+		if(typerecord == "withvideo"){
+			despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp4"
+		}else{
+			despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
+		}
+		console.log(despath)
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 		var songchoose = await Songs.findOne({songid: req.body.songid})
 		var filter
+		var ffmpegcmd
 		var duration = req.body.lengthaudio
 		if(duration > 30){
 			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
 		}
 		console.log(typedevice)
 		if(typedevice == "computer"){
-			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
+			if(typerecord == "withvideo"){
+				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+			}else{
+				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest"'
+			}
 		}else{
-			filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2"'
+			if(typerecord == "withvideo"){
+				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+			}else{
+				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest"'
+			}
 		}
-		var ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
+		if(typerecord == "withvideo"){
+			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:v -map [output] -c:v copy ./" + pathmergerfile
+		}else{
+			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
+		}
+		console.log(pathmergerfile)
 		var check = await mixaudio(ffmpegcmd)
 		var plustime = new Date()
 		plustime = plustime.getTime() + (60*60*1000)
@@ -133,7 +155,7 @@ class Home{
 		})
 		await savesong.save()
 		if(check){
-			return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname})
+			return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname, "typerecord": typerecord})
 		}
 
 		function removeSpace(string){
@@ -148,6 +170,7 @@ class Home{
 						console.error(`exec error: ${error}`);
 						return;
 					}
+					console.log("xong")
 					ok(true)
 				});
 			})
@@ -337,7 +360,7 @@ class Home{
 		new ffmpeg()
 			.addInput(`./${pathimage}`)
 			.addInput(`./public/songhandled/${songid}_${singer}.mp3`)
-			.output(`./public/uploads/${videoname}.webm`)
+			.output(`./public/uploads/${videoname}.mp4`)
 			.on('progress', function(progress) {
 				console.log('Processing: ' + progress.percent + '% done')
 			})
@@ -345,7 +368,7 @@ class Home{
 				var plustime = new Date()
 				plustime = plustime.getTime() + (60*60*1000)
 				var savesong = SongUserSing({
-					uploadsname: `public/uploads/${videoname}.webm`,
+					uploadsname: `public/uploads/${videoname}.mp4`,
 					handledname: `public/songhandled/${songid}_${singer}.mp3`,
 					imagename: pathimage,
 					expiretime: plustime
@@ -380,13 +403,22 @@ class Home{
 		next()
 	}
 
-	static check480Resolution(req, res){
-		console.log(req.body.idsong)
-		if (fs.existsSync(`./public/videos/${req.body.idsong}480.webm`)) {
-			res.send({check480: true})
+	static checkToGetTypeVideo(req, res){
+
+		if(fs.existsSync(`./public/videos/${req.body.idsong}_verzip.mp4`)){
+			if(fs.existsSync(`./public/videos/${req.body.idsong}480_verzip.mp4`)){
+				res.send({check480: true, verzip: true, link480: `${req.body.idsong}480_verzip.mp4`, link: `${req.body.idsong}_verzip.mp4`})
+				return
+			}
+			res.send({check480: false, verzip: true, link: `${req.body.idsong}_verzip.mp4`})
 			return
 		}
-		res.send({check480: false})
+
+		if (fs.existsSync(`./public/videos/${req.body.idsong}480.mp4`)) {
+			res.send({check480: true, verzip: false, link480: `${req.body.idsong}480.mp4`, link: `${req.body.idsong}.mp4`})
+			return
+		}
+		res.send({check480: false, verzip: false, link: `${req.body.idsong}.mp4`})
 	}
 
 }

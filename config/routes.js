@@ -48,7 +48,7 @@ module.exports = function (app, passport) {
     app.post('/adminadnewsong', home.checkLogin, AdminPage.adminAdNewSong);
     app.post('/getuserinfo', home.checkLogin, UserController.getUserinfo);
     app.post('/imageforaudio', uploadImage.single("imageforaudio"), home.ImageForAudio);
-    app.post('/check480resolution', home.check480Resolution);
+    app.post('/checktogettypevideo', home.checkToGetTypeVideo);
 
 
 

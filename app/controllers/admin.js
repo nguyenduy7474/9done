@@ -34,6 +34,7 @@ class AdminPage{
 		var flag = ""
 		var songid
 		var songtags = req.body.songtags
+		var checkwebm = false
 		songtags = songtags.trim()
 		songtags = songtags.split(",")
 		flag = ""
@@ -49,7 +50,12 @@ class AdminPage{
 		}
 		songid = extractVideoID(linkyoutube)
 		var found = await Songs.findOne({songid: songid})
+		if(found && found.reviewed == 1){
+			res.send("Hệ thống đã có bài hát này rồi")
+			return
+		}
 		res.send("Hệ thống đã nhận lát anh check lại nha anh admin")
+
 		if(found){
 			found.reviewed = 1
 			found.songtags = songtags
@@ -57,10 +63,19 @@ class AdminPage{
 			found.singger = singger
 			found.datecreated = new Date()
 			await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
-			fs.unlinkSync(`./${found.songid}.webm`)
-			if (fs.existsSync(`./${found.songid}480.webm`)) {
-				fs.unlinkSync(`./${found.songid}480.webm`)
+			fs.unlinkSync(`./${found.songid}.mp4`)
+			if (fs.existsSync(`./${found.songid}480.mp4`)) {
+				fs.unlinkSync(`./${found.songid}480.mp4`)
 			}
+			if(checkwebm){
+				await convertwebmtomp4(songid, "cham")
+				await ffmpegmix(found.songid)
+				fs.unlinkSync(`./${songid}.webm`)
+				if (fs.unlinkSync(`./${songid}480.webm`)) {
+					fs.unlinkSync(`./${songid}480.webm`)
+				}
+			}
+
 			await found.save()
 		}else{
 			await AddSong(1)
@@ -108,11 +123,8 @@ class AdminPage{
 				if(extractVideoID(linkyoutube)){
 					let songid = extractVideoID(linkyoutube)
 					let infor = await getall.downloadMp3AndThumnailAndGetID(linkyoutube, "public/allsongs/", "public/thumbnails/")
-					await downloadVideoAndMix(linkyoutube, infor.id)
-					fs.unlinkSync(`./${songid}.webm`)
-					if (fs.existsSync(`./${songid}480.webm`)) {
-						fs.unlinkSync(`./${songid}480.webm`)
-					}
+					await downloadVideoAndMix(linkyoutube, songid)
+
 					let songsave = Songs({
 						songname: songname,
 						songnameremoveaccent: removeAccents(songname),
@@ -129,103 +141,255 @@ class AdminPage{
 				}else{
 					flag = "Link Youtube không chính xác"
 				}
+				fs.unlinkSync(`./${songid}.mp4`)
+				if (fs.existsSync(`./${songid}480.mp4`)) {
+					fs.unlinkSync(`./${songid}480.mp4`)
+				}
+				if(checkwebm){
+					await convertwebmtomp4(songid, "cham")
+					await ffmpegmix(found.songid)
+					fs.unlinkSync(`./${songid}.webm`)
+					if (fs.unlinkSync(`./${songid}480.webm`)) {
+						fs.unlinkSync(`./${songid}480.webm`)
+					}
+				}
 				ok(flag)
 			})
 		}
 
 		function downloadVideoAndMix(linkyoutube, songid){
+			console.log("linkyoutube" + songid)
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
 					var arrwebm = []
 					var arrmp4 = []
-					var mp4file = false
-					var position
+					var arrwebm480 = []
+					var arrmp4480 = []
 					var listformat = info.player_response.streamingData.adaptiveFormats
 					for(var i=0; i<listformat.length; i++){
 						if(listformat[i].mimeType.indexOf("webm") != -1){
 							arrwebm.push(listformat[i])
+							if(listformat[i].qualityLabel == "480p"){
+								arrwebm480.push(listformat[i])
+							}
 						}else{
 							arrmp4.push(listformat[i])
+							if(listformat[i].qualityLabel == "480p"){
+								arrmp4480.push(listformat[i])
+							}
 						}
 					}
-					try{
-						fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url));
-						
-						if(arrwebm[0].qualityLabel != "480p"){
-							for(var i=0; i< arrwebm.length; i++){
-								if(arrwebm[i].qualityLabel == "480p"){
-									position = i
-									break;
-								}
-							}
-							if(position){
-								fs.writeFileSync(`./${songid}480.webm`, await download(arrwebm[i].url));
+
+					while(arrwebm[0].height > 1080){
+						arrwebm.shift()
+					}
+
+					while(arrmp4[0].height > 1080){
+						arrmp4.shift()
+					}
+
+					if(arrwebm[0].qualityLabel == arrmp4[0].qualityLabel){
+						try{
+							fs.writeFileSync(`./${songid}.mp4`, await download(arrmp4[0].url))
+						}catch (e) {
+							try{
+								fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url))
+								checkwebm = true
+								await convertwebmtomp4(songid)
+							}catch (e) {
+								console.log("Khong tai duoc luon a")
 							}
 						}
-					}catch(e){
-						fs.writeFileSync(`./${songid}.mp4`, await download(arrmp4[0].url));
+
 						if(arrmp4[0].qualityLabel != "480p"){
-							for(var i=0; i< arrmp4.length; i++){
-								if(arrwebm[i].qualityLabel == "480p"){
-									position = i
-									break;
+							try{
+								fs.writeFileSync(`./${songid}480.mp4`, await download(arrmp4480[0].url))
+							}catch (e) {
+								try{
+									fs.writeFileSync(`./${songid}480.webm`, await download(arrwebm480[0].url))
+									checkwebm = true
+									await convertwebmtomp4(songid)
+								}catch (e) {
+									console.log("Khong tai duoc luon a")
 								}
 							}
-							if(position){
-								fs.writeFileSync(`./${songid}480.mp4`, await download(arrmp4[i].url));
+						}
+					}else{
+						var biloitaiwebm = false
+						try{
+							fs.writeFileSync(`./${songid}.webm`, await download(arrwebm[0].url))
+							checkwebm = true
+							await convertwebmtomp4(songid)
+						}catch (e) {
+							biloitaiwebm = true
+							fs.writeFileSync(`./${songid}.mp4`, await download(arrmp4[0].url))
+						}
+
+						if(!biloitaiwebm){
+							if(arrwebm[0].qualityLabel != "480p"){
+								try{
+									fs.writeFileSync(`./${songid}480.mp4`, await download(arrmp4480[0].url))
+								}catch (e) {
+									try{
+										fs.writeFileSync(`./${songid}480.webm`, await download(arrwebm480[0].url))
+										checkwebm = true
+										await convertwebmtomp4(songid)
+									}catch (e) {
+										console.log("Khong tai duoc luon a")
+									}
+								}
+							}
+						}else{
+							if(arrmp4[0].qualityLabel != "480p"){
+								try{
+									fs.writeFileSync(`./${songid}480.mp4`, await download(arrmp4480[0].url))
+								}catch (e) {
+									try{
+										fs.writeFileSync(`./${songid}480.webm`, await download(arrwebm480[0].url))
+										checkwebm = true
+										await convertwebmtomp4(songid)
+									}catch (e) {
+										console.log("Khong tai duoc luon a")
+									}
+								}
 							}
 						}
-						var ffmpegcmd = "ffmpeg -i ./" + songid + ".mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 ./" + songid + ".webm"
-						console.log("convert to webm")
-						await convertmp4towebm(ffmpegcmd)
-						fs.unlinkSync(`./${songid}.mp4`)
-						if(position){
-							var ffmpegcmd480 = "ffmpeg -i ./" + songid + "480.mp4 -c:v libvpx-vp9 -crf 4 -b:v 0 ./" + songid + "480.webm"
-							await convertmp4towebm(ffmpegcmd480)
-							fs.unlinkSync(`./${songid}480.mp4`)
-						}
 					}
+					await ffmpegmix(songid)
+					ok(true)
+				})
+			})
+		}
+
+		async function ffmpegmix(songid){
+			console.log("ffmpegmix" + songid)
+			return new Promise((ok, notok) => {
+				if(fs.existsSync(`./${songid}_verzip.mp4`)){
 					new ffmpeg()
-						.addInput(`./${songid}.webm`)
+						.addInput(`./${songid}_verzip.mp4`)
 						.addInput(`./public/allsongs/${songid}.mp3`)
-						.addOption('-codec', 'copy')
-						.output(`./public/videos/${songid}.webm`)
+						.addOption('-c:v', 'copy')
+						.output(`./public/videos/${songid}_verzip.mp4`)
 						.on('progress', function(progress) {
-							console.log('Processing: ' + progress.percent + '% done');
+							console.log('Processing: ' + progress.percent + '% done')
 						})
 						.on('end', function(stdout, stderr) {
-							if(position){
+							if (fs.existsSync(`./${songid}480_verzip.mp4`)) {
 								new ffmpeg()
-									.addInput(`./${songid}480.webm`)
+									.addInput(`./${songid}480.mp4`)
 									.addInput(`./public/allsongs/${songid}.mp3`)
-									.addOption('-codec', 'copy')
-									.output(`./public/videos/${songid}480.webm`)
+									.addOption('-c:v', 'copy')
+									.output(`./public/videos/${songid}480_verzip.mp4`)
 									.on('progress', function(progress) {
-										console.log('Processing: ' + progress.percent + '% done');
+										console.log('Processing: ' + progress.percent + '% done')
 									})
 									.on('end', function(stdout, stderr) {
-										ok('Transcoding succeeded!');
+										ok('Transcoding succeeded!')
 									})
 									.run()
 							}else{
-								ok('Transcoding succeeded!');
+								ok('Transcoding succeeded!')
 							}
 						})
 						.run()
-				})
-			})
+				}else{
+					new ffmpeg()
+						.addInput(`./${songid}.mp4`)
+						.addInput(`./public/allsongs/${songid}.mp3`)
+						.addOption('-c:v', 'copy')
+						.output(`./public/videos/${songid}.mp4`)
+						.on('progress', function(progress) {
+							console.log('Processing: ' + progress.percent + '% done')
+						})
+						.on('end', function(stdout, stderr) {
+							if (fs.existsSync("./"+ songid +"480.mp4")) {
+								new ffmpeg()
+									.addInput(`./${songid}480.mp4`)
+									.addInput(`./public/allsongs/${songid}.mp3`)
+									.addOption('-c:v', 'copy')
+									.output(`./public/videos/${songid}480.mp4`)
+									.on('progress', function(progress) {
+										console.log('Processing: ' + progress.percent + '% done')
+									})
+									.on('end', function(stdout, stderr) {
+										ok('Transcoding succeeded!')
+									})
+									.run()
+							}else{
+								ok('Transcoding succeeded!')
+							}
+						})
+						.run()
+				}
 
+			})
 		}
 
-		async function convertmp4towebm(ffmpegcmd){
+		async function convertwebmtomp4(songid, type){
+			console.log("convertwebmtomp4" + songid)
 			return new Promise((ok, notok) => {
-				exec(ffmpegcmd, (error, stdout, stderr) => {
-					if (error) {
-						console.error(`exec error: ${error}`);
-						return;
+				let ffmpegcmd
+				let ffmpegcmd480
+				if(type){
+					ffmpegcmd = "ffmpeg -i ./"+ songid +".webm -preset veryslow ./"+ songid +"_verzip.mp4"
+					if (fs.existsSync("./"+ songid +"480.webm")) {
+						ffmpegcmd480 = "ffmpeg -i ./"+ songid +"480.webm -preset veryslow ./"+ songid +"480_verzip.mp4"
+					}
+				}else{
+					ffmpegcmd = "ffmpeg -i ./"+ songid +".webm -preset ultrafast ./"+ songid +".mp4"
+					if (fs.existsSync("./"+ songid +"480.webm")) {
+						ffmpegcmd480 = "ffmpeg -i ./"+ songid +"480.webm -preset ultrafast ./"+ songid +"480.mp4"
+					}
+				}
+				if(type){
+					exec(ffmpegcmd, (error, stdout, stderr) => {
+						if (error) {
+							console.error(`exec error: ${error}`);
+							return;
+						}
+						if (fs.existsSync("./"+ songid +"480.webm") && fs.existsSync("./"+ songid +"480.mp4")) {
+							exec(ffmpegcmd480, (error, stdout, stderr) => {
+								if (error) {
+									console.error(`exec error: ${error}`)
+									return;
+								}
+								ok(true)
+							})
+						}
+						ok(true)
+					})
+				}
+				if(fs.existsSync("./"+ songid +".webm") && !fs.existsSync("./"+ songid +".mp4") && !type){
+					console.log("done")
+					exec(ffmpegcmd, (error, stdout, stderr) => {
+						if (error) {
+							console.error(`exec error: ${error}`);
+							return;
+						}
+						if (fs.existsSync("./"+ songid +"480.webm") && fs.existsSync("./"+ songid +"480.mp4")) {
+							exec(ffmpegcmd480, (error, stdout, stderr) => {
+								if (error) {
+									console.error(`exec error: ${error}`)
+									return;
+								}
+								ok(true)
+							})
+						}
+						ok(true)
+					})
+				}else{
+					if (fs.existsSync("./"+ songid +"480.webm") && !fs.existsSync("./"+ songid +"480.mp4")  && !type) {
+						exec(ffmpegcmd480, (error, stdout, stderr) => {
+							if (error) {
+								console.error(`exec error: ${error}`)
+								return;
+							}
+							ok(true)
+						})
 					}
 					ok(true)
-				});
+				}
+
 			})
 		}
 	}

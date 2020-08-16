@@ -62,6 +62,7 @@ $(".pagination").on('click', function (e){
     e.preventDefault();
     goToByScroll(this.id);
 });
+var typerecord = "withvideo"
 var chunks = []
 var mediaRecorder
 var volumevalue = 85
@@ -77,6 +78,8 @@ window.mobilecheck = function() {
 };
 
 if(!window.mobilecheck()){
+    widthusercamera = window.screen.width/3
+    heightusercamera = window.screen.height/3
     width = window.screen.width - 200
     height = width * 9 / 16
 }else{
@@ -147,35 +150,34 @@ function chooseSong(idsong){
     songchooseid = idsong
 //
     $("#my-player").show()
-
     $.ajax({
-        url: '/check480resolution/',
+        url: '/checktogettypevideo/',
         type: 'POST',
         data: {idsong: idsong}
     }).then(res => {
         if(res.check480){
-            if(!window.mobilecheck()){
-                player.updateSrc([
-                    {
-                        src: '/videos/'+idsong+'.webm', 
-                        type: 'video/webm', 
-                        label: 'full hd 1080',
-                        res: '1080'
-                    },
-                    {
-                        src: '/videos/'+idsong+'480.webm', 
-                        type: 'video/webm', 
-                        label: 'sd 480',
-                        res: '480'
-                    }
-                ]);
-            }else{
-                player.src({type: 'video/webm', src: '/videos/'+idsong+'480.webm'});
-            }
-        }else{
-            player.src({type: 'video/webm', src: '/videos/'+idsong+'.webm'});
-        }
+                if(!window.mobilecheck()){
+                    player.updateSrc([
+                        {
+                            src: '/videos/'+res.link,
+                            type: 'video/mp4',
+                            label: 'full hd 1080',
+                            res: '1080'
+                        },
+                        {
+                            src: '/videos/'+res.link480,
+                            type: 'video/mp4',
+                            label: 'sd 480',
+                            res: '480'
+                        }
+                    ]);
+                }else{
+                    player.src({type: 'video/mp4', src: '/videos/'+res.link480});
+                }
 
+        }else{
+            player.src({type: 'video/mp4', src: '/videos/'+res.link});
+        }
         player.poster('/thumbnails/'+idsong+'.jpg');
         player.autoplay(true)
         player.controls(true)
@@ -252,8 +254,18 @@ function GrantPermission() {
         return
     }
     var constraints = {
-        audio: true,
-        video: false
+        audio: { deviceId: "communications" },
+        video: { 
+            facingMode: "user",
+            aspectRatio: 16/9,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
+        }
+
+    }
+    typerecord = $("#selecttyperecord").val()
+    if(typerecord == "novideo"){
+        constraints.video = false
     }
     /*  constraints: {
      "audio": {
@@ -267,19 +279,36 @@ function GrantPermission() {
         stopButton.disabled = true;
         $("#my-player").show()
         if(window.mobilecheck()){
-            player.src({type: 'video/webm', src: '/videos/'+songchooseid+'480.webm'});
+            player.src({type: 'video/mp4', src: '/videos/'+songchooseid+'.mp4'});
         }else{
             if(player.currentResolution()){
                 var currentResolution = player.currentResolution()
-                player.src({type: 'video/webm', src: currentResolution.sources[0].src});
+                player.src({type: 'video/mp4', src: currentResolution.sources[0].src});
             }else{
-                player.src({type: 'video/webm', src: '/videos/'+songchooseid+'.webm'});
+                player.src({type: 'video/mp4', src: '/videos/'+songchooseid+'.mp4'});
             }
         }
 
         player.poster('/thumbnails/'+songchooseid+'.jpg');
         player.controls(false)
         player.autoplay(false)
+
+        var video = document.getElementById('uservideo');
+        if(typerecord == "withvideo"){
+            video.style.display = ""
+            video.width = width
+            if(!window.mobilecheck()) {
+                video.width = widthusercamera
+            }
+
+            video.srcObject = stream;
+            video.muted = true;
+            video.play()
+            if(!window.mobilecheck()){
+                console.log("maytinh")
+            }
+        }
+
 
         //onYouTubeIframeAPIReady(songchooseid, "karaluon")
         countDown(stream)
@@ -295,7 +324,15 @@ function GrantPermission() {
 function singNow(stream){
     stopButton.disabled = false;
     document.getElementById("containerplayer").scrollIntoView({behavior: "smooth"});
-    mediaRecorder = new MediaRecorder(stream)
+
+    if(typerecord == "novideo"){
+        mediaRecorder = new MediaRecorder(stream, {mimeType: "audio/webm"})
+    }else{
+        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm; codecs=vp9"})
+        }else{
+            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm; codecs=vp8"})
+        }    }
     mediaRecorder.start()
     interVal = setInterval(() => {duration++}, 1000)
     mediaRecorder.ondataavailable = function(e) {
@@ -305,12 +342,15 @@ function singNow(stream){
     mediaRecorder.onstop = function(e) {
 
         clearInterval(interVal)
-        var blob = new Blob(chunks, {"type": "audio/webm\;codecs=opus"});
-        /*        var reader = new FileReader();
-                reader.onload = function() {
-                    uploadToServer(reader.result);
-                };
-                reader.readAsDataURL(blob);*/
+        var blob
+        console.log(typerecord)
+        blob = new Blob(chunks, {type:'video/mp4'});
+/*        if(typerecord == "novideo"){
+            blob = new Blob(chunks, {"type": "audio/webm; codecs=opus"});
+        }else{
+            blob = new Blob(chunks, {"type": "video/webm; codecs=opus"});
+        }*/
+        
         chunks = [];
         var length = duration
         duration = 0;
@@ -326,7 +366,7 @@ function stopRecording() {
     $("#loading").css("display", "");
     $("#countdown").css("display", "none");
     $("#dsthuam").css("display", "");
-
+    document.getElementById('uservideo').style.display = "none"
     pause = false
     recording = false
     player.pause()
@@ -347,30 +387,71 @@ function uploadToServer(blob, length){
     xhr.onload = function(e) {
         if (this.readyState === 4) {
             $("#loading").css("display", "none");
-
+            let player2
             let filenamesave
             let path = JSON.parse(e.target.responseText).despath
             let songid = JSON.parse(e.target.responseText).songid
             let singer = JSON.parse(e.target.responseText).filesinger
             let namesong = JSON.parse(e.target.responseText).namesong
+            let typerecord = JSON.parse(e.target.responseText).typerecord
 
             songid = songid + "_" + Date.now();
-            var audio = `<center><div style="float: left;margin-bottom: 10px;width: 100%" id="${songid}"><audio id="player" controls preload style="width: 100%">
-              <source src="${path}" type="audio/mpeg">
-             </audio></br>`
+            var audio
 
-            audio += namesong
-            filenamesave = path.split("/")[path.split("/").length-1]
+            if(typerecord == "novideo"){
+                audio = `<center><div style="float: left;margin-bottom: 10px;width: 100%" id="${songid}"><audio id="player" controls preload style="width: 100%">
+                <source src="${path}" type="audio/mpeg">
+                </audio></br>`
 
-            namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
-                var a = "\\" + x
-                return a
-            });
-            audio += `</br><a class="btn btn-primary" href='${path}' download="${namesong}.wav" style="color: white;">Tải về</a>
+                audio += namesong
+                filenamesave = path.split("/")[path.split("/").length-1]
+
+                namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
+                    var a = "\\" + x
+                    return a
+                });
+                audio += `</br><a class="btn btn-primary" href='${path}' download="${namesong}.mp3" style="color: white;">Tải về</a>
                     <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Ghép ảnh dô<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
                    </div></center>
                    `
+            }else{
+                audio = `<center><div><video id="my-player-${singer}" class="video-js"></video>`
+                audio += `<a class="btn btn-primary" href='${path}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a></div></center>`
+                
+            }
             $("#listrecords").append(audio)
+            if(typerecord == "withvideo"){
+
+                if(!window.mobilecheck()){
+                    player2 = videojs(`my-player-${singer}`, {
+                        controls: true,
+                        width: width/4,
+                        height: height/4,
+                        controlBar: {
+                            fullscreenToggle: true,
+                            progressControl: true,
+                            remainingTimeDisplay: true,
+                            playToggle: true,
+                            pictureInPictureToggle: false
+                        }
+                    })
+                }else{
+                    player2 = videojs(`my-player-${singer}`, {
+                        controls: true,
+                        width: width-(width*10/100),
+                        height: height-(height*10/100),
+                        controlBar: {
+                            fullscreenToggle: true,
+                            progressControl: true,
+                            remainingTimeDisplay: true,
+                            playToggle: true,
+                            pictureInPictureToggle: false
+                        }
+                    })
+                }
+                console.log(path)
+                player2.src({type: 'video/mp4', src: path});
+            }
         }
     };
     var fd = new FormData();
@@ -379,6 +460,11 @@ function uploadToServer(blob, length){
         fd.append("typedevice", "computer");
     }else{
         fd.append("typedevice", "mobile");
+    }
+    if(typerecord == "novideo"){
+        fd.append("typerecord", "novideo");
+    }else{
+        fd.append("typerecord", typerecord);
     }
     
     fd.append("lengthaudio", length);
@@ -515,7 +601,7 @@ function musicslider(width, height) {
     }else{
         $("#slider-vertical").css("width", width/2)
         $("#volumebackgroundmusic").css("padding-top", `${20+height}px`)
-        $("#recordingsList").css("padding-bottom", `${height/2}px`)
+        //$("#recordingsList").css("padding-bottom", `${height/2}px`)
         $("#volumebackgroundmusic").css("width", `100%`)
     }
     var handle = $( "#custom-handle" );
@@ -542,6 +628,7 @@ function musicslider(width, height) {
 }
 
 function UploadImage(songid, namesong, singer) {
+
     $("#loading").css("display", "")
     var blobFile = $(`#chooseimage_${singer}`)[0].files[0];
     var formData = new FormData();
@@ -559,39 +646,45 @@ function UploadImage(songid, namesong, singer) {
         processData: false,
         contentType: false,
         success: function(response) {
-            let player2
+            let player3
             $("#loading").css("display", "none");
             $("#"+response.divid).html()
-            var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js vjs-theme-city">
-          </video>${namesong}</br><a class="btn btn-primary" href='/uploads/${response.videoname}.webm' download="${namesong}.webm" style="color: white;">Tải về</a>
+            var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js">
+          </video>${namesong}</br><a class="btn btn-primary" href='/uploads/${response.videoname}.mp4' download="${namesong}.mp4" style="color: white;">Tải về</a>
           <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đổi ảnh khác<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
           `
             $("#"+response.divid).html(htmlvideo)
 
             if(!window.mobilecheck()){
-                player2 = videojs(`my-player-${response.videoname}`, {
+                player3 = videojs(`my-player-${response.videoname}`, {
                     controls: true,
                     preload: 'auto',
                     width: width/4,
-                    height: height/4
-                })
-            }else{
-                player2 = videojs(`my-player-${response.videoname}`, {
-                    "controls": false,
-                    "preload": 'auto',
-                    "width": width,
-                    "height": height,
-/*                    "controlBar": {
+                    height: height/4,
+                    controlBar: {
                         fullscreenToggle: true,
-                        progressControl: false,
-                        remainingTimeDisplay: false,
+                        progressControl: true,
+                        remainingTimeDisplay: true,
                         playToggle: true,
                         pictureInPictureToggle: false
-                    }*/
+                    }
+                })
+            }else{
+                console.log("aa")
+                player3 = videojs(`my-player-${response.videoname}`, {
+                    controls: true,
+                    width: width-(width*10/100),
+                    height: height-(height*10/100),
+                    controlBar: {
+                        fullscreenToggle: true,
+                        progressControl: true,
+                        remainingTimeDisplay: true,
+                        playToggle: true,
+                        pictureInPictureToggle: false
+                    }
                 })
             }
-            //player2.controls(true)
-            player2.src({type: 'video/webm', src: '/uploads/'+ response.videoname +'.webm'});
+            player3.src({type: 'video/mp4', src: '/uploads/'+ response.videoname +'.mp4'});
         },
         error: function(jqXHR, textStatus, errorMessage) {
             console.log(errorMessage); // Optional

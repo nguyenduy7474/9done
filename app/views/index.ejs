@@ -32,7 +32,11 @@
   <link rel="stylesheet" href="/css/videojs-resolution-switcher.css">
   </br>
   <center><div id="controls">
-      <p style="color: red" id="jumpto">Cần có headphone - chưa hoạt động trên Safari</p>
+      <p style="color: red" id="jumpto">Cần có headphone để thu âm</p>
+    <select class="form-control" id="selecttyperecord" style="width:auto; margin-bottom: 10px">
+      <option value="withvideo">Thu âm có video(720)</option>
+      <option value="novideo">Thu âm không video</option>
+    </select>
       <button id="listensong" class="btn btn-primary"><b>Nghe</b></button>
       <button id="recordButton" class="btn btn-success"><b>Thu âm luôn</b></button>
       <button id="stopButton" class="btn btn-warning" disabled><b>Thu âm xong</b></button>&nbsp;</br></br>
@@ -44,8 +48,9 @@
       <div id="slider-vertical"><div id="custom-handle" class="ui-slider-handle"></div></div>
       <img src="https://img.icons8.com/color/48/000000/audio-wave2.png"/>
     </div>
-      <video id="my-player" class="video-js vjs-theme-city">
+      <video id="my-player" class="video-js">
       </video>
+      <video id="uservideo" controls style="display: none;padding-top: 10px"></video>
     </div>
 
     <div id="dsthuam" style="display: none; font-size: 150%">Danh sách đã thu âm<span id="loading"><img width='80px' height='80px' src='/imgs/loadings.gif'></span></div>
