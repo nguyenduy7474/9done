@@ -62,6 +62,7 @@ $(".pagination").on('click', function (e){
     e.preventDefault();
     goToByScroll(this.id);
 });
+var changesongandrecord = true
 var typerecord = "withvideo"
 var chunks = []
 var mediaRecorder
@@ -140,6 +141,7 @@ function chooseSong(idsong){
     $("#remindChooseSong").css("display", "none");
     $("#countdown").css("display", "none");
     goToByScroll("jumpto");
+    stopRecording("change")
     if(rec != null){
         pause = false
         stopButton.disabled = true;
@@ -258,8 +260,8 @@ function GrantPermission() {
         video: { 
             facingMode: "user",
             aspectRatio: 16/9,
-            width: { ideal: 1280 },
-            height: { ideal: 720 }
+/*            width: { ideal: 1280 },
+            height: { ideal: 720 }*/
         }
 
     }
@@ -278,7 +280,7 @@ function GrantPermission() {
         recordButton.disabled = true;
         stopButton.disabled = true;
         $("#my-player").show()
-        if(window.mobilecheck()){
+/*        if(window.mobilecheck()){
             player.src({type: 'video/mp4', src: '/videos/'+songchooseid+'.mp4'});
         }else{
             if(player.currentResolution()){
@@ -287,9 +289,9 @@ function GrantPermission() {
             }else{
                 player.src({type: 'video/mp4', src: '/videos/'+songchooseid+'.mp4'});
             }
-        }
-
-        player.poster('/thumbnails/'+songchooseid+'.jpg');
+        }*/
+        player.src({type: 'video/mp4', src: player.currentSrc()});
+        //player.poster('/thumbnails/'+songchooseid+'.jpg');
         player.controls(false)
         player.autoplay(false)
 
@@ -304,9 +306,9 @@ function GrantPermission() {
             video.srcObject = stream;
             video.muted = true;
             video.play()
-            if(!window.mobilecheck()){
+/*            if(!window.mobilecheck()){
                 console.log("maytinh")
-            }
+            }*/
         }
 
 
@@ -339,11 +341,9 @@ function singNow(stream){
         chunks.push(e.data);
     }
 
-    mediaRecorder.onstop = function(e) {
-
+    mediaRecorder.onstop = function(e, change) {
         clearInterval(interVal)
         var blob
-        console.log(typerecord)
         blob = new Blob(chunks, {type:'video/mp4'});
 /*        if(typerecord == "novideo"){
             blob = new Blob(chunks, {"type": "audio/webm; codecs=opus"});
@@ -357,15 +357,23 @@ function singNow(stream){
         stream.getTracks().forEach(function(track) {
           track.stop();
         });
-        uploadToServer(blob, length);
+        if(changesongandrecord){
+            uploadToServer(blob, length);
+        }
+
     }
 }
 
 
-function stopRecording() {
-    $("#loading").css("display", "");
+function stopRecording(change) {
+    changesongandrecord = true
+    if(change == "change"){
+        changesongandrecord = false
+    }else{
+        $("#loading").css("display", "");
+        $("#dsthuam").css("display", "");
+    }
     $("#countdown").css("display", "none");
-    $("#dsthuam").css("display", "");
     document.getElementById('uservideo').style.display = "none"
     pause = false
     recording = false
@@ -374,8 +382,12 @@ function stopRecording() {
     stopButton.disabled = true;
     recordButton.disabled = false;
 
-    mediaRecorder.stop();
-    countrec++
+    if(mediaRecorder){
+        if(mediaRecorder.state != "inactive"){
+            mediaRecorder.stop();
+            countrec++
+        }
+    }
 }
 
 
@@ -449,7 +461,6 @@ function uploadToServer(blob, length){
                         }
                     })
                 }
-                console.log(path)
                 player2.src({type: 'video/mp4', src: path});
             }
         }
@@ -670,7 +681,6 @@ function UploadImage(songid, namesong, singer) {
                     }
                 })
             }else{
-                console.log("aa")
                 player3 = videojs(`my-player-${response.videoname}`, {
                     controls: true,
                     width: width-(width*10/100),
