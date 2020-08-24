@@ -204,7 +204,7 @@ function searchsong(paging_num){
             var listsong = ""
             for(var i=0; i<allsongs.length; i++){
                 var lengthsong = secondToMinutes(allsongs[i].lengthsong)
-                listsong +=`<div class="jumplentren" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
+                listsong +=`<div class="jumplentren" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" style="width:100%" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
             }
             $("#boxnewsong").html(listsong)
 
@@ -410,7 +410,7 @@ function uploadToServer(blob, length){
             songid = songid + "_" + Date.now();
             var audio
 
-            if(typerecord == "novideo"){
+/*            if(typerecord == "novideo"){
                 audio = `<center><div style="float: left;margin-bottom: 10px;width: 100%" id="${songid}"><audio id="player" controls preload style="width: 100%">
                 <source src="${path}" type="audio/mpeg">
                 </audio></br>`
@@ -426,43 +426,52 @@ function uploadToServer(blob, length){
                     <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Ghép ảnh dô<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
                    </div></center>
                    `
-            }else{
-                audio = `<center><div><video id="my-player-${singer}" class="video-js"></video>`
-                audio += `<a class="btn btn-primary" href='${path}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a></div></center>`
-                
-            }
-            $("#listrecords").append(audio)
-            if(typerecord == "withvideo"){
+            }else{*/
+            audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}" class="video-js"></video>`
+            audio += namesong
+            filenamesave = path.split("/")[path.split("/").length-1]
 
-                if(!window.mobilecheck()){
-                    player2 = videojs(`my-player-${singer}`, {
-                        controls: true,
-                        width: width/4,
-                        height: height/4,
-                        controlBar: {
-                            fullscreenToggle: true,
-                            progressControl: true,
-                            remainingTimeDisplay: true,
-                            playToggle: true,
-                            pictureInPictureToggle: false
-                        }
-                    })
-                }else{
-                    player2 = videojs(`my-player-${singer}`, {
-                        controls: true,
-                        width: width-(width*10/100),
-                        height: height-(height*10/100),
-                        controlBar: {
-                            fullscreenToggle: true,
-                            progressControl: true,
-                            remainingTimeDisplay: true,
-                            playToggle: true,
-                            pictureInPictureToggle: false
-                        }
-                    })
-                }
-                player2.src({type: 'video/mp4', src: path});
+            namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
+                var a = "\\" + x
+                return a
+            });
+            audio += `<div><a class="btn btn-primary" href='${path}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a>`
+            if(typerecord == "novideo"){
+                audio += `<div style="position: relative; overflow: hidden;margin-left: 5px" class="btn btn-success" id="uploadrank">Chọn ảnh cho video<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div></div>`
+            }else{
+                audio += `</div></div></center>`
             }
+
+            $("#listrecords").append(audio)
+            if(!window.mobilecheck()){
+                player2 = videojs(`my-player-${singer}`, {
+                    controls: true,
+                    width: width/4,
+                    height: height/4,
+                    controlBar: {
+                        fullscreenToggle: true,
+                        progressControl: true,
+                        remainingTimeDisplay: true,
+                        playToggle: true,
+                        pictureInPictureToggle: false
+                    }
+                })
+            }else{
+                player2 = videojs(`my-player-${singer}`, {
+                    controls: true,
+                    width: width-(width*10/100),
+                    height: height-(height*10/100),
+                    controlBar: {
+                        fullscreenToggle: true,
+                        progressControl: true,
+                        remainingTimeDisplay: true,
+                        playToggle: true,
+                        pictureInPictureToggle: false
+                    }
+                })
+            }
+            console.log(path)
+            player2.src({type: 'video/mp4', src: path});
         }
     };
     var fd = new FormData();
@@ -658,14 +667,15 @@ function UploadImage(songid, namesong, singer) {
         contentType: false,
         success: function(response) {
             let player3
+            console.log(singer)
             $("#loading").css("display", "none");
-            $("#"+response.divid).html()
+            $("#divusersing-"+singer).html()
             var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js">
-          </video>${namesong}</br><a class="btn btn-primary" href='/uploads/${response.videoname}.mp4' download="${namesong}.mp4" style="color: white;">Tải về</a>
-          <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Đổi ảnh khác<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
-          `
-            $("#"+response.divid).html(htmlvideo)
+          </video>${namesong}<div><a class="btn btn-primary" href='/uploads/${response.videoname}.mp4' download="${namesong}.mp4" style="color: white;margin-bottom: 5px; margin-top: 5px">Tải về</a>
+          <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Chọn ảnh cho video<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div></div>`
 
+            $("#divusersing-"+singer).html(htmlvideo)
+            console.log(response.videoname)
             if(!window.mobilecheck()){
                 player3 = videojs(`my-player-${response.videoname}`, {
                     controls: true,

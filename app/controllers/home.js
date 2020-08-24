@@ -110,11 +110,13 @@ class Home{
 		pathsinger = removeSpace(pathsinger)
 
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
-		if(typerecord == "withvideo"){
+		despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp4"
+
+/*		if(typerecord == "withvideo"){
 			despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp4"
 		}else{
 			despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
-		}
+		}*/
 		console.log(despath)
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
@@ -142,10 +144,15 @@ class Home{
 		if(typerecord == "withvideo"){
 			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:v -map [output] -c:v copy ./" + pathmergerfile
 		}else{
-			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " ./" + pathmergerfile
+			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/"+ req.body.songid +".jpg -filter_complex " + filter + " ./" + pathmergerfile
 		}
-		console.log(pathmergerfile)
+
+		console.log(ffmpegcmd)
 		var check = await mixaudio(ffmpegcmd)
+/*		if(typerecord != "withvideo" && check == true){
+			let combineaudiowithimage = "ffmpeg -i ./thumnails/" + req.body.songid + ".jpg -i ./" + pathmergerfile + "-acodec copy " +
+			await mixaudio(ffmpegcmd)
+		}*/
 		var plustime = new Date()
 		plustime = plustime.getTime() + (60*60*1000)
 		var savesong = SongUserSing({
@@ -357,9 +364,26 @@ class Home{
 		var imagename = req.file.filename.split('.')
 		imagename = imagename[0]
 		var videoname = imagename + "_" + songid
-		new ffmpeg()
+		let ffmpegcmd = "ffmpeg -i ./" + pathimage + " -i ./public/songhandled/" + songid + "_" + singer + ".mp4 -map 0:v -map 1:a -c:a copy ./public/uploads/" + videoname + ".mp4"
+		console.log(ffmpegcmd)
+		var check = await mixaudio(ffmpegcmd)
+		var plustime = new Date()
+		plustime = plustime.getTime() + (60*60*1000)
+		var savesong = SongUserSing({
+			uploadsname: `public/uploads/${videoname}.mp4`,
+			handledname: `public/songhandled/${songid}_${singer}.mp4`,
+			imagename: pathimage,
+			expiretime: plustime
+		})
+		await savesong.save()
+		res.send({videoname: videoname, divid: req.body.songid})
+		/*		new ffmpeg()
 			.addInput(`./${pathimage}`)
-			.addInput(`./public/songhandled/${songid}_${singer}.mp3`)
+			.addInput(`./public/songhandled/${songid}_${singer}.mp4`)
+			.audioCodec('copy')
+			.outputOptions([
+				'-acodec copy',
+			])
 			.output(`./public/uploads/${videoname}.mp4`)
 			.on('progress', function(progress) {
 				console.log('Processing: ' + progress.percent + '% done')
@@ -369,18 +393,31 @@ class Home{
 				plustime = plustime.getTime() + (60*60*1000)
 				var savesong = SongUserSing({
 					uploadsname: `public/uploads/${videoname}.mp4`,
-					handledname: `public/songhandled/${songid}_${singer}.mp3`,
+					handledname: `public/songhandled/${songid}_${singer}.mp4`,
 					imagename: pathimage,
 					expiretime: plustime
 				})
 				await savesong.save()
 				res.send({videoname: videoname, divid: req.body.songid})
 			})
-			.run()
+			.run()*/
 
 		function removeSpace(string){
 			string = string.split(" ").join("_")
 			return string
+		}
+
+		async function mixaudio(ffmpegcmd){
+			return new Promise((ok, notok) => {
+				exec(ffmpegcmd, (error, stdout, stderr) => {
+					if (error) {
+						console.error(`exec error: ${error}`);
+						return;
+					}
+					console.log("xong")
+					ok(true)
+				});
+			})
 		}
 	}
 
