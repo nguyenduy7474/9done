@@ -85,6 +85,7 @@ if(!window.mobilecheck()){
     height = width * 9 / 16
 }else{
     $("#searchsong").css("width", "100%")
+    widthusercamera = window.screen.width/2
     width = window.screen.width
     height = window.screen.width * 9 / 16
 }
