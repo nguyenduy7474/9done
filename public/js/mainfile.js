@@ -259,18 +259,20 @@ function GrantPermission() {
         audio: { deviceId: "communications" },
         video: { 
             facingMode: "user",
+            frameRate: { ideal: 30, max: 40 }
             //aspectRatio: 16/9,
 /*            width: { ideal: 1280 },
             height: { ideal: 720 }*/
         }
     }
-    if(!window.mobilecheck()){
+/*    if(!window.mobilecheck()){
         constraints.video.aspectRatio = 16/9
         constraints.video.width = { ideal: 1280 }
         constraints.video.height = { ideal: 720 }
     }else{
-        constraints.video.aspectRatio = 16/9
-    }
+        constraints.video.width = { ideal: 640 }
+        constraints.video.height = { ideal: 720 }
+    }*/
     typerecord = $("#selecttyperecord").val()
     if(typerecord == "novideo"){
         constraints.video = false
@@ -283,7 +285,6 @@ function GrantPermission() {
     }*/
     console.log(constraints)
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-
         recordButton.disabled = true;
         stopButton.disabled = true;
         $("#my-player").show()
