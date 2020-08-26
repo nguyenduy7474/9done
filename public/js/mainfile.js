@@ -268,6 +268,8 @@ function GrantPermission() {
         constraints.video.aspectRatio = 16/9
         constraints.video.width = { ideal: 1280 }
         constraints.video.height = { ideal: 720 }
+    }else{
+        constraints.video.aspectRatio = 16/9
     }
     typerecord = $("#selecttyperecord").val()
     if(typerecord == "novideo"){
