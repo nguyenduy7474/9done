@@ -259,11 +259,15 @@ function GrantPermission() {
         audio: { deviceId: "communications" },
         video: { 
             facingMode: "user",
-            aspectRatio: 16/9,
+            //aspectRatio: 16/9,
 /*            width: { ideal: 1280 },
             height: { ideal: 720 }*/
         }
-
+    }
+    if(!window.mobilecheck()){
+        constraints.video.aspectRatio = 16/9
+        constraints.video.width = { ideal: 1280 }
+        constraints.video.height = { ideal: 720 }
     }
     typerecord = $("#selecttyperecord").val()
     if(typerecord == "novideo"){
@@ -300,6 +304,8 @@ function GrantPermission() {
             video.style.display = ""
             video.width = width
             if(!window.mobilecheck()) {
+                video.width = widthusercamera
+            }else{
                 video.width = widthusercamera
             }
 
