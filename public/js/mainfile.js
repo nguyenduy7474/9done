@@ -285,9 +285,7 @@ function GrantPermission() {
     }*/
     console.log(constraints)
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
-        let {width, height} = stream.getTracks()[1].getSettings();
-        alert(width)
-        alert(height)
+
         recordButton.disabled = true;
         stopButton.disabled = true;
         $("#my-player").show()
