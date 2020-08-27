@@ -154,7 +154,7 @@ function chooseSong(idsong){
     stopAudio()
     $("#remindChooseSong").css("display", "none");
     $("#countdown").css("display", "none");
-    goToByScroll("containerplayer");
+    goToByScroll("jumpto");
     stopRecording("change")
     if(rec != null){
         pause = false
@@ -348,7 +348,7 @@ function GrantPermission() {
 
 function singNow(stream){
     stopButton.disabled = false;
-    //document.getElementById("containerplayer").scrollIntoView({behavior: "smooth"});
+    //document.getElementById("jumpto").scrollIntoView({behavior: "smooth"});
     goToByScroll("containerplayer");
     if(typerecord == "novideo"){
         mediaRecorder = new MediaRecorder(stream, {mimeType: "audio/webm"})
