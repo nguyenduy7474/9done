@@ -79,12 +79,26 @@ window.mobilecheck = function() {
 };
 
 if(!window.mobilecheck()){
+    $("#logosite").attr("src","/imgs/logo.png");
+    $("#logosite").css("max-width","none");
+    $("#divlogo").css("padding-left", "0px")
     widthusercamera = window.screen.width/3
     heightusercamera = window.screen.height/3
     width = window.screen.width - 200
     height = width * 9 / 16
 }else{
+    //xu ly header for mobile
+    $("#logosite").attr("src","/imgs/shortlogo.png")
+    $("#atagyeucau").css("width", "fit-content")
+    $("#navyeucau").css("width", "fit-content")
+    $("#navyeucau").appendTo("#divlogo");
     $("#searchsong").css("width", "100%")
+    $("#divlogo").css("width", "fit-content")
+    $("#navyeucau").css("display", "inline")
+    $("#divlogo").css("padding-bottom", "0px")
+
+
+
     width = window.screen.width
     height = window.screen.width * 9 / 16
 }
@@ -140,7 +154,7 @@ function chooseSong(idsong){
     stopAudio()
     $("#remindChooseSong").css("display", "none");
     $("#countdown").css("display", "none");
-    goToByScroll("jumpto");
+    goToByScroll("containerplayer");
     stopRecording("change")
     if(rec != null){
         pause = false
@@ -334,8 +348,8 @@ function GrantPermission() {
 
 function singNow(stream){
     stopButton.disabled = false;
-    document.getElementById("containerplayer").scrollIntoView({behavior: "smooth"});
-
+    //document.getElementById("containerplayer").scrollIntoView({behavior: "smooth"});
+    goToByScroll("containerplayer");
     if(typerecord == "novideo"){
         mediaRecorder = new MediaRecorder(stream, {mimeType: "audio/webm"})
     }else{

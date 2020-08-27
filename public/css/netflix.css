@@ -233,7 +233,7 @@ footer {
 
   .netflixLogo {
     max-width: 100%;
-    margin: auto;
+    /*margin: auto;*/
     padding-right: 20px;
   }
 
