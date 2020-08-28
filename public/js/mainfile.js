@@ -287,6 +287,10 @@ function GrantPermission() {
         constraints.video.width = { ideal: 640 }
         constraints.video.height = { ideal: 720 }
     }*/
+    if(window.mobilecheck()){
+        constraints.video.width = 360
+        constraints.video.height = 360
+    }
     typerecord = $("#selecttyperecord").val()
     if(typerecord == "novideo"){
         constraints.video = false
