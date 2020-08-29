@@ -79,25 +79,12 @@ window.mobilecheck = function() {
 };
 
 if(!window.mobilecheck()){
-    $("#logosite").attr("src","/imgs/logo.png");
-    $("#logosite").css("max-width","none");
-    $("#divlogo").css("padding-left", "0px")
+
     widthusercamera = window.screen.width/3
     heightusercamera = window.screen.height/3
     width = window.screen.width - 200
     height = width * 9 / 16
 }else{
-    //xu ly header for mobile
-    $("#logosite").attr("src","/imgs/shortlogo.png")
-    $("#atagyeucau").css("width", "fit-content")
-    $("#navyeucau").css("width", "fit-content")
-    $("#navyeucau").appendTo("#divlogo");
-    $("#searchsong").css("width", "100%")
-    $("#divlogo").css("width", "fit-content")
-    $("#navyeucau").css("display", "inline")
-    $("#divlogo").css("padding-bottom", "0px")
-
-
 
     width = window.screen.width
     height = window.screen.width * 9 / 16
@@ -301,7 +288,6 @@ function GrantPermission() {
      },
      "video": false
     }*/
-    console.log(constraints)
     navigator.mediaDevices.getUserMedia(constraints).then(function(stream) {
 
         recordButton.disabled = true;
@@ -321,7 +307,7 @@ function GrantPermission() {
         //player.poster('/thumbnails/'+songchooseid+'.jpg');
         player.controls(false)
         player.autoplay(false)
-
+        console.log(stream)
         var video = document.getElementById('uservideo');
         if(typerecord == "withvideo"){
             video.style.display = ""

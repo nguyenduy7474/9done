@@ -10,21 +10,9 @@ window.mobilecheck = function() {
 };
 
 if(window.mobilecheck()){
-
-    //xu ly header for mobile
-    $("#logosite").attr("src","/imgs/shortlogo.png")
-    $("#atagyeucau").css("width", "fit-content")
-    $("#navyeucau").css("width", "fit-content")
-    $("#navyeucau").appendTo("#divlogo");
-    $("#searchsong").css("width", "100%")
-    $("#divlogo").css("width", "fit-content")
-    $("#navyeucau").css("display", "inline")
-    $("#divlogo").css("padding-bottom", "0px")
   checkmobile = true
 }else{
-    $("#logosite").attr("src","/imgs/logo.png");
-    $("#logosite").css("max-width","none");
-    $("#divlogo").css("padding-left", "0px")
+
 }
 
 function getAllSongsReview(){

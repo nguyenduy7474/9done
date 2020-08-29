@@ -5,9 +5,18 @@ window.mobilecheck = function() {
 };
 
 if(!window.mobilecheck()){
-	$(".netflixLogo").unwrap()
-	$("#logoimg").attr("src","/imgs/logo.png")
+	//$(".netflixLogo").unwrap()
+	$("#logosite").attr("src","/imgs/logo.png");
+	$("#logosite").css("max-width","none");
+	$("#divlogo").css("padding-left", "0px")
 }else{
-	$("#wraprow").addClass("row");
-	$("#logoimg").attr("src","/imgs/shortlogo.png")
+	//xu ly header for mobile
+	$("#logosite").attr("src","/imgs/shortlogo.png")
+	$("#atagyeucau").css("width", "fit-content")
+	$("#navyeucau").css("width", "fit-content")
+	$("#navyeucau").appendTo("#divlogo");
+	$("#searchsong").css("width", "100%")
+	$("#divlogo").css("width", "fit-content")
+	$("#navyeucau").css("display", "inline")
+	$("#divlogo").css("padding-bottom", "0px")
 }
