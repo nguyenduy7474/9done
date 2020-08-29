@@ -6,12 +6,14 @@ window.mobilecheck = function() {
 
 if(!window.mobilecheck()){
 	//$(".netflixLogo").unwrap()
-	$("#logosite").attr("src","/imgs/logo.png");
+	$("#divlogo").html(`<a id="logo" href="/"><img src="/imgs/logo.png" id="logosite" alt="Logo Image"></a>`)
+	//$("#logosite").attr("src","/imgs/logo.png");
 	$("#logosite").css("max-width","none");
 	$("#divlogo").css("padding-left", "0px")
 }else{
 	//xu ly header for mobile
-	$("#logosite").attr("src","/imgs/shortlogo.png")
+	$("#divlogo").html(`<a id="logo" href="/"><img src="/imgs/shortlogo.png" id="logosite" alt="Logo Image"></a>`)
+	//$("#logosite").attr("src","/imgs/shortlogo.png")
 	$("#atagyeucau").css("width", "fit-content")
 	$("#navyeucau").css("width", "fit-content")
 	$("#navyeucau").appendTo("#divlogo");
