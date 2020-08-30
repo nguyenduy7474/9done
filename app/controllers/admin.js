@@ -20,6 +20,63 @@ const download = require('download');
 
 
 class AdminPage{
+
+	static manage9Done(req, res){
+		res.render('manage.ejs', {
+			error : req.flash("error"),
+			success: req.flash("success"),
+			userinfo: req.session.user,
+		});
+	}
+
+	static checkAdmin(req, res, next){
+		if (req.session.user) {
+			if(req.session.user.role == "admin"){
+				next();
+			}else{
+				res.redirect('/duylogin');
+			}
+		} else {
+			res.redirect('/duylogin');
+		}
+	}
+
+	static logout(req, res) {
+		req.session.destroy();
+		res.send("success");
+	}
+
+	static deleteSong(req, res){
+		let songid = req.body.songid
+		Songs.deleteOne({songid: songid}, (err) => {
+			if(err){
+				console.log(err)
+				return
+			}
+			if (fs.existsSync(`./public/allsongs/${songid}.mp3`)) {
+				fs.unlinkSync(`./public/allsongs/${songid}.mp3`)
+			}
+			if (fs.existsSync(`./public/thumbnails/${songid}.jpg`)) {
+				fs.unlinkSync(`./public/thumbnails/${songid}.jpg`)
+			}
+			if (fs.existsSync(`./public/videos/${songid}.mp4`)) {
+				fs.unlinkSync(`./public/videos/${songid}.mp4`)
+			}
+			if (fs.existsSync(`./public/videos/${songid}480.mp4`)) {
+				fs.unlinkSync(`./public/videos/${songid}480.mp4`)
+			}
+			res.send("success")
+		})
+	}
+
+	static adminLogin(req, res){
+		res.render('adminlogin.ejs', {
+			error : req.flash("error"),
+			success: req.flash("success"),
+			userinfo: null,
+		});
+	}
+
 	static adminSongReview(req, res){
 		res.render('adminsongreview.ejs', {
 			error : req.flash("error"),

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" >
+    <% include ./header %>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Netflix</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/css/netflix.css">
+      <link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
+      <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+      <link href="https://unpkg.com/@videojs/themes@1/dist/city/index.css" rel="stylesheet">
+      <link href="https://unpkg.com/@videojs/themes@1/dist/sea/index.css" rel="stylesheet">
+      <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <link rel="stylesheet" href="/css/videojs-resolution-switcher.css">
+<body>
+    <center>
+    <div style="width: 20%">
+        <% if (error.length > 0) { %>
+    	  <div class="alert alert-danger"><%- error %></div>
+    	  <% } %>
+
+    	   <% if (success.length > 0) { %>
+    	  <div class="alert alert-success"><%- success %></div>
+    	  <% } %>
+        <form action="/duyloginadmin" method="post">
+            <div class="form-group">
+            <input type="text" class="form-control" id="username" name="username" placeholder="Tài Khoản">
+          </div>
+          <div class="form-group">
+            <input type="password" class="form-control" id="password" name="password" placeholder="Mật Khẩu">
+          </div>
+          <button type="submit" class="btn btn-primary">Nhấn để đăng nhập vào trang web nhạc đình đám 9done</button>
+        </form>
+    </div>
+    </center>
+
+<script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
+<script src="/js/videojs-resolution-switcher.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+</body>
+</html>

@@ -209,8 +209,6 @@ function searchsong(paging_num){
             }
             $("#boxnewsong").html(listsong)
 
-
-
             let pageination = ''
             if (pageCount > 1) {
                 let i = Number(currentPage) > 5 ? (Number(currentPage) - 4) : 1

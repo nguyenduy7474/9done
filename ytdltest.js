@@ -1,12 +1,3 @@
-const fs = require('fs');
-const ytdl = require('ytdl-core');
-var ffmpeg = require('fluent-ffmpeg');
-var command = ffmpeg();
-const { getAudioDurationInSeconds } = require('get-audio-duration');
+var bcrypt   = require('bcrypt-nodejs');
+console.log(bcrypt.hashSync("nguyennhutduy", bcrypt.genSaltSync(8), null))
 
-var rawStr = "nguyễn '"
-var encodedStr = rawStr.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-    return '&#'+i.charCodeAt(0)+';';
-});
-
-console.log(encodedStr)

@@ -17,7 +17,6 @@ var userSchema = mongoose.Schema({
 	role_id: { type: Number, default: 2 }
 });
 
-
 //methods ======================
 //generating a hash
 userSchema.methods.generateHash = function(password) {

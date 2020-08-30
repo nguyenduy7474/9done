@@ -16,6 +16,7 @@ if(window.mobilecheck()){
 }
 
 function getAllSongsReview(){
+    console.log("dd")
   $.ajax({
       url: '/getallsongsreview',
       type: 'POST',

@@ -35,6 +35,7 @@ class Home{
 
 	static async searchSongs(req, res){
 		var namesong = req.body.namesong.trim()
+		var sizepageadmin = parseInt(req.body.pagesize)
 		var singer
 		if(req.body.singer){
 			singer = req.body.singer.trim()
@@ -69,6 +70,9 @@ class Home{
 		try{
 			//set default variables
 			let pageSize = 12
+			if(sizepageadmin){
+				pageSize = sizepageadmin
+			}
 			let currentPage = req.body.paging_num || 1
 
 			// find total item
@@ -94,7 +98,7 @@ class Home{
 			}
 			res.send({data, pageSize, pageCount, currentPage});
 		}catch(err) {
-			console.log(err.message)
+			console.log(err)
 			res.send({"fail": "fail"});
 		}
 	}

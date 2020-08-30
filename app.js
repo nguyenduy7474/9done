@@ -1,5 +1,5 @@
 var express = require('express');
-
+const fs = require('fs');
 var app = express();
 var constants = require('constants');
 var constant = require('./config/constants');
@@ -57,8 +57,13 @@ app.use(passport.session()); // persistent login sessions
 app.use(flash()); // use connect-flash for flash messages stored in session
 
 // routes ======================================================================
-require('./config/routes.js')(app, passport); // load our routes and pass in our app and fully configured passport
-
+//require('./routes/home.js')(app, passport); // load our routes and pass in our app and fully configured passport
+// load our routes and pass in our app and fully configured passport
+var routePath="./routers/"; //add one folder then put your route files there my router folder name is routers
+fs.readdirSync(routePath).forEach(function(file) {
+    var route=routePath+file;
+    require(route)(app, passport);
+});
 
 //launch ======================================================================
 app.listen(port);

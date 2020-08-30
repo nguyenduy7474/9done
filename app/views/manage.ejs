@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en" >
+    <% include ./header %>
+      <meta charset="UTF-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <title>Netflix</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+      <link rel="stylesheet" href="/css/netflix.css">
+      <link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
+      <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+      <link href="https://unpkg.com/@videojs/themes@1/dist/city/index.css" rel="stylesheet">
+      <link href="https://unpkg.com/@videojs/themes@1/dist/sea/index.css" rel="stylesheet">
+      <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+      <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <link rel="stylesheet" href="/css/videojs-resolution-switcher.css">
+<body>
+
+    <center>
+    <div ><button type="button" class="btn btn-primary"><a href="/adminsongreview" style="color: white">Thêm bài hát mới</a></button>
+    <button type="button" class="btn btn-danger" onclick="logout()">Đăng Xuất</button></div>
+    <br>
+          <div style="width: 80%">
+          <div class="box">
+                      <input class="form-control p-3 mr-3" type="text" id="searchsong" placeholder="Tìm bài hát..."
+                     aria-label="Search">
+                     <input class="form-control p-3" type="text" id="searchsinger" placeholder="Tìm ca sĩ(tên tiếng việt)..."
+                     aria-label="Search">
+                    </div><br>
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Song Name</th>
+                      <th scope="col">Singer</th>
+                      <th scope="col">Songid</th>
+                      <th scope="col">Thao Tác</th>
+                    </tr>
+                  </thead>
+                  <tbody id="datatable">
+
+                  </tbody>
+                </table>
+          </div>
+          <div style="color: #06121e;margin: 0 auto; ;display: table;margin-top: 1rem" class="pagination"></div>
+    </center>
+
+<script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
+<script src="/js/videojs-resolution-switcher.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script src="/js/manage.js"></script>
+
+</body>
+</html>
