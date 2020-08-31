@@ -8,6 +8,8 @@ module.exports = function (app, passport) {
     app.get('/manage9done', AdminPage.checkAdmin, AdminPage.manage9Done);
     app.post('/deletesong', AdminPage.checkAdmin, AdminPage.deleteSong);
     app.post('/logout', AdminPage.checkAdmin, AdminPage.logout);
+    app.post('/editsong', AdminPage.checkAdmin, AdminPage.editSong);
+
     //app.post('/getAllSongs', AdminPage.checkAdmin, AdminPage.getAllSongs);
     // process the login form
     app.post('/duyloginadmin', passport.authenticate('local-login', {

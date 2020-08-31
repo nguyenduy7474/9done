@@ -21,6 +21,16 @@ const download = require('download');
 
 class AdminPage{
 
+	static editSong(req, res){
+		var songid = req.body.songid
+		var songname = req.body.songname
+		var singger = req.body.singger
+		Songs.updateOne({songid: songid}, {$set: {songname: songname, singger: singger}}, (err) => {
+			if(err) throw err
+			res.send("success")
+		})
+	}
+
 	static manage9Done(req, res){
 		res.render('manage.ejs', {
 			error : req.flash("error"),

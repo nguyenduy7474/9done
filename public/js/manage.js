@@ -34,6 +34,7 @@ function searchsong(paging_num){
                       <td>${allsongs[i].singger}</td>
                       <td>${allsongs[i].songid}</td>
                       <td>
+                        <button type="button" class="btn btn-success" onclick="editsong('${allsongs[i].songid}', '${allsongs[i].songname}', '${allsongs[i].singger}')">Sửa</button>
                         <button type="button" class="btn btn-danger" onclick="deletesong('${allsongs[i].songid}')">Xóa</button>
                       </td>
                     </tr>`
@@ -76,6 +77,31 @@ function searchsong(paging_num){
 
         $(".pagination").html(pageination)
     });
+}
+
+function editsong(songid, songname, singger){
+    $("#modaledit").modal('toggle');
+
+    $("#songname").val(songname)
+    $("#singger").val(singger)
+    $("#songid").val(songid)
+}
+
+function editsave() {
+    $("#modaledit").modal('toggle');
+    var songid = $("#songid").val()
+    var songname = $("#songname").val()
+    var singger = $("#singger").val()
+    $.ajax({
+        url: '/editsong',
+        type: 'POST',
+        data: {songid: songid, songname: songname, singger: singger}
+    })
+    .then(res => {
+        if(res == "success"){
+            searchsong()
+        }
+    })
 }
 
 function deletesong(songid) {

@@ -44,7 +44,29 @@
           </div>
           <div style="color: #06121e;margin: 0 auto; ;display: table;margin-top: 1rem" class="pagination"></div>
     </center>
-
+    <div class="modal" tabindex="-1" role="dialog" id="modaledit" style="color: black">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Chỉnh sửa</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <label for="recipient-name" class="col-form-label">Tên Bài Hát:</label>
+            <input type="text" class="form-control" id="songname">
+            <label for="recipient-name" class="col-form-label">Ca sĩ:</label>
+            <input type="text" class="form-control" id="singger">
+             <input type="hidden" class="form-control" id="songid">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="editsave()">Save lại</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
 <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
 <script src="/js/videojs-resolution-switcher.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
