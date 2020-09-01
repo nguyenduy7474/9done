@@ -55,7 +55,17 @@ $( document ).ready(function() {
         .catch(function(err) {
             console.log(err.name + ": " + err.message);
         });*/
+/*    var types = ["video/webm",
+        "audio/webm",
+        "video/webm\;codecs=vp8",
+        "video/webm\;codecs=daala",
+        "video/webm\;codecs=h264",
+        "audio/webm\;codecs=opus",
+        "video/mpeg"];
 
+    for (var i in types) {
+        console.log( "Is " + types[i] + " supported? " + (MediaRecorder.isTypeSupported(types[i]) ? "Maybe!" : "Nope :("));
+    }*/
 });
 
 $(".pagination").on('click', function (e){
@@ -305,7 +315,6 @@ function GrantPermission() {
         //player.poster('/thumbnails/'+songchooseid+'.jpg');
         player.controls(false)
         player.autoplay(false)
-        console.log(stream)
         var video = document.getElementById('uservideo');
         if(typerecord == "withvideo"){
             video.style.display = ""
@@ -341,11 +350,13 @@ function singNow(stream){
     if(typerecord == "novideo"){
         mediaRecorder = new MediaRecorder(stream, {mimeType: "audio/webm"})
     }else{
-        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+        mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"})
+/*        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
             mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm; codecs=vp9"})
         }else{
             mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm; codecs=vp8"})
-        }    }
+        }    */
+    }
     mediaRecorder.start()
     interVal = setInterval(() => {duration++}, 1000)
     mediaRecorder.ondataavailable = function(e) {
@@ -481,7 +492,6 @@ function uploadToServer(blob, length){
                     }
                 })
             }
-            console.log(path)
             player2.src({type: 'video/mp4', src: path});
         }
     };
@@ -678,7 +688,6 @@ function UploadImage(songid, namesong, singer) {
         contentType: false,
         success: function(response) {
             let player3
-            console.log(singer)
             $("#loading").css("display", "none");
             $("#divusersing-"+singer).html()
             var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js">
@@ -686,7 +695,6 @@ function UploadImage(songid, namesong, singer) {
           <div style="position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Chọn ảnh cho video<input type="file" name="imageforaudi" id="chooseimage_${singer}" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div></div>`
 
             $("#divusersing-"+singer).html(htmlvideo)
-            console.log(response.videoname)
             if(!window.mobilecheck()){
                 player3 = videojs(`my-player-${response.videoname}`, {
                     controls: true,

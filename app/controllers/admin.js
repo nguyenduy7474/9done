@@ -25,7 +25,14 @@ class AdminPage{
 		var songid = req.body.songid
 		var songname = req.body.songname
 		var singger = req.body.singger
-		Songs.updateOne({songid: songid}, {$set: {songname: songname, singger: singger}}, (err) => {
+		var songtags = req.body.songtags
+		console.log(songtags)
+		songtags = songtags.trim()
+		songtags = songtags.split(",")
+		for(var i=0; i<songtags.length;i++){
+			songtags[i] = songtags[i].trim()
+		}
+		Songs.updateOne({songid: songid}, {$set: {songname: songname, singger: singger, songtags: songtags}}, (err) => {
 			if(err) throw err
 			res.send("success")
 		})

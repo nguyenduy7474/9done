@@ -16,7 +16,6 @@ $( document ).ready(function() {
 function searchsong(paging_num){
     var namesong = $("#searchsong").val()
     var singer = $("#searchsinger").val()
-    console.log("ss")
     $.ajax({
         url: '/searchsongs',
         type: 'POST',
@@ -27,14 +26,16 @@ function searchsong(paging_num){
         let pageCount = res.pageCount
         let currentPage = res.currentPage
         var string = ``
+        let songtags
         for(var i=0; i<allsongs.length; i++){
+            songtags = allsongs[i].songtags.join(", ")
             string += `<tr>
                       <th>${i+1}</th>
                       <td>${allsongs[i].songname}</td>
                       <td>${allsongs[i].singger}</td>
                       <td>${allsongs[i].songid}</td>
                       <td>
-                        <button type="button" class="btn btn-success" onclick="editsong('${allsongs[i].songid}', '${allsongs[i].songname}', '${allsongs[i].singger}')">Sửa</button>
+                        <button type="button" class="btn btn-success" onclick="editsong('${allsongs[i].songid}', '${allsongs[i].songname}', '${allsongs[i].singger}', '${songtags}')">Sửa</button>
                         <button type="button" class="btn btn-danger" onclick="deletesong('${allsongs[i].songid}')">Xóa</button>
                       </td>
                     </tr>`
@@ -79,12 +80,13 @@ function searchsong(paging_num){
     });
 }
 
-function editsong(songid, songname, singger){
+function editsong(songid, songname, singger, songtags){
     $("#modaledit").modal('toggle');
 
     $("#songname").val(songname)
     $("#singger").val(singger)
     $("#songid").val(songid)
+    $("#songtags").val(songtags)
 }
 
 function editsave() {
@@ -92,13 +94,16 @@ function editsave() {
     var songid = $("#songid").val()
     var songname = $("#songname").val()
     var singger = $("#singger").val()
+    var songtags = $("#songtags").val()
+    console.log(songtags)
     $.ajax({
         url: '/editsong',
         type: 'POST',
-        data: {songid: songid, songname: songname, singger: singger}
+        data: {songid: songid, songname: songname, singger: singger, songtags: songtags}
     })
     .then(res => {
         if(res == "success"){
+            alert("Xong!")
             searchsong()
         }
     })
@@ -114,6 +119,7 @@ function deletesong(songid) {
         })
             .then(res => {
                 if(res == "success"){
+                    alert("Đã xóa!")
                     searchsong()
                 }
             })
