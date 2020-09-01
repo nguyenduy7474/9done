@@ -107,6 +107,7 @@ class Home{
 		var songvolume = req.body.songvolume
 		var typedevice = req.body.typedevice
 		var typerecord = req.body.typerecord
+		var checkvp8 = req.body.checkvp8
 		var despath
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
@@ -121,7 +122,6 @@ class Home{
 		}else{
 			despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
 		}*/
-		console.log(despath)
 		despath = removeSpace(despath)
 		var pathmergerfile = "public" + despath
 		var songchoose = await Songs.findOne({songid: req.body.songid})
@@ -131,22 +131,35 @@ class Home{
 		if(duration > 30){
 			await Songs.updateOne({songid: req.body.songid}, {$inc: {"counttimesing": 1}})
 		}
-		console.log(typedevice)
 		if(typedevice == "computer"){
 			if(typerecord == "withvideo"){
-				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+				if(checkvp8 == "true"){
+					console.log("aa")
+					filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:1]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+				}else{
+					console.log("bb")
+					filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+				}
 			}else{
 				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest"'
 			}
 		}else{
 			if(typerecord == "withvideo"){
-				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+				if(checkvp8 == "true"){
+					filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:1]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+				}else{
+					filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
+				}
 			}else{
 				filter = '"[0:a]volume=' + songvolume/100 + ',adelay=340|340[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest"'
 			}
 		}
 		if(typerecord == "withvideo"){
-			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:v -map [output] -c:v copy ./" + pathmergerfile
+			if(checkvp8 == "true"){
+				ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:0 -map [output] -vcodec libx264 ./" + pathmergerfile
+			}else{
+				ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:v -map [output] -c:v copy ./" + pathmergerfile
+			}
 		}else{
 			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/"+ req.body.songid +".jpg -filter_complex " + filter + " ./" + pathmergerfile
 		}

@@ -72,6 +72,7 @@ $(".pagination").on('click', function (e){
     e.preventDefault();
     goToByScroll(this.id);
 });
+var checkvp8 = false
 var changesongandrecord = true
 var typerecord = "withvideo"
 var chunks = []
@@ -350,12 +351,17 @@ function singNow(stream){
     if(typerecord == "novideo"){
         mediaRecorder = new MediaRecorder(stream, {mimeType: "audio/webm"})
     }else{
-        mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"})
-/*        if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
-            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm; codecs=vp9"})
-        }else{
-            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm; codecs=vp8"})
-        }    */
+        //mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"})
+        if (MediaRecorder.isTypeSupported('video/webm\;codecs=vp9')) {
+            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=vp9"})
+        }else if (MediaRecorder.isTypeSupported('video/webm\;codecs=opus,vp8')) {
+            checkvp8 = true
+            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=opus,vp8"})
+        }else if (MediaRecorder.isTypeSupported('video/webm\;codecs=h264')) {
+            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=h264"})
+        }else if (MediaRecorder.isTypeSupported('video/webm\;codecs=daala')) {
+            mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=daala"})
+        }
     }
     mediaRecorder.start()
     interVal = setInterval(() => {duration++}, 1000)
@@ -507,7 +513,8 @@ function uploadToServer(blob, length){
     }else{
         fd.append("typerecord", typerecord);
     }
-    
+
+    fd.append("checkvp8", checkvp8);
     fd.append("lengthaudio", length);
     fd.append("songid", songchooseid);
     fd.append("songvolume", volumevalue);
