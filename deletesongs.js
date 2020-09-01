@@ -16,11 +16,16 @@ var job = new CronJob('00 00 2 * * *', function() {
 			for(var i=0; i<found.length; i++){
 				if((now.getTime() - found[i].expiretime.getTime()) > 0){
 					console.log(found[i])
-					fs.unlinkSync(`./${found[i].uploadsname}`)
+					if(fs.existsSync(`./${found[i].uploadsname}`)){
+						fs.unlinkSync(`./${found[i].uploadsname}`)
+					}
 					if(fs.existsSync(`./${found[i].handledname}`)){
 						fs.unlinkSync(`./${found[i].handledname}`)
 					}
-					if(found[i].imagename){
+					if(fs.existsSync(`./${found[i].handlednameweb}`)){
+						fs.unlinkSync(`./${found[i].handlednameweb}`)
+					}
+					if(fs.existsSync(`./${found[i].imagename}`)){
 						fs.unlinkSync(`./${found[i].imagename}`)
 					}
 					await SongUserSing.deleteOne({_id: found[i]._id})

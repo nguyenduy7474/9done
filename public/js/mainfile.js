@@ -352,6 +352,7 @@ function singNow(stream){
         mediaRecorder = new MediaRecorder(stream, {mimeType: "audio/webm"})
     }else{
         //mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm"})
+        //mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=vp9"})
         if (MediaRecorder.isTypeSupported('video/webm\;codecs=vp9')) {
             mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=vp9"})
         }else if (MediaRecorder.isTypeSupported('video/webm\;codecs=opus,vp8')) {
@@ -429,6 +430,7 @@ function uploadToServer(blob, length){
             $("#loading").css("display", "none");
             let player2
             let filenamesave
+
             let path = JSON.parse(e.target.responseText).despath
             let songid = JSON.parse(e.target.responseText).songid
             let singer = JSON.parse(e.target.responseText).filesinger

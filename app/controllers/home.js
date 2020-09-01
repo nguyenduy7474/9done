@@ -108,6 +108,7 @@ class Home{
 		var typedevice = req.body.typedevice
 		var typerecord = req.body.typerecord
 		var checkvp8 = req.body.checkvp8
+		var despathweb
 		var despath
 		var filesinger = Date.now()
 		var pathsong = "public/allsongs/" + req.body.songid + ".mp3"
@@ -115,6 +116,7 @@ class Home{
 		pathsinger = removeSpace(pathsinger)
 
 		await writeFile(pathsinger, Buffer.from(req.files[0].buffer))
+		despathweb = "/songhandled/" + req.body.songid + "_" + filesinger + ".webm"
 		despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp4"
 
 /*		if(typerecord == "withvideo"){
@@ -122,7 +124,9 @@ class Home{
 		}else{
 			despath = "/songhandled/" + req.body.songid + "_" + filesinger + ".mp3"
 		}*/
+		despathweb = removeSpace(despathweb)
 		despath = removeSpace(despath)
+		var pathmergerfileweb = "public" + despathweb
 		var pathmergerfile = "public" + despath
 		var songchoose = await Songs.findOne({songid: req.body.songid})
 		var filter
@@ -134,10 +138,8 @@ class Home{
 		if(typedevice == "computer"){
 			if(typerecord == "withvideo"){
 				if(checkvp8 == "true"){
-					console.log("aa")
 					filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:1]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
 				}else{
-					console.log("bb")
 					filter = '"[0:a]volume=' + songvolume/100 + ',adelay=110|110[s1]; [1:0]volume=1[s2]; [s1][s2]amix=inputs=2:duration=shortest[output]"'
 				}
 			}else{
@@ -156,7 +158,7 @@ class Home{
 		}
 		if(typerecord == "withvideo"){
 			if(checkvp8 == "true"){
-				ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:0 -map [output] -vcodec libx264 ./" + pathmergerfile
+				ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:0 -map [output] -c:v copy ./" + pathmergerfileweb
 			}else{
 				ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -filter_complex " + filter + " -map 1:v -map [output] -c:v copy ./" + pathmergerfile
 			}
@@ -164,22 +166,28 @@ class Home{
 			ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/"+ req.body.songid +".jpg -filter_complex " + filter + " ./" + pathmergerfile
 		}
 
-		console.log(ffmpegcmd)
 		var check = await mixaudio(ffmpegcmd)
 /*		if(typerecord != "withvideo" && check == true){
 			let combineaudiowithimage = "ffmpeg -i ./thumnails/" + req.body.songid + ".jpg -i ./" + pathmergerfile + "-acodec copy " +
 			await mixaudio(ffmpegcmd)
 		}*/
 		var plustime = new Date()
-		plustime = plustime.getTime() + (60*60*1000)
+		plustime = plustime.getTime() + (3*60*60*1000)
 		var savesong = SongUserSing({
 			uploadsname: pathsinger,
 			handledname: pathmergerfile,
+			handlednameweb: pathmergerfileweb,
 			expiretime: plustime
 		})
 		await savesong.save()
 		if(check){
-			return res.json({"status": "success", "despath": despath, "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname, "typerecord": typerecord})
+			let obj = {"status": "success", "filesinger": filesinger, "songid": req.body.songid, "namesong": songchoose.songname, "typerecord": typerecord}
+			if(checkvp8 == "true"){
+				obj.despath = despathweb
+			}else{
+				obj.despath = despath
+			}
+			return res.json(obj)
 		}
 
 		function removeSpace(string){
@@ -382,7 +390,6 @@ class Home{
 		imagename = imagename[0]
 		var videoname = imagename + "_" + songid
 		let ffmpegcmd = "ffmpeg -i ./" + pathimage + " -i ./public/songhandled/" + songid + "_" + singer + ".mp4 -map 0:v -map 1:a -c:a copy ./public/uploads/" + videoname + ".mp4"
-		console.log(ffmpegcmd)
 		var check = await mixaudio(ffmpegcmd)
 		var plustime = new Date()
 		plustime = plustime.getTime() + (60*60*1000)
