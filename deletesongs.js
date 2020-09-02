@@ -1,6 +1,6 @@
 var CronJob = require('cron').CronJob;
 
-var job = new CronJob('00 00 2 * * *', function() {
+var job = new CronJob('0 0 */1 * * *', function() {
 	const mongoose = require('mongoose');
 	var Songs = require('./app/models/songs');
 	var SongUserSing = require('./app/models/songusersing');
