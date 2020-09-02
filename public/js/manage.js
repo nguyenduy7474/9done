@@ -19,7 +19,7 @@ function searchsong(paging_num){
     $.ajax({
         url: '/searchsongs',
         type: 'POST',
-        data: {namesong: namesong, singer: singer, paging_num: paging_num, pagesize: 30}
+        data: {namesong: namesong, singer: singer, paging_num: paging_num, pagesize: 10}
     })
     .then(res => {
         allsongs = res.data

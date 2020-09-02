@@ -92,8 +92,6 @@ class Home{
 					}
 					let songadmore = await Songs.find({"datatype" : "mp3", "reviewed" : 1, "songtags": {$in: arrtags}, "songname": {$nin: arraysongname}}).limit(limitcount)
 					data = data.concat(songadmore)
-				}else{
-
 				}
 			}
 			res.send({data, pageSize, pageCount, currentPage});
