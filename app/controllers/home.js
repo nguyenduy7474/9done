@@ -82,16 +82,18 @@ class Home{
 			// find total pages
 			let pageCount = Math.ceil(pages/pageSize)
 			let data = await Songs.aggregate([{$match:match},{$project:project},{$sort:sort},{$skip:(pageSize * currentPage) - pageSize},{$limit:pageSize}])
-			if(data.length < pageSize){
-				if(data.length != 0){
-					let arrtags = data[0].songtags
-					let limitcount = pageSize - data.length
-					let arraysongname = []
-					for(var i=0; i<data.length; i++){
-						arraysongname.push(data[i].songname)
+			if(!sizepageadmin){
+				if(data.length < pageSize){
+					if(data.length != 0){
+						let arrtags = data[0].songtags
+						let limitcount = pageSize - data.length
+						let arraysongname = []
+						for(var i=0; i<data.length; i++){
+							arraysongname.push(data[i].songname)
+						}
+						let songadmore = await Songs.find({"datatype" : "mp3", "reviewed" : 1, "songtags": {$in: arrtags}, "songname": {$nin: arraysongname}}).limit(limitcount)
+						data = data.concat(songadmore)
 					}
-					let songadmore = await Songs.find({"datatype" : "mp3", "reviewed" : 1, "songtags": {$in: arrtags}, "songname": {$nin: arraysongname}}).limit(limitcount)
-					data = data.concat(songadmore)
 				}
 			}
 			res.send({data, pageSize, pageCount, currentPage});
