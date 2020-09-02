@@ -1,11 +1,11 @@
 var CronJob = require('cron').CronJob;
+const mongoose = require('mongoose');
+var SongUserSing = require('./app/models/songusersing');
+const fs = require('fs');
 
-var job = new CronJob('0 0 */1 * * *', function() {
-	const mongoose = require('mongoose');
-	var Songs = require('./app/models/songs');
-	var SongUserSing = require('./app/models/songusersing');
-	const fs = require('fs');
-	mongoose.connect('mongodb://127.0.0.1:27017/singwithyou', {useNewUrlParser: true});
+var job = new CronJob('0 3 * * * *', function() {
+	console.log("1 phut")
+	mongoose.connect('mongodb://localhost:27017/singwithyou');
 	const db = mongoose.connection;
 
 	db.on('error', console.error.bind(console, 'connection error:'))

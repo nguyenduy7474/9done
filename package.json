@@ -32,7 +32,7 @@
     "image-downloader": "^4.0.1",
     "md5": "latest",
     "mime": "latest",
-    "mongoose": "^5.9.25",
+    "mongoose": "^5.10.2",
     "morgan": "^1.9.1",
     "multer": "^1.4.2",
     "mysql": "latest",
