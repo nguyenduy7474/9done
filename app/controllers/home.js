@@ -82,7 +82,7 @@ class Home{
 			// find total pages
 			let pageCount = Math.ceil(pages/pageSize)
 			let data = await Songs.aggregate([{$match:match},{$project:project},{$sort:sort},{$skip:(pageSize * currentPage) - pageSize},{$limit:pageSize}])
-			if(!sizepageadmin){
+/*			if(!sizepageadmin){
 				if(data.length < pageSize){
 					if(data.length != 0){
 						let arrtags = data[0].songtags
@@ -95,7 +95,7 @@ class Home{
 						data = data.concat(songadmore)
 					}
 				}
-			}
+			}*/
 			res.send({data, pageSize, pageCount, currentPage});
 		}catch(err) {
 			console.log(err)

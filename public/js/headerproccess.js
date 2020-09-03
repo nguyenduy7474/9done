@@ -16,9 +16,16 @@ if(!window.mobilecheck()){
 	//$("#logosite").attr("src","/imgs/shortlogo.png")
 	$("#atagyeucau").css("width", "fit-content")
 	$("#navyeucau").css("width", "fit-content")
+
+	$("#atagyeucau").css("width", "-moz-fit-content")
+	$("#navyeucau").css("width", "-moz-fit-content")
+
 	$("#navyeucau").appendTo("#divlogo");
 	$("#searchsong").css("width", "100%")
 	$("#divlogo").css("width", "fit-content")
+
+	$("#divlogo").css("width", "-moz-fit-content")
+
 	$("#navyeucau").css("display", "inline")
 	$("#divlogo").css("padding-bottom", "0px")
 }
