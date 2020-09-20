@@ -29,6 +29,9 @@ var job = new CronJob('0 3 * * * *', function() {
 				if(fs.existsSync(`./${found[i].imagename}`)){
 					fs.unlinkSync(`./${found[i].imagename}`)
 				}
+				if(fs.existsSync(`./${found[i].reverb}`)){
+					fs.unlinkSync(`./${found[i].reverb}`)
+				}
 				await SongUserSing.deleteOne({_id: found[i]._id})
 				mongoose.disconnect();
 			}

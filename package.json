@@ -47,6 +47,7 @@
     "passport-facebook": "^3.0.0",
     "passport-local": "^1.0.0",
     "peer": "^0.5.3",
+    "pizzicato": "^0.6.4",
     "pm2": "^4.4.0",
     "rangeslider-js": "^3.2.5",
     "request": "latest",

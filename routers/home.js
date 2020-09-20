@@ -47,4 +47,6 @@ module.exports = function (app, passport) {
     app.post('/imageforaudio', uploadImage.single("imageforaudio"), home.ImageForAudio);
     app.post('/checktogettypevideo', home.checkToGetTypeVideo);
 
+    app.post('/changeeffectrecord', home.changeEffectRecord);
+
 }

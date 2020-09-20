@@ -16,12 +16,28 @@
     div#custom-handle.ui-slider-handle.ui-corner-all.ui-state-default.ui-state-focus:focus{
     outline: none;
   }
+
+  body.modal-open .wrapper{
+    -webkit-filter: blur(50px);
+    -moz-filter: blur(50px);
+    -o-filter: blur(50px);
+    -ms-filter: blur(50px);
+    filter: blur(50px);
+  }
+    #studiomodalstylecontent{
+      background-color: #06121e;
+      color: white;
+    }
+    #studiomodalstyleheader{
+      border-bottom: 0px;
+      background-color: #07274673;
+    }
   </style>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Netflix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/css/bootstrap.css">
   <link rel="stylesheet" href="/css/netflix.css">
   <link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
   <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
@@ -30,34 +46,55 @@
   <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
   <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
   <link rel="stylesheet" href="/css/videojs-resolution-switcher.css">
-  <center><div id="controls">
-      <p style="color: red" id="jumpto">Cần có headphone để thu âm</p>
-    <select class="form-control" id="selecttyperecord" style="width:auto; margin-bottom: 10px">
-      <option value="withvideo">Thu âm với camera</option>
-      <option value="novideo">Thu âm không camera</option>
-    </select>
-      <!-- <button id="listensong" class="btn btn-primary"><b>Nghe</b></button> -->
-      <button id="recordButton" class="btn btn-success"><b>Thu âm luôn</b></button>
-      <button id="stopButton" class="btn btn-warning" disabled><b>Thu âm xong</b></button>&nbsp;</br></br>
-      <span id="remindChooseSong" style="color: red; display: none">*Hãy chọn bài hát</br></span>
-      <span id="countdown" style="font-size: 150%"></span>
-    </div>
-    <div id="containerplayer">
-    <div id="volumebackgroundmusic" style="float: left;display: none">
-      <div id="slider-vertical"><div id="custom-handle" class="ui-slider-handle"></div></div>
-      <img src="https://img.icons8.com/color/48/000000/audio-wave2.png"/>
-    </div>
-      <video id="my-player" class="video-js">
-      </video>
-      <video id="uservideo" style="display: none;padding-top: 10px"></video>
-    </div>
-    </br>
-    <div id="dsthuam" style="display: none; font-size: 150%">Danh sách đã thu âm<span id="loading"><img width='40px' height='40px' src='/imgs/loadings.gif'></span></div>
-    <!-- <ol id="recordingsList"></ol> -->
-    <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bs-stepper/dist/css/bs-stepper.min.css">
+  <style>
+    .page-link{
+      background-color: #06121e
+    }
+    #recordButton{
+      background-color: #d81f26;
+      color: white;
+    }
+    #recordButton:hover{
+      background-color: #fa2026;
+    }
+    #buttonhoanthanh{
+      background-color: #d81f26;
+      color: white;
+    }
+    #buttonhoanthanh:hover{
+      background-color: #fa2026;
+    }
+  </style>
 
-  </center>
   <div class="wrapper">
+    <center><div id="controls">
+        <p style="color: #d81f26; font-weight: bold" id="jumpto">Cần có headphone để thu âm</p>
+        <select class="form-control" id="selecttyperecord" style="width:auto; margin-bottom: 10px">
+          <option value="withvideo">Thu âm với camera</option>
+          <option value="novideo">Thu âm không camera</option>
+        </select>
+        <!-- <button id="listensong" class="btn btn-primary"><b>Nghe</b></button> -->
+        <button id="recordButton" class="btn"><b>Thu âm luôn</b></button>
+        <button id="stopButton" class="btn btn-warning" disabled><b>Thu âm xong</b></button>&nbsp;</br></br>
+        <span id="remindChooseSong" style="color: red; display: none">*Hãy chọn bài hát<br></span>
+        <span id="countdown" style="font-size: 150%"></span>
+      </div>
+      <div id="containerplayer">
+        <div id="volumebackgroundmusic" style="float: left;display: none">
+          <div id="slider-vertical"><div id="custom-handle" class="ui-slider-handle"></div></div>
+          <img src="https://img.icons8.com/color/48/000000/audio-wave2.png"/>
+        </div>
+        <video id="my-player" class="video-js">
+        </video>
+        <video id="uservideo" style="display: none;padding-top: 10px"></video>
+      </div>
+      </br>
+      <div id="dsthuam" style="display: none; font-size: 150%">Danh sách đã thu âm</div>
+      <!-- <ol id="recordingsList"></ol> -->
+      <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
+
+    </center>
     <!-- MAIN CONTAINER -->
 
     <section class="main-container" >
@@ -84,8 +121,40 @@
     </section>
     <!-- END OF MAIN CONTAINER -->
   </div>
-<div id="fb-root"></div>
+  <div id="fb-root"></div>
 
+  <div class="modal fade" id="studiomodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="color: black">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content" id="studiomodalstylecontent">
+        <div class="modal-header" id="studiomodalstyleheader">
+          <h5 class="modal-title" id="exampleModalLabel" style="font-size: 180%">
+            <span style=" color: #d81f26; font-weight: 1000; font-size: 110%;">9done</span>
+            Studio(raw UI)
+          </h5>
+        </div>
+        <div class="modal-body" id="modalbody">
+          <div id="studiovideo" style="overflow: auto;">
+          </div>
+          <div class="form-group">
+            <label >Hiệu ứng giọng hát</label>
+            <select class="form-control" id="soundeffect">
+              <option value="0">Không hiệu ứng</option>
+              <option value="1">Reverb</option>
+            </select>
+          </div>
+          <input type="hidden" id="pathrecord">
+          <input type="hidden" id="songid">
+          <input type="hidden" id="singer">
+          <input type="hidden" id="namesong">
+          <button type="button" class="btn btn-primary" id="buttoneffect" onclick="effectChoose()">Chọn</button>
+          <br>
+        </div>
+        <div class="modal-footer">
+          <center><button type="button" class="btn" id="buttonhoanthanh" onclick="effectdone()">Hoàn Thành</button></center>
+        </div>
+      </div>
+    </div>
+  </div>
 
 <script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v7.0&appId=311431150032339&autoLogAppEvents=1" nonce="VKSppomw"></script>
 
@@ -93,9 +162,10 @@
   <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
   <script src="/js/videojs-resolution-switcher.js"></script>
   <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pizzicato/0.6.4/Pizzicato.js"></script>
   <script src="/js/mainfile.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-
+  <script src="/js/bootstrap.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bs-stepper/dist/js/bs-stepper.min.js"></script>
 </body>
 </html>

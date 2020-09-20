@@ -4720,6 +4720,7 @@ tbody.collapse.show {
 }
 
 .pagination {
+  color: white;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -4729,21 +4730,23 @@ tbody.collapse.show {
 }
 
 .page-link {
+  font-size: 120%;
   position: relative;
   display: block;
   padding: 0.5rem 0.75rem;
   margin-left: -1px;
   line-height: 1.25;
   color: #007bff;
-  background-color: #fff;
+  background-color: red;
   border: 1px solid #dee2e6;
+  border-radius: 0.25em;
 }
 
 .page-link:hover {
-  color: #0056b3;
-  text-decoration: none;
-  background-color: #e9ecef;
-  border-color: #dee2e6;
+  color: #ffd500 !important;
+  /*text-decoration: none;
+  background-color: #e9ecef;*/
+  border-color: #9a9da1;
 }
 
 .page-link:focus {
@@ -4758,28 +4761,28 @@ tbody.collapse.show {
 
 .page-item:first-child .page-link {
   margin-left: 0;
-  border-top-left-radius: 0.25rem;
-  border-bottom-left-radius: 0.25rem;
+/*  border-top-left-radius: 0.25rem;
+  border-bottom-left-radius: 0.25rem;*/
 }
 
 .page-item:last-child .page-link {
-  border-top-right-radius: 0.25rem;
-  border-bottom-right-radius: 0.25rem;
+/*  border-top-right-radius: 0.25rem;
+  border-bottom-right-radius: 0.25rem;*/
 }
 
 .page-item.active .page-link {
+  pointer-events: none;
   z-index: 1;
   color: #fff;
-  background-color: #007bff;
-  border-color: #007bff;
+  background-color: #428bca;
+  border-color: #428bca;
 }
 
 .page-item.disabled .page-link {
-  color: #6c757d;
+  color: white;
   pointer-events: none;
   cursor: auto;
-  background-color: #fff;
-  border-color: #dee2e6;
+  border-color: #06121e;
 }
 
 .pagination-lg .page-link {

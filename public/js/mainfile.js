@@ -20,6 +20,16 @@ $( document ).ready(function() {
         }
     });
 
+    $( "#soundeffect" ).change(function() {
+        if($("#soundeffect").val() == effectchoose){
+            $("#buttoneffect").prop("disabled",true);
+            $("#buttoneffect").html('Đang Chọn');
+        }else{
+            $("#buttoneffect").prop("disabled",false);
+            $("#buttoneffect").html('Chọn');
+        }
+    });
+
     /*  document.onkeydown = function(e) {
         if(event.keyCode == 123) {
           console.log('You cannot inspect Element');
@@ -72,6 +82,7 @@ $(".pagination").on('click', function (e){
     e.preventDefault();
     goToByScroll(this.id);
 });
+var haschangeimage = false
 var checkvp8 = false
 var changesongandrecord = true
 var typerecord = "withvideo"
@@ -100,6 +111,9 @@ if(!window.mobilecheck()){
     width = window.screen.width
     height = window.screen.width * 9 / 16
 }
+var effectchoose = 0
+
+
 var recording = false
 var allsongs
 var pause = false;
@@ -134,6 +148,7 @@ var songName
 
 
 var player
+var player2
 player = videojs('my-player', {
     controls: true,
     preload: 'auto',
@@ -143,6 +158,9 @@ player = videojs('my-player', {
         videoJsResolutionSwitcher: {
             default: 'high',
         }
+    },
+    controlBar: {
+        volumePanel: {"inline": false}
     }
 });
 $("#my-player").hide()
@@ -222,34 +240,31 @@ function searchsong(paging_num){
 
             let pageination = ''
             if (pageCount > 1) {
-                let i = Number(currentPage) > 5 ? (Number(currentPage) - 4) : 1
-                pageination += `<ul class="pagination pg-blue">`
-                if (currentPage == 1){
-                    pageination += `<li class="page-item disabled"><a class="page-link" href="#">First</a></li>`
-                }else{
-                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('1')">First</a></li>`
-                }
+                let i = Number(currentPage) > 4 ? (Number(currentPage) - 2) : 1
+                pageination += `<ul class="pagination flex-wrap">`
+/*                if (currentPage != 1){
+                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('1')">1</a></li>`
+                }*/
                 if (i != 1) {
-                    pageination += `<li class="page-item disabled"><a class="page-link" href="#">...</a></li>`
+                    pageination += `<li class="page-item" style="margin-right: 10px;"><a class="page-link" onclick="searchsong('1')">1</a></li>`
+                    pageination += `<li class="page-item disabled" style="margin-right: 5px;"><a class="page-link">...</a></li>`
                 }
-                for (; i<= (Number(currentPage) + 4) && i <= pageCount; i++) {
+                for (; i<= (Number(currentPage) + 2) && i <= pageCount; i++) {
 
                     if (currentPage == i) {
-                        pageination += `<li class="page-item active"><a class="page-link">${i}</a></li>`
+                        pageination += `<li class="page-item active" style="margin-left: 5px; margin-right: 5px"><a class="page-link">${i}</a></li>`
                     } else {
-                        pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${i}')">${i}</a></li>`
+                        pageination += `<li class="page-item" style="margin-left: 5px; margin-right: 5px"><a class="page-link" onclick="searchsong('${i}')">${i}</a></li>`
                     }
-                    if (i == Number(currentPage) + 4 && i < pageCount) {
-                        pageination += `<li class="page-item disabled"><a class="page-link" href="#">...</a></li>`
+                    if (i == Number(currentPage) + 2 && i < pageCount) {
+                        pageination += `<li class="page-item disabled" style="margin-left: 5px;"><a class="page-link">...</a></li>`
+                        pageination += `<li class="page-item" style="margin-left: 10px;"><a class="page-link" onclick="searchsong('${pageCount}')">${pageCount}</a></li>`
                         break
                     }
                 }
-                if (currentPage == pageCount){
-                    pageination += `<li class="page-item disabled"><a class="page-link"">Last</a></li>`
-                }else{
-                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${i-1}')">Last</a></li>`
-                }
-
+/*                if (currentPage != pageCount){
+                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${pageCount}')">${pageCount}</a></li>`
+                }*/
                 pageination += `</ul>`
             }
 
@@ -399,7 +414,6 @@ function stopRecording(change) {
     if(change == "change"){
         changesongandrecord = false
     }else{
-        $("#loading").css("display", "");
         $("#dsthuam").css("display", "");
     }
     $("#countdown").css("display", "none");
@@ -427,10 +441,8 @@ function uploadToServer(blob, length){
     var xhr = new XMLHttpRequest();
     xhr.onload = function(e) {
         if (this.readyState === 4) {
-            $("#loading").css("display", "none");
-            let player2
             let filenamesave
-
+            effectchoose = 0
             let path = JSON.parse(e.target.responseText).despath
             let songid = JSON.parse(e.target.responseText).songid
             let singer = JSON.parse(e.target.responseText).filesinger
@@ -440,23 +452,6 @@ function uploadToServer(blob, length){
             songid = songid + "_" + Date.now();
             var audio
 
-/*            if(typerecord == "novideo"){
-                audio = `<center><div style="float: left;margin-bottom: 10px;width: 100%" id="${songid}"><audio id="player" controls preload style="width: 100%">
-                <source src="${path}" type="audio/mpeg">
-                </audio></br>`
-
-                audio += namesong
-                filenamesave = path.split("/")[path.split("/").length-1]
-
-                namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
-                    var a = "\\" + x
-                    return a
-                });
-                audio += `</br><a class="btn btn-primary" href='${path}' download="${namesong}.mp3" style="color: white;">Tải về</a>
-                    <div style="  position: relative; overflow: hidden;" class="btn btn-success" id="uploadrank">Ghép ảnh dô<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div>
-                   </div></center>
-                   `
-            }else{*/
             audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}" class="video-js"></video>`
             audio += namesong
             filenamesave = path.split("/")[path.split("/").length-1]
@@ -465,7 +460,61 @@ function uploadToServer(blob, length){
                 var a = "\\" + x
                 return a
             });
-            audio += `<div><a class="btn btn-primary" href='${path}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a>`
+            audio += `</div></div></center>`
+/*            if(typerecord == "novideo"){
+                audio += `<br><div style="position: relative; overflow: hidden;margin-left: 5px" class="btn btn-success" id="uploadrank">Chọn ảnh cho video<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div></div>`
+            }else{
+
+            }*/
+            $("#studiovideo").html(audio)
+            if(!window.mobilecheck()){
+                player2 = videojs(`my-player-${singer}`, {
+                    controls: true,
+                    width: width/3,
+                    height: height/3,
+                    controlBar: {
+                        fullscreenToggle: false,
+                        progressControl: true,
+                        remainingTimeDisplay: true,
+                        playToggle: true,
+                        pictureInPictureToggle: false,
+                        volumePanel: {"inline": false}
+                    }
+                })
+            }else{
+                player2 = videojs(`my-player-${singer}`, {
+                    controls: true,
+                    width: width-(width*15/100),
+                    height: height-(height*10/100),
+                    controlBar: {
+                        fullscreenToggle: false,
+                        progressControl: true,
+                        remainingTimeDisplay: true,
+                        playToggle: true,
+                        pictureInPictureToggle: false,
+                        volumePanel: {"inline": false}
+                    }
+                })
+            }
+            player2.src({type: 'video/mp4', src: path});
+            $("#pathrecord").val(path)
+            $("#songid").val(songid)
+            $("#singer").val(singer)
+            $("#namesong").val(namesong)
+            //$("#modalbody").append(`<button type="button" class="btn btn-primary" onclick="effectChoose()" disabled>Đang Chọn</button>`)
+            $( "#soundeffect" ).val(effectchoose).change();
+            $("#studiomodal").modal('toggle');
+
+
+
+/*            audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}" class="video-js"></video>`
+            audio += namesong
+            filenamesave = path.split("/")[path.split("/").length-1]
+
+            namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
+                var a = "\\" + x
+                return a
+            });
             if(typerecord == "novideo"){
                 audio += `<div style="position: relative; overflow: hidden;margin-left: 5px" class="btn btn-success" id="uploadrank">Chọn ảnh cho video<input type="file" id="chooseimage_${singer}" name="imageforaudi" onchange="UploadImage('${songid}', '${namesong}','${singer}')" style="position: absolute; font-size: 50px;opacity: 0;right: 0;top: 0;"/></div></div>`
             }else{
@@ -500,7 +549,7 @@ function uploadToServer(blob, length){
                     }
                 })
             }
-            player2.src({type: 'video/mp4', src: path});
+            player2.src({type: 'video/mp4', src: path});*/
         }
     };
     var fd = new FormData();
@@ -523,6 +572,84 @@ function uploadToServer(blob, length){
     fd.append("duy", blob, filename);
     xhr.open("POST", "/uploadsing");
     xhr.send(fd);
+}
+
+function effectdone(){
+    $("#studiomodal").modal('toggle');
+    var namesong = $("#namesong").val()
+    var singer = $("#singer").val()
+    var player4
+    console.log(player2.currentSrc())
+    let audio
+
+    audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}1" class="video-js"></video>`
+    audio += namesong
+    audio += `<div><a class="btn btn-primary" href='${player2.currentSrc()}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a>`
+    $("#listrecords").append(audio)
+    if(!window.mobilecheck()){
+        player4 = videojs(`my-player-${singer}1`, {
+            controls: true,
+            width: width/4,
+            height: height/4,
+            controlBar: {
+                fullscreenToggle: false,
+                progressControl: true,
+                remainingTimeDisplay: true,
+                playToggle: true,
+                pictureInPictureToggle: false,
+                volumePanel: {"inline": false}
+            }
+        })
+    }else{
+        player4 = videojs(`my-player-${singer}1`, {
+            controls: true,
+            width: width-(width*15/100),
+            height: height-(height*10/100),
+            controlBar: {
+                fullscreenToggle: false,
+                progressControl: true,
+                remainingTimeDisplay: true,
+                playToggle: true,
+                pictureInPictureToggle: false,
+                volumePanel: {"inline": false}
+            }
+        })
+    }
+    player4.src({type: 'video/mp4', src: player2.currentSrc()});
+}
+
+function effectChoose() {
+    var effectnumber = $("#soundeffect").val()
+    var pathrecord = $("#pathrecord").val()
+    //var pathrecord = player2.currentSrc()
+    $.ajax({
+        url: '/changeeffectrecord',
+        type: 'POST',
+        data: {effectnumber: effectnumber, pathrecord: pathrecord, checkvp8: checkvp8, typerecord: typerecord, haschangeimage: haschangeimage}
+    })
+    .then(res => {
+        if(res == "success"){
+            console.log(effectnumber)
+            if(effectnumber == 0){
+                effectchoose = 0
+                $("#soundeffect").val(effectchoose).change();
+                player2.src({type: 'video/mp4', src: pathrecord});
+            }
+            if(effectnumber == 1){
+                effectchoose = 1
+                $( "#soundeffect" ).val(effectchoose).change();
+                pathrecord = pathrecord.split(".")[0]
+                console.log(checkvp8)
+                if(checkvp8){
+                    pathrecord = pathrecord + "_reverb.webm"
+                }else{
+                    pathrecord = pathrecord + "_reverb.mp4"
+                }
+                console.log(pathrecord)
+                player2.src({type: 'video/mp4', src: pathrecord});
+            }
+        }
+    });
 }
 
 function dataUrlToFile(dataUrl) {
@@ -679,12 +806,13 @@ function musicslider(width, height) {
 
 function UploadImage(songid, namesong, singer) {
 
-    $("#loading").css("display", "")
     var blobFile = $(`#chooseimage_${singer}`)[0].files[0];
     var formData = new FormData();
     formData.append("imageforaudio", blobFile);
     formData.append("songid", songid);
     formData.append("singer", singer);
+    formData.append("checkvp8", checkvp8);
+    formData.append("currentSrc", player2.currentSrc());
     namesong = namesong.replace(/[!@#$%^&*()+=\-[\]\\';,./{}|":<>?~_]/gi, function (x) {
         var a = "\\" + x
         return a
@@ -696,7 +824,9 @@ function UploadImage(songid, namesong, singer) {
         processData: false,
         contentType: false,
         success: function(response) {
-            let player3
+            haschangeimage = true
+            player2.src({type: 'video/mp4', src: '/songhandled/'+ response.videoname +'.mp4'});
+            /*let player3
             $("#loading").css("display", "none");
             $("#divusersing-"+singer).html()
             var htmlvideo = `<video id="my-player-${response.videoname}" class="video-js">
@@ -715,7 +845,8 @@ function UploadImage(songid, namesong, singer) {
                         progressControl: true,
                         remainingTimeDisplay: true,
                         playToggle: true,
-                        pictureInPictureToggle: false
+                        pictureInPictureToggle: false,
+                        volumePanel: {"inline": false}
                     }
                 })
             }else{
@@ -728,11 +859,12 @@ function UploadImage(songid, namesong, singer) {
                         progressControl: true,
                         remainingTimeDisplay: true,
                         playToggle: true,
-                        pictureInPictureToggle: false
+                        pictureInPictureToggle: false,
+                        volumePanel: {"inline": false}
                     }
                 })
             }
-            player3.src({type: 'video/mp4', src: '/uploads/'+ response.videoname +'.mp4'});
+            player3.src({type: 'video/mp4', src: '/uploads/'+ response.videoname +'.mp4'});*/
         },
         error: function(jqXHR, textStatus, errorMessage) {
             console.log(errorMessage); // Optional
