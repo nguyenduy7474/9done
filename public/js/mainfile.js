@@ -76,7 +76,21 @@ $( document ).ready(function() {
     for (var i in types) {
         console.log( "Is " + types[i] + " supported? " + (MediaRecorder.isTypeSupported(types[i]) ? "Maybe!" : "Nope :("));
     }*/
+    connection.addEventListener('change', updateConnectionStatus);
 });
+var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+console.log(connection)
+var type = connection.effectiveType;
+
+function updateConnectionStatus() {
+    console.log("Connection type changed from " + type + " to " + connection.effectiveType);
+    type = connection.effectiveType;
+}
+
+
+
+
+
 
 $(".pagination").on('click', function (e){
     e.preventDefault();
