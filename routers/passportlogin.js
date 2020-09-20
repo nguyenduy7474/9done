@@ -26,10 +26,10 @@ module.exports = function (app, passport) {
 
         });
 
-    app.get('/logout', function(req, res){
+/*    app.get('/logout', function(req, res){
         req.logout();
         res.redirect('/');
-    });
+    });*/
 
     passport.use(new FacebookStrategy({
             clientID: config.facebook_api_key,

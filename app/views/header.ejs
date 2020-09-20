@@ -25,17 +25,34 @@
       -ms-filter: blur(50px);
       filter: blur(50px);
     }
+
   </style>
-    <header class="header9done">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+  <style>
+  .dropdown-item:focus, .dropdown-item:hover {
+  background-color: #d4d4d4;
+  }
+  </style>
+  <header class="header9done">
       <section class="main-container netflixLogo" id="divlogo">
       </section>
       <nav id="navyeucau" class="main-nav">
         <a id="atagyeucau" href="/acceptsongs">Yêu cầu bài hát mới</a>
       </nav>
       <%if(userinfo != null){%>
-        <nav class="sub-nav">
-          <p style="padding-top: 10px; padding-right: 10px"><a href="/user/<%=userinfo._id%>"><%=userinfo.full_name%></a></p>
-        </nav>
+<!--        <nav class="sub-nav">
+          <p style=""><a href="/user/<%=userinfo._id%>"><%=userinfo.full_name%></a></p>
+        </nav>-->
+        <div class="dropdown">
+          <h2 class="btn btn-primary dropdown-toggle" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <%=userinfo.full_name%>
+          </h2>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" href="/user/<%=userinfo._id%>"><i class="fa fa-user-o" aria-hidden="true"></i>Trang cá nhân</a>
+            <a class="dropdown-item" href="/logout"><i class="fa fa-sign-out" aria-hidden="true"></i>Đăng xuất</a>
+          </div>
+        </div>
       <%}else{%>
       <nav class="sub-nav">
         <a class="btn btn-primary" href="/auth/facebook" id="buttonlogin">Đăng nhập với facebook</a>

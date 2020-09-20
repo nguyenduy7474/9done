@@ -18,6 +18,11 @@ var appDir = path.dirname(require.main.filename);
 var mongoose = require('mongoose');
 
 class UserController{
+	static logOut(req, res){
+		req.session.user = "";
+		res.redirect("/")
+	}
+
 	static userPage(req, res){
 		let userinfo = ""
 		console.log(userinfo)

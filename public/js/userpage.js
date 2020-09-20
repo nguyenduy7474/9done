@@ -14,7 +14,7 @@ function getInfoUser(){
 	.then(res => {
 		let userinfo = res.userinfo
 		let infor = ``
-		infor += `<img src="${userinfo.avatar}" class="rounded"><h2>${userinfo.full_name}</h2>`
+		infor += `<img style="border-radius: 20%;" src="${userinfo.avatar}" class="rounded"><h2>${userinfo.full_name}</h2>`
 		$("#info").html(infor)
 	})
 }

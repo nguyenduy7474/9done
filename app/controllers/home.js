@@ -525,6 +525,7 @@ class Home {
 
     static checkLogin(req, res, next) {
         try {
+            console.log()
             if (req.session.user) {
                 let data = req.session.user;
                 data.user_public_folder = "/public/users/" + data._id;
