@@ -18,7 +18,6 @@ const ytdl = require('ytdl-core');
 var ffmpeg = require('fluent-ffmpeg');
 const download = require('download');
 
-
 class AdminPage{
 
 	static editSong(req, res){
