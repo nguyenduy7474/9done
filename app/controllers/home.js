@@ -2,6 +2,7 @@ var numeral = require('numeral');
 var bcrypt = require('bcrypt-nodejs');
 var dateFormat = require('dateformat');
 var Songs = require('../models/songs');
+var SongGuestSing = require('../models/songguestsing');
 var SongUserSing = require('../models/songusersing');
 var RankSong = require('../models/ranksong');
 const fs = require('fs');
@@ -19,8 +20,37 @@ var ffmpeg = require('fluent-ffmpeg');
 const {getAudioDurationInSeconds} = require('get-audio-duration');
 var {Readable} = require('stream');
 const {spawn} = require('child_process');
+var mv = require('mv');
+
 
 class Home {
+
+    static async effectDone(req, res) {
+        if (req.session.user) {
+            var songid = req.body.songid.split("_")
+            songid.pop()
+            songid = songid.join("_")
+            //var songinfo = await Songs.findOne({songid: songid})
+            var path = req.body.src
+            var filename = path.split("/")
+            filename = filename[filename.length - 1]
+            let songusersing = SongUserSing({
+                userid: req.session.user._id,
+                username: req.session.user.full_name,
+                handledname: filename,
+                songid: songid,
+                timeupload: new Date()
+            })
+            await songusersing.save()
+            fs.copyFileSync('./public' + path, '.' + req.session.user.user_public_folder + "/songhandled/" + filename);
+            res.send({user: "exist"})
+        }else{
+            res.send({user: "none"})
+        }
+
+    }
+
+
     static async home(req, res) {
         let userinfo
         if (req.session.user) {
@@ -179,7 +209,7 @@ class Home {
                 }*/
         var plustime = new Date()
         plustime = plustime.getTime() + (3 * 60 * 60 * 1000)
-        var savesong = SongUserSing({
+        var savesong = SongGuestSing({
             uploadsname: pathsinger,
             handledname: pathmergerfile,
             handlednameweb: pathmergerfileweb,
@@ -263,7 +293,6 @@ class Home {
 			res.send("success")
 			return
 		}
-
         if (effectnumber == 1) {//reverb
 			var pathrecordwav = pathrecord.split(".")[0]
         	if(!fs.existsSync("./public" + pathrecordwav + "_reverb.mp4") && !fs.existsSync("./public" + pathrecordwav + "_reverb.webm")){
@@ -277,8 +306,8 @@ class Home {
                 if(checkvp8 == "true"){
                     duoifilevideo = "_reverb.webm"
                 }
-        	    console.log(pathrecord)
-                console.log(pathrecordwav + duoifilevideo)
+        	    console.log(pathrecordwav)
+                console.log(pathrecordwavaddeffect)
 				if (typerecord == "novideo") {
 				    videowitheffect = "ffmpeg -i ./public" + pathrecord + " -i ./public" + pathrecordwavaddeffect + " -map 0:1 -map 1:0 -c:v copy ./public" + pathrecordwav + duoifilevideo
 				} else {
@@ -293,9 +322,9 @@ class Home {
 				}
 			}
         	if(checkvp8 == "true"){
-                await SongUserSing.updateOne({handlednameweb: "public" + pathrecord}, {$set: {reverb: "public" + pathrecordwav + duoifilevideo}})
+                await SongGuestSing.updateOne({handlednameweb: "public" + pathrecord}, {$set: {reverb: "public" + pathrecordwav + duoifilevideo}})
             }else{
-                await SongUserSing.updateOne({handledname: "public" + pathrecord}, {$set: {reverb: "public" + pathrecordwav + duoifilevideo}})
+                await SongGuestSing.updateOne({handledname: "public" + pathrecord}, {$set: {reverb: "public" + pathrecordwav + duoifilevideo}})
             }
             res.send("success")
         }
@@ -470,7 +499,7 @@ class Home {
         var check = await excutecmd(ffmpegcmd)
         var plustime = new Date()
         plustime = plustime.getTime() + (60 * 60 * 1000)
-        var savesong = SongUserSing({
+        var savesong = SongGuestSing({
             uploadsname: `public/songhandled/${videoname}.mp4`,
             handledname: `public/songhandled/${songid}_${singer}.mp4`,
             imagename: pathimage,
@@ -493,7 +522,7 @@ class Home {
             .on('end', async function(stdout, stderr) {
                 var plustime = new Date()
                 plustime = plustime.getTime() + (60*60*1000)
-                var savesong = SongUserSing({
+                var savesong = SongGuestSing({
                     uploadsname: `public/uploads/${videoname}.mp4`,
                     handledname: `public/songhandled/${songid}_${singer}.mp4`,
                     imagename: pathimage,
@@ -532,6 +561,14 @@ class Home {
                 //Crate folder for temp
                 if (!fs.existsSync(appDir + data.user_public_folder)) {
                     fs.mkdirSync(appDir + data.user_public_folder);
+                }
+
+                if (!fs.existsSync(appDir + data.user_public_folder + "/songhandled")) {
+                    fs.mkdirSync(appDir + data.user_public_folder + "/songhandled");
+                }
+
+                if (!fs.existsSync(appDir + data.user_public_folder + "/thumbnails")) {
+                    fs.mkdirSync(appDir + data.user_public_folder + "/thumbnails");
                 }
             }
 

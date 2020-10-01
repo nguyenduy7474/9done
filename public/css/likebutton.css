@@ -1,0 +1,106 @@
+.like {
+    box-sizing: border-box;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: 2px solid #e74c3c;
+    border-radius: 0.6em;
+    color: #e74c3c;
+    cursor: pointer;
+    display: -webkit-box;
+    display: flex;
+    align-self: center;
+    font-size: 0.8rem;
+    font-weight: 400;
+    line-height: 1;
+    padding: 1.2em 2.8em;
+    text-decoration: none;
+    text-align: center;
+    text-transform: uppercase;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+}
+.like:hover, .like:focus {
+    color: #fff;
+    outline: 0;
+}
+
+.first {
+    border: 2px solid #23d160;
+    color: #23d160;
+    -webkit-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+    transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+}
+.first:hover {
+    box-shadow: 0 0 40px 40px #23d160 inset;
+}
+
+.third {
+    -webkit-transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+    transition: box-shadow 300ms ease-in-out, color 300ms ease-in-out;
+}
+.third:hover {
+    box-shadow: 0 0 40px 40px #e74c3c inset;
+}
+
+.fourth {
+    border-color: #f1c40f;
+    color: #fff;
+    background-image: linear-gradient(45deg, #f1c40f 50%, transparent 50%);
+    background-position: 100%;
+    background-size: 400%;
+    -webkit-transition: background 300ms ease-in-out;
+    transition: background 300ms ease-in-out;
+}
+.fourth:hover {
+    background-position: 0;
+}
+
+.fifth {
+    border-color: #8e44ad;
+    border-radius: 0;
+    color: #8e44ad;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+    -webkit-transition: color 150ms ease-in-out;
+    transition: color 150ms ease-in-out;
+}
+.fifth:after {
+    content: '';
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 50%;
+    -webkit-transform: translateX(-50%);
+    transform: translateX(-50%);
+    width: 0;
+    height: 100%;
+    background: #8e44ad;
+    z-index: -1;
+    -webkit-transition: width 150ms ease-in-out;
+    transition: width 150ms ease-in-out;
+}
+.fifth:hover {
+    color: #fff;
+}
+.fifth:hover:after {
+    width: 110%;
+}
+
+.sixth {
+    border-radius: 3em;
+    border-color: #2ecc71;
+    color: #2ecc71;
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(50%, transparent), color-stop(50%, #2ecc71));
+    background-image: linear-gradient(to bottom, transparent 50%, #2ecc71 50%);
+    background-position: 0% 0%;
+    background-size: 210%;
+    -webkit-transition: background 150ms ease-in-out, color 150ms ease-in-out;
+    transition: background 150ms ease-in-out, color 150ms ease-in-out;
+}
+.sixth:hover {
+    color: #fff;
+    background-position: 0 100%;
+}

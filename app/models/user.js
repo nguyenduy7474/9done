@@ -10,6 +10,7 @@ var userSchema = mongoose.Schema({
 	gender: String,
 	address: String,
 	avatar: { type : String , "default" : "/images/default-avatar.png" },
+	subcribe: { type : Array , "default" : [] },
 	created_date: Date,
 	user_public_folder: String, 
 	role: { type : String , "default" : "member" },

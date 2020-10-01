@@ -16,8 +16,48 @@ const got = require('got');
 var path = require('path');
 var appDir = path.dirname(require.main.filename);
 var mongoose = require('mongoose');
+var SongUserSing = require('../models/songusersing');
+var UserReact =require('../models/userreact');
 
 class UserController{
+
+	static async infoSongUserSing(req, res){
+		var userreact
+		var likecount = await UserReact.find({songusersingid: req.body.songid, react: "like"}).count()
+		var dislikecount = await UserReact.find({songusersingid: req.body.songid, react: "dislike"}).count()
+		if(req.session.user){
+			userreact = await UserReact.findOne({songusersingid: req.body.songid, userid: req.session.user._id})
+			if(userreact){
+				userreact = userreact.react
+			}
+		}
+		res.send({likecount: likecount, dislikecount: dislikecount, userreact: userreact})
+	}
+
+	static async reactVideo(req, res){
+		if(req.session.user){
+		    var userreact = await UserReact.findOne({songusersingid: req.body.songid, userid: req.session.user._id})
+			console.log(userreact)
+            if(userreact){
+            	console.log("do day")
+                if(userreact.react != req.body.react){
+                    userreact.react = req.body.react
+                }
+                await userreact.save()
+            }else{
+                var userreactsave = UserReact({
+                    songusersingid: req.body.songid,
+                    userid: req.session.user._id,
+                    react: req.body.react,
+                    datecreate: new Date()
+                })
+                await userreactsave.save()
+            }
+		}
+		res.send("success")
+	}
+
+
 	static logOut(req, res){
 		req.session.user = "";
 		res.redirect("/")
@@ -38,22 +78,43 @@ class UserController{
 	}
 
 	static async getUserinfo(req, res){
-		console.log("aa")
-		console.log(req.body.userid)
-		console.log(mongoose.Types.ObjectId.isValid(req.body.userid))
 		if(!mongoose.Types.ObjectId.isValid(req.body.userid)){
-			res.send("Not Foud User")
+			res.send("Not Found User")
 			return
 		}else{
 			let user = await User.findOne({_id: req.body.userid})
 			if(!user){
-				res.send("Not Foud User")
+				res.send("Not Found User")
 				return
 			}else{
+				var allsonguser = await SongUserSing.find({userid: req.body.userid}).lean()
+				var songinfo
+				var songuserarr = []
+				var songuserobj
+
+				for(var i=0; i<allsonguser.length; i++){
+					/*songuserobj = {}*/
+					songinfo = await Songs.findOne({songid: allsonguser[i].songid})
+/*					songuserobj = Object.assign({}, allsonguser[i])
+					songuserobj = songuserobj._doc
+					songuserarr.push(songuserobj)*/
+					allsonguser[i].songname = songinfo.songname
+				}
+				console.log(allsonguser)
+				var userinfo = {
+					id: user._id,
+					avatar: user.avatar,
+					full_name: user.full_name
+				}
 				if(req.session.user && user.id == req.session.user._id){
-					res.send({userinfo: user, currentuser: true})
+					res.send({userinfo: userinfo, currentuser: true, allsonguser: allsonguser, checklogined: true})
 				}else{
-					res.send({userinfo: user, currentuser: false})
+					if(req.session.user){
+						res.send({userinfo: userinfo, currentuser: false, allsonguser: allsonguser, checklogined: true})
+					}else{
+						res.send({userinfo: userinfo, currentuser: false, allsonguser: allsonguser, checklogined: false})
+					}
+
 				}
 			}
 		}

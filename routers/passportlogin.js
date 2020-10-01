@@ -99,6 +99,14 @@ module.exports = function (app, passport) {
                                 fs.mkdirSync(appDir + user_public_folder);
                             }
 
+                            if (!fs.existsSync(appDir + user_public_folder + "/songhandled")) {
+                                fs.mkdirSync(appDir + user_public_folder + "/songhandled");
+                            }
+
+                            if (!fs.existsSync(appDir + user_public_folder + "/thumbnails")) {
+                                fs.mkdirSync(appDir + user_public_folder + "/thumbnails");
+                            }
+
                         }catch(ex) {
                             console.log("can't create user folder: " + data._id);
                             console.log("Err: " + ex);

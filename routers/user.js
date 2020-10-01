@@ -7,5 +7,9 @@ var UserController = require('../app/controllers/usercontroller')
 
 module.exports = function (app, passport) {
     app.get('/user/:fbid', home.checkLogin, UserController.userPage);
+    app.post('/reactvideo', home.checkLogin, UserController.reactVideo);
     app.get('/logout', home.checkLogin, UserController.logOut);
+
+    app.post('/infovideosongusersing', UserController.infoSongUserSing);
+
 }

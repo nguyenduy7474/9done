@@ -7,12 +7,19 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Netflix</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://vjs.zencdn.net/7.8.4/video-js.css" rel="stylesheet" />
   <link rel="stylesheet" href="/css/netflix.css">
   <link href="https://fonts.googleapis.com/css?family=Bitter:400,700&display=swap&subset=latin-ext"/>
     <link rel="stylesheet" href="/css/main.css" />
+  <link href='https://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" href="/css/likebutton.css">
   <style>
     body{
       font-family: Arial, Helvetica, sans-serif
+    }
+    td{
+      padding-right: 15px;
+      padding-bottom: 15px;
     }
   </style>
   </br>
@@ -21,11 +28,35 @@
       
     </div>
   </center>
+  <div id="containerplayer" style="padding-left: 25px; overflow: auto">
+    <div id="containervideoandinfo">
+      <video id="my-player" class="video-js">
+      </video>
+    </div>
+    <div style="float: left; width: auto" id="reactionplace">
 
+    </div>
+  </div>
+  <section class="main-container" >
+    <div class="location" id="www">
+      <div class="box" id="listrecords" style="overflow: auto;">
+      </div>
+    </div>
+    </br>
+    <div class="location" id="home">
+      <div class="box" id="boxnewsong">
+      </div>
+      </div>
+      <div style="color: #06121e;margin: 0 auto; ;display: table;margin-top: 1rem" class="pagination">
+
+      </div>
+  </section>
+  <input type="hidden" id="userid"/>
 <div class="box" style="grid-gap: 100px; grid-template-columns: repeat(2, minmax(100px, 1fr))">
-  
+
 </div>
   <script src="/js/jquery.min.js"></script>
+  <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
   <script src="/js/userpage.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>

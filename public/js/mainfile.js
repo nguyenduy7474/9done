@@ -20,7 +20,7 @@ $( document ).ready(function() {
         }
     });
 
-    $( "#soundeffect" ).change(function() {
+    $("#soundeffect").change(function() {
         if($("#soundeffect").val() == effectchoose){
             $("#buttoneffect").prop("disabled",true);
             $("#buttoneffect").html('Đang Chọn');
@@ -79,11 +79,9 @@ $( document ).ready(function() {
     connection.addEventListener('change', updateConnectionStatus);
 });
 var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-console.log(connection)
 var type = connection.effectiveType;
 
 function updateConnectionStatus() {
-    console.log("Connection type changed from " + type + " to " + connection.effectiveType);
     type = connection.effectiveType;
 }
 
@@ -245,7 +243,7 @@ function searchsong(paging_num){
             allsongs = res.data
             let pageCount = res.pageCount
             let currentPage = res.currentPage
-            var listsong = ""
+            var listsong = ``
             for(var i=0; i<allsongs.length; i++){
                 var lengthsong = secondToMinutes(allsongs[i].lengthsong)
                 listsong +=`<div class="jumplentren" onclick="chooseSong('${allsongs[i].songid}')" style="color: white; font-size: 110%; text-decoration: none"><img  class="pb-2" style="width:100%" src="/thumbnails/${allsongs[i].songid}.jpg"></br>${allsongs[i].songname}<p style="color: #989797; font-size: 90%;">${allsongs[i].singger} • ${allsongs[i].counttimesing} lượt hát</p></div>`
@@ -295,11 +293,30 @@ function GrantPermission() {
         return
     }
     var constraints = {
-        audio: { deviceId: "communications" },
+        audio: {
+            googAutoGainControl: false,
+            noiseSuppression: false,
+            autoGainControl: false,
+            echoCancellation: {exact: false},
+            advanced: [
+                {echoCancellation: {exact: false}},
+                {googEchoCancellation: {exact: false}},
+                {googExperimentalEchoCancellation: {exact: false}},
+                {googDAEchoCancellation: {exact: false}},
+                {googAutoGainControl: {exact: false}},
+                {googExperimentalAutoGainControl: {exact: false}},
+                {googNoiseSuppression: {exact: false}},
+                {googExperimentalNoiseSuppression: {exact: false}},
+                {googHighpassFilter: {exact: false}},
+                {googTypingNoiseDetection: {exact: false}},
+                {googAudioMirroring: {exact: false}},
+                {googNoiseReduction: {exact: false}}
+                ]
+        },
         video: { 
             facingMode: "user",
-            frameRate: { ideal: 30, max: 40 }
-            //aspectRatio: 16/9,
+            frameRate: { ideal: 30, max: 40 },
+            aspectRatio: 16/9
 /*            width: { ideal: 1280 },
             height: { ideal: 720 }*/
         }
@@ -314,7 +331,7 @@ function GrantPermission() {
     }*/
     if(window.mobilecheck()){
         constraints.video.width = 360
-        constraints.video.height = 360
+        constraints.video.height = 202.5
     }
     typerecord = $("#selecttyperecord").val()
     if(typerecord == "novideo"){
@@ -393,7 +410,9 @@ function singNow(stream){
             mediaRecorder = new MediaRecorder(stream, {mimeType: "video/webm\; codecs=daala"})
         }
     }
+
     mediaRecorder.start()
+
     interVal = setInterval(() => {duration++}, 1000)
     mediaRecorder.ondataavailable = function(e) {
         chunks.push(e.data);
@@ -590,52 +609,71 @@ function uploadToServer(blob, length){
 
 function effectdone(){
     $("#studiomodal").modal('toggle');
-    var namesong = $("#namesong").val()
-    var singer = $("#singer").val()
-    var player4
-    console.log(player2.currentSrc())
-    let audio
+    $.ajax({
+        url: '/effectdone',
+        type: 'POST',
+        data: {src: player2.currentSrc(), songid: $("#songid").val()}
+    })
+    .then(res => {
+        var namesong = $("#namesong").val()
+        var singer = $("#singer").val()
+        var player4
+        let audio
 
-    audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}1" class="video-js"></video>`
-    audio += namesong
-    audio += `<div><a class="btn btn-primary" href='${player2.currentSrc()}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a>`
-    $("#listrecords").append(audio)
-    if(!window.mobilecheck()){
-        player4 = videojs(`my-player-${singer}1`, {
-            controls: true,
-            width: width/4,
-            height: height/4,
-            controlBar: {
-                fullscreenToggle: false,
-                progressControl: true,
-                remainingTimeDisplay: true,
-                playToggle: true,
-                pictureInPictureToggle: false,
-                volumePanel: {"inline": false}
-            }
-        })
-    }else{
-        player4 = videojs(`my-player-${singer}1`, {
-            controls: true,
-            width: width-(width*15/100),
-            height: height-(height*10/100),
-            controlBar: {
-                fullscreenToggle: false,
-                progressControl: true,
-                remainingTimeDisplay: true,
-                playToggle: true,
-                pictureInPictureToggle: false,
-                volumePanel: {"inline": false}
-            }
-        })
-    }
-    player4.src({type: 'video/mp4', src: player2.currentSrc()});
+        audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}1" class="video-js"></video>`
+        audio += `<div>${namesong}<a href='${player2.currentSrc()}' download="${namesong}.mp4" ><img src="/imgs/cloud.png" width="40px"></a></div>`
+/*
+        audio += `<div><a class="btn btn-primary" href='${player2.currentSrc()}' download="${namesong}.mp4" style="color: white;margin-top: 5px; margin-bottom: 5px">Tải về</a>`
+*/
+        $("#listrecords").append(audio)
+        if(!window.mobilecheck()){
+            player4 = videojs(`my-player-${singer}1`, {
+                controls: true,
+                width: width/4,
+                height: height/4,
+                controlBar: {
+                    fullscreenToggle: false,
+                    progressControl: true,
+                    remainingTimeDisplay: true,
+                    playToggle: true,
+                    pictureInPictureToggle: false,
+                    volumePanel: {"inline": false}
+                }
+            })
+        }else{
+            player4 = videojs(`my-player-${singer}1`, {
+                controls: true,
+                width: width-(width*15/100),
+                height: height-(height*10/100),
+                controlBar: {
+                    fullscreenToggle: false,
+                    progressControl: true,
+                    remainingTimeDisplay: true,
+                    playToggle: true,
+                    pictureInPictureToggle: false,
+                    volumePanel: {"inline": false}
+                }
+            })
+        }
+        player4.src({type: 'video/mp4', src: player2.currentSrc()});
+        player2.dispose()
+    })
+
 }
 
 function effectChoose() {
     var effectnumber = $("#soundeffect").val()
     var pathrecord = $("#pathrecord").val()
     //var pathrecord = player2.currentSrc()
+    if(effectnumber == 0) {
+        effectchoose = 0
+        $("#soundeffect").val(effectchoose).change();
+    }
+    if(effectnumber == 1) {
+        effectchoose = 1
+        $("#soundeffect").val(effectchoose).change()
+    }
+
     $.ajax({
         url: '/changeeffectrecord',
         type: 'POST',
@@ -643,23 +681,17 @@ function effectChoose() {
     })
     .then(res => {
         if(res == "success"){
-            console.log(effectnumber)
             if(effectnumber == 0){
-                effectchoose = 0
-                $("#soundeffect").val(effectchoose).change();
                 player2.src({type: 'video/mp4', src: pathrecord});
             }
+
             if(effectnumber == 1){
-                effectchoose = 1
-                $( "#soundeffect" ).val(effectchoose).change();
                 pathrecord = pathrecord.split(".")[0]
-                console.log(checkvp8)
                 if(checkvp8){
                     pathrecord = pathrecord + "_reverb.webm"
                 }else{
                     pathrecord = pathrecord + "_reverb.mp4"
                 }
-                console.log(pathrecord)
                 player2.src({type: 'video/mp4', src: pathrecord});
             }
         }

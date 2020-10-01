@@ -47,5 +47,5 @@ module.exports = function (app, passport) {
     app.post('/checktogettypevideo', home.checkToGetTypeVideo);
 
     app.post('/changeeffectrecord', home.changeEffectRecord);
-
+    app.post('/effectdone', home.effectDone);
 }

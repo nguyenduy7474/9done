@@ -3,14 +3,14 @@ var CronJob = require('cron').CronJob;
 
 var job = new CronJob('0 3 * * * *', function() {
 	const mongoose = require('mongoose');
-	var SongUserSing = require('./app/models/songusersing');
+	var SongGuestSing = require('./app/models/songguestsing');
 	const fs = require('fs');
 	console.log("1 phut")
 	mongoose.connect('mongodb://localhost:27017/singwithyou');
 	const db = mongoose.connection;
 
 	db.on('error', console.error.bind(console, 'connection error:'))
-	SongUserSing.find({}, async (err, found) => {
+	SongGuestSing.find({}, async (err, found) => {
 		if(err) console.log(err)
 		var now = new Date()
 		console.log(now)
@@ -32,7 +32,7 @@ var job = new CronJob('0 3 * * * *', function() {
 				if(fs.existsSync(`./${found[i].reverb}`)){
 					fs.unlinkSync(`./${found[i].reverb}`)
 				}
-				await SongUserSing.deleteOne({_id: found[i]._id})
+				await SongGuestSing.deleteOne({_id: found[i]._id})
 				mongoose.disconnect();
 			}
 		}
