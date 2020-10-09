@@ -76,8 +76,53 @@ $( document ).ready(function() {
     for (var i in types) {
         console.log( "Is " + types[i] + " supported? " + (MediaRecorder.isTypeSupported(types[i]) ? "Maybe!" : "Nope :("));
     }*/
-    connection.addEventListener('change', updateConnectionStatus);
+    connection.addEventListener('change', updateConnectionStatus)
 });
+
+var explainarr = ["",
+        {title: "Hiệu ứng âm vang", text: "&bull; Giúp bài thu có thêm tiếng vang như trong phòng thu âm<br>&bull; Giúp giọng hát hòa chung với nền nhạc<br>&bull; Dùng cho giọng chưa đủ khỏe<br>&bull; Không khuyến khích dùng khi muốn phô diễn giọng hát"}
+
+    ]
+
+function explainEffect(){
+    var effect = $("#soundeffect").val()
+    if(effect == 0){
+        $("#explaineffecttext").html(explainarr[effect])
+    }
+    if(effect == 1){
+        $("#explaineffecttext").html(`<center><span style="color: white; font-weight: bold">${explainarr[effect].title}</span></center><p style="color: #c1c1c1;margin-left: 5%;line-height: 150%">${explainarr[effect].text}</p><br>`)
+    }
+}
+
+function blurloading(done){
+    if(done == "done"){
+        $("#voicerecord").css("pointer-events", "")
+        $("#boxnewsong").css("pointer-events", "")
+        $("#loadingsvg").css("display", "none")
+        var filterVal = 'blur(0px)';
+        $('#voicerecord')
+            .css('filter',filterVal)
+            .css('webkitFilter',filterVal)
+            .css('mozFilter',filterVal)
+            .css('oFilter',filterVal)
+            .css('msFilter',filterVal);
+    }else{
+        $("#voicerecord").css("pointer-events", "none")
+        $("#boxnewsong").css("pointer-events", "none")
+        $("#loadingsvg").css("display", "")
+        var filterVal = 'blur(100px)';
+        $('#voicerecord')
+            .css('filter',filterVal)
+            .css('webkitFilter',filterVal)
+            .css('mozFilter',filterVal)
+            .css('oFilter',filterVal)
+            .css('msFilter',filterVal);
+    }
+
+}
+
+
+
 var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 var type = connection.effectiveType;
 
@@ -391,6 +436,8 @@ function GrantPermission() {
 
 
 function singNow(stream){
+    recordButton.style.display = "none"
+    stopButton.style.display = ""
     stopButton.disabled = false;
     //document.getElementById("jumpto").scrollIntoView({behavior: "smooth"});
     goToByScroll("containerplayer");
@@ -450,6 +497,7 @@ function stopRecording(change) {
         $("#dsthuam").css("display", "");
     }
     $("#countdown").css("display", "none");
+
     document.getElementById('uservideo').style.display = "none"
     pause = false
     recording = false
@@ -457,6 +505,8 @@ function stopRecording(change) {
     //disable the stop button, enable the record too allow for new recordings
     stopButton.disabled = true;
     recordButton.disabled = false;
+    recordButton.style.display = ""
+    stopButton.style.display = "none"
 
     if(mediaRecorder){
         if(mediaRecorder.state != "inactive"){
@@ -536,8 +586,9 @@ function uploadToServer(blob, length){
             $("#namesong").val(namesong)
             //$("#modalbody").append(`<button type="button" class="btn btn-primary" onclick="effectChoose()" disabled>Đang Chọn</button>`)
             $( "#soundeffect" ).val(effectchoose).change();
+            $("#dangtai").css("display", "none");
             $("#studiomodal").modal('toggle');
-
+            blurloading("done")
 
 
 /*            audio = `<center><div id="divusersing-${singer}"><video id="my-player-${singer}" class="video-js"></video>`
@@ -605,10 +656,13 @@ function uploadToServer(blob, length){
     fd.append("duy", blob, filename);
     xhr.open("POST", "/uploadsing");
     xhr.send(fd);
+    blurloading()
+
 }
 
 function effectdone(){
     $("#studiomodal").modal('toggle');
+
     $.ajax({
         url: '/effectdone',
         type: 'POST',
@@ -673,13 +727,15 @@ function effectChoose() {
         effectchoose = 1
         $("#soundeffect").val(effectchoose).change()
     }
-
+    player2.pause()
+    $("#studiovideo").append(`<center><span id="chudangtai" style="color: #d81f26;font-weight: bold">Đang xử lý...</span></center>`)
     $.ajax({
         url: '/changeeffectrecord',
         type: 'POST',
         data: {effectnumber: effectnumber, pathrecord: pathrecord, checkvp8: checkvp8, typerecord: typerecord, haschangeimage: haschangeimage}
     })
     .then(res => {
+        $("#chudangtai").remove()
         if(res == "success"){
             if(effectnumber == 0){
                 player2.src({type: 'video/mp4', src: pathrecord});

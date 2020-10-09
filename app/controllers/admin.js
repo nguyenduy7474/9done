@@ -17,15 +17,28 @@ var appDir = path.dirname(require.main.filename);
 const ytdl = require('ytdl-core');
 var ffmpeg = require('fluent-ffmpeg');
 const download = require('download');
+const downloadfromurl = require('image-downloader')
 
 class AdminPage{
 
-	static editSong(req, res){
+	static async editSong(req, res){
 		var songid = req.body.songid
 		var songname = req.body.songname
 		var singger = req.body.singger
 		var songtags = req.body.songtags
-		console.log(songtags)
+		var urlthumbnail = req.body.urlthumbnail
+
+		if(req.body.urlthumbnail){
+			let options = {
+				url: urlthumbnail,
+				dest: './public/thumbnails/' + songid + '.jpg'
+			}
+			await downloadimg(options)
+/*			console.log("ok")
+			fs.unlinkSync('./public/thumbnails/' + req.body.songid + '.jpg')
+			fs.renameSync('./public/' + req.file.filename,'./public/thumbnails/' + req.body.songid + '.jpg')
+			//fs.unlinkSync('./public/' + req.file.filename)*/
+		}
 		songtags = songtags.trim()
 		songtags = songtags.split(",")
 		for(var i=0; i<songtags.length;i++){
@@ -35,6 +48,16 @@ class AdminPage{
 			if(err) throw err
 			res.send("success")
 		})
+
+		function downloadimg(options){
+			return new Promise((ok, notok) => {
+				downloadfromurl.image(options)
+					.then(({ filename }) => {
+						ok()
+					})
+					.catch(ok())
+			})
+		}
 	}
 
 	static manage9Done(req, res){

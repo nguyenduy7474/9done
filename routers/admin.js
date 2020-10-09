@@ -2,12 +2,26 @@ var AdminPage =      require('../app/controllers/admin');
 var home = require('../app/controllers/home');
 const User = require('../app/models/user')
 var LocalStrategy   = require('passport-local').Strategy;
+var Multer  = require('multer')
+
+var storage = Multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, './public/');
+    },
+    filename: (req, file, cb) => {
+        cb(null, Date.now() + "_" + file.originalname)
+    }
+});
+
+var upload = Multer({ storage: storage})
+
 
 module.exports = function (app, passport) {
     app.get('/duylogin', AdminPage.adminLogin);
     app.get('/manage9done', AdminPage.checkAdmin, AdminPage.manage9Done);
     app.post('/deletesong', AdminPage.checkAdmin, AdminPage.deleteSong);
     app.post('/logout', AdminPage.checkAdmin, AdminPage.logout);
+
     app.post('/editsong', AdminPage.checkAdmin, AdminPage.editSong);
 
     //app.post('/getAllSongs', AdminPage.checkAdmin, AdminPage.getAllSongs);

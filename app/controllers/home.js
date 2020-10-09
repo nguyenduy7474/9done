@@ -21,6 +21,7 @@ const {getAudioDurationInSeconds} = require('get-audio-duration');
 var {Readable} = require('stream');
 const {spawn} = require('child_process');
 var mv = require('mv');
+var getDimensions = require('get-video-dimensions');
 
 
 class Home {
@@ -196,9 +197,9 @@ class Home {
             }
         } else {
             if (checkvp8 == "true") {
-                ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/" + req.body.songid + ".jpg -filter_complex " + filter + " ./" + pathmergerfileweb
+                ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/" + req.body.songid + ".jpg -filter_complex " + filter + " -crf 10 -preset slow ./" + pathmergerfileweb
             }else{
-                ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/" + req.body.songid + ".jpg -filter_complex " + filter + " ./" + pathmergerfile
+                ffmpegcmd = "ffmpeg -i ./" + pathsong + " -i ./" + pathsinger + " -i ./public/thumbnails/" + req.body.songid + ".jpg -filter_complex " + filter + " -crf 10 -preset slow ./" + pathmergerfile
             }
         }
 
@@ -207,6 +208,25 @@ class Home {
                     let combineaudiowithimage = "ffmpeg -i ./thumnails/" + req.body.songid + ".jpg -i ./" + pathmergerfile + "-acodec copy " +
                     await mixaudio(ffmpegcmd)
                 }*/
+        console.log(ffmpegcmd)
+        var arrsplit = ffmpegcmd.split("./")
+        var pathfile = arrsplit[arrsplit.length-1]
+        var newpathfile = pathfile.split(".")[0] + "_logo." + pathfile.split(".")[1]
+        console.log(newpathfile)
+        const dimensions = await getDimensions('./' + pathfile)
+        console.log(dimensions.width);
+        if(dimensions.width < 1000){
+            var placewitdh = dimensions.width - 30
+            ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo_20.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':10" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
+        }else{
+            var placewitdh = dimensions.width - 70
+            ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':20" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
+        }
+        await excutecmd(ffmpegcmd)
+        fs.unlinkSync('./' + pathfile)
+        fs.renameSync('./' + newpathfile, './' + pathfile)
+
+
         var plustime = new Date()
         plustime = plustime.getTime() + (3 * 60 * 60 * 1000)
         var savesong = SongGuestSing({
@@ -295,6 +315,7 @@ class Home {
 		}
         if (effectnumber == 1) {//reverb
 			var pathrecordwav = pathrecord.split(".")[0]
+            console.log(pathrecord)
         	if(!fs.existsSync("./public" + pathrecordwav + "_reverb.mp4") && !fs.existsSync("./public" + pathrecordwav + "_reverb.webm")){
 				var splittowav = "ffmpeg -i ./public" + pathrecord + " ./public" + pathrecordwav + ".wav"
 				await excutecmd(splittowav)
@@ -308,18 +329,17 @@ class Home {
                 }
         	    console.log(pathrecordwav)
                 console.log(pathrecordwavaddeffect)
-				if (typerecord == "novideo") {
-				    videowitheffect = "ffmpeg -i ./public" + pathrecord + " -i ./public" + pathrecordwavaddeffect + " -map 0:1 -map 1:0 -c:v copy ./public" + pathrecordwav + duoifilevideo
-				} else {
-					videowitheffect = "ffmpeg -i ./public" + pathrecord + " -i ./public" + pathrecordwavaddeffect + " -map 0:0 -map 1:0 -c:v copy ./public" + pathrecordwav + duoifilevideo
-				}
+                console.log(duoifilevideo)
+
+                videowitheffect = "ffmpeg -i ./public" + pathrecord + " -i ./public" + pathrecordwavaddeffect + " -map 0:0 -map 1:0 -c:v copy ./public" + pathrecordwav + duoifilevideo
+                console.log(videowitheffect)
 				await excutecmd(videowitheffect)
-				if (fs.existsSync("./public" + pathrecordwav + ".wav")) {
+/*				if (fs.existsSync("./public" + pathrecordwav + ".wav")) {
 					fs.unlinkSync("./public" + pathrecordwav + ".wav");
 				}
 				if (fs.existsSync("./public" + pathrecordwavaddeffect)) {
 					fs.unlinkSync("./public" + pathrecordwavaddeffect);
-				}
+				}*/
 			}
         	if(checkvp8 == "true"){
                 await SongGuestSing.updateOne({handlednameweb: "public" + pathrecord}, {$set: {reverb: "public" + pathrecordwav + duoifilevideo}})

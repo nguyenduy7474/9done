@@ -1,6 +1,5 @@
 $( document ).ready(function() {
     searchsong()
-
     $("#searchsong").on('keypress',function(e) {
         if(e.which == 13) {
             searchsong()
@@ -11,7 +10,10 @@ $( document ).ready(function() {
             searchsong()
         }
     });
+
 })
+
+
 
 function searchsong(paging_num){
     var namesong = $("#searchsong").val()
@@ -89,17 +91,31 @@ function editsong(songid, songname, singger, songtags){
     $("#songtags").val(songtags)
 }
 
+function imagein() {
+    var urlthumbnail = $("#urlthumbnail").val()
+    $("#checkthubmnail").attr("src", urlthumbnail)
+}
+
 function editsave() {
     $("#modaledit").modal('toggle');
     var songid = $("#songid").val()
     var songname = $("#songname").val()
     var singger = $("#singger").val()
     var songtags = $("#songtags").val()
-    console.log(songtags)
+    var urlthumbnail = $("#urlthumbnail").val()
+
+    var data = {
+        songid: songid,
+        songname: songname,
+        singger: singger,
+        songtags: songtags,
+        urlthumbnail: urlthumbnail
+    }
+
     $.ajax({
         url: '/editsong',
         type: 'POST',
-        data: {songid: songid, songname: songname, singger: singger, songtags: songtags}
+        data: data
     })
     .then(res => {
         if(res == "success"){

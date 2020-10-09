@@ -28,6 +28,7 @@
     "fluent-ffmpeg": "^2.1.2",
     "fs-extra": "latest",
     "get-audio-duration": "^2.0.2",
+    "get-video-dimensions": "^1.0.0",
     "got": "^11.4.0",
     "http-proxy": "latest",
     "image-downloader": "^4.0.1",
