@@ -1,8 +1,12 @@
-const chokidar = require('chokidar');
+const download = require('image-downloader')
 
-// Initialize watcher.
-const watcher = chokidar.watch('./public', { persistent: true });
-watcher
-    .on('add', path => console.log(`File ${path} has been added`))
-    .on('change', path => console.log(`File ${path} has been changed`))
-    .on('unlink', path => console.log(`File ${path} has been removed`));
+const options = {
+    url: 'https://www.teahub.io/photos/full/21-211456_blur-gaussian.jpg',
+    dest: './public'                // will be saved to /path/to/dest/image.jpg
+}
+
+download.image(options)
+    .then(({ filename }) => {
+        console.log('Saved to', filename)  // saved to /path/to/dest/image.jpg
+    })
+    .catch((err) => console.error(err))

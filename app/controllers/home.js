@@ -217,10 +217,10 @@ class Home {
         console.log(dimensions.width);
         if(dimensions.width < 1000){
             var placewitdh = dimensions.width - 30
-            ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo_20.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':10" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
+            ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo_20.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':10,pad=ceil(iw/2)*2:ceil(ih/2)*2" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
         }else{
             var placewitdh = dimensions.width - 70
-            ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':20" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
+            ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':20,pad=ceil(iw/2)*2:ceil(ih/2)*2" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
         }
         await excutecmd(ffmpegcmd)
         fs.unlinkSync('./' + pathfile)
