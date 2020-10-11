@@ -188,11 +188,11 @@ function reactvideo(react, songid) {
 		}
 	}
 
-/*	$.ajax({
+	$.ajax({
 		url: '/reactvideo',
 		type: 'POST',
 		data: {songid: songid, react: react}
 	})
 	.then(res => {
-	})*/
+	})
 }
