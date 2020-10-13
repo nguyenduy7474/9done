@@ -220,6 +220,7 @@ player = videojs('my-player', {
         volumePanel: {"inline": false}
     }
 });
+
 $("#my-player").hide()
 
 function chooseSong(idsong){
