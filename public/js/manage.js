@@ -37,7 +37,7 @@ function searchsong(paging_num){
                       <td>${allsongs[i].singger}</td>
                       <td>${allsongs[i].songid}</td>
                       <td>
-                        <button type="button" class="btn btn-success" onclick="editsong('${allsongs[i].songid}', '${allsongs[i].songname}', '${allsongs[i].singger}', '${songtags}')">Sửa</button>
+                        <button type="button" class="btn btn-success" onclick="editsong('${allsongs[i].songid}', '${allsongs[i].songname}', '${allsongs[i].singger}', '${songtags}', '${allsongs[i].linkoriginsong}')">Sửa</button>
                         <button type="button" class="btn btn-danger" onclick="deletesong('${allsongs[i].songid}')">Xóa</button>
                       </td>
                     </tr>`
@@ -82,13 +82,14 @@ function searchsong(paging_num){
     });
 }
 
-function editsong(songid, songname, singger, songtags){
+function editsong(songid, songname, singger, songtags, linkoriginsong){
     $("#modaledit").modal('toggle');
 
     $("#songname").val(songname)
     $("#singger").val(singger)
     $("#songid").val(songid)
     $("#songtags").val(songtags)
+    $("#linkoriginsong").val(linkoriginsong)
 }
 
 function imagein() {
@@ -103,13 +104,15 @@ function editsave() {
     var singger = $("#singger").val()
     var songtags = $("#songtags").val()
     var urlthumbnail = $("#urlthumbnail").val()
+    var linkoriginsong = $("#linkoriginsong").val()
 
     var data = {
         songid: songid,
         songname: songname,
         singger: singger,
         songtags: songtags,
-        urlthumbnail: urlthumbnail
+        urlthumbnail: urlthumbnail,
+        linkoriginsong: linkoriginsong
     }
 
     $.ajax({

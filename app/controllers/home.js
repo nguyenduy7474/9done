@@ -84,6 +84,7 @@ class Home {
             songid: '$songid',
             songtags: '$songtags',
             counttimesing: '$counttimesing',
+            linkoriginsong: '$linkoriginsong',
             datecreated: '$datecreated'
         }
         let sort = {
@@ -600,19 +601,23 @@ class Home {
         next()
     }
 
-    static checkToGetTypeVideo(req, res) {
-
+    static async checkToGetTypeVideo(req, res) {
+        let songinfo = await Songs.findOne({songid: req.body.idsong})
+        console.log(songinfo)
         if (fs.existsSync(`./public/videos/${req.body.idsong}_verzip.mp4`)) {
             if (fs.existsSync(`./public/videos/${req.body.idsong}480_verzip.mp4`)) {
                 res.send({
                     check480: true,
                     verzip: true,
                     link480: `${req.body.idsong}480_verzip.mp4`,
-                    link: `${req.body.idsong}_verzip.mp4`
+                    link: `${req.body.idsong}_verzip.mp4`,
+                    songname: songinfo.songname,
+                    counttimesing: songinfo.counttimesing,
+                    linkoriginsong: songinfo.linkoriginsong
                 })
                 return
             }
-            res.send({check480: false, verzip: true, link: `${req.body.idsong}_verzip.mp4`})
+            res.send({check480: false, verzip: true, link: `${req.body.idsong}_verzip.mp4`, songname: songinfo.songname, counttimesing: songinfo.counttimesing, linkoriginsong: songinfo.linkoriginsong})
             return
         }
 
@@ -621,11 +626,16 @@ class Home {
                 check480: true,
                 verzip: false,
                 link480: `${req.body.idsong}480.mp4`,
-                link: `${req.body.idsong}.mp4`
+                link: `${req.body.idsong}.mp4`,
+                songname: songinfo.songname,
+                counttimesing: songinfo.counttimesing,
+                linkoriginsong: songinfo.linkoriginsong
             })
             return
         }
-        res.send({check480: false, verzip: false, link: `${req.body.idsong}.mp4`})
+        console.log("test11")
+
+        res.send({check480: false, verzip: false, link: `${req.body.idsong}.mp4`, songname: songinfo.songname, counttimesing: songinfo.counttimesing, linkoriginsong: songinfo.linkoriginsong})
     }
 
 }

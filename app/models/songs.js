@@ -12,6 +12,7 @@ var Songs = mongoose.Schema({
 	lengthsong: Number,
 	songid: String,
 	datecreated: Date,
+	linkoriginsong: String,
 	reviewed: { type : Number , "default" : 0 }
 });
 

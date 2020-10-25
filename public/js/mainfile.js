@@ -240,11 +240,13 @@ function chooseSong(idsong){
     songchooseid = idsong
 //
     $("#my-player").show()
+    console.log(width)
     $.ajax({
         url: '/checktogettypevideo/',
         type: 'POST',
         data: {idsong: idsong}
     }).then(res => {
+        console.log(res)
         if(res.check480){
                 if(!window.mobilecheck()){
                     player.updateSrc([
@@ -271,6 +273,8 @@ function chooseSong(idsong){
         player.poster('/thumbnails/'+idsong+'.jpg');
         player.autoplay(true)
         player.controls(true)
+        $("#thongtinbaihat").html(`${res.songname} - ${res.counttimesing} lượt hát <br>
+          Link bài hát gốc: <a href="${res.linkoriginsong}" target="_blank">${res.linkoriginsong}</a>`)
     })
 
 

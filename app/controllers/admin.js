@@ -27,6 +27,7 @@ class AdminPage{
 		var singger = req.body.singger
 		var songtags = req.body.songtags
 		var urlthumbnail = req.body.urlthumbnail
+		var linkoriginsong = req.body.linkoriginsong
 
 		if(req.body.urlthumbnail){
 			let options = {
@@ -44,7 +45,7 @@ class AdminPage{
 		for(var i=0; i<songtags.length;i++){
 			songtags[i] = songtags[i].trim()
 		}
-		Songs.updateOne({songid: songid}, {$set: {songname: songname, singger: singger, songtags: songtags}}, (err) => {
+		Songs.updateOne({songid: songid}, {$set: {songname: songname, singger: singger, songtags: songtags, linkoriginsong: linkoriginsong}}, (err) => {
 			if(err) throw err
 			res.send("success")
 		})
@@ -127,6 +128,7 @@ class AdminPage{
 		var songname = req.body.namesong
 		var singger = req.body.singgername
 		var linkyoutube = req.body.linkyoutube
+		var linkyoutubeoriginal = req.body.linkyoutubeoriginal
 		var flag = ""
 		var songid
 		var songtags = req.body.songtags
@@ -158,6 +160,7 @@ class AdminPage{
 			found.songname = songname
 			found.singger = singger
 			found.datecreated = new Date()
+			found.linkoriginsong = linkyoutubeoriginal
 			await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
 			fs.unlinkSync(`./${found.songid}.mp4`)
 			if (fs.existsSync(`./${found.songid}480.mp4`)) {
@@ -230,6 +233,7 @@ class AdminPage{
 						songid: infor.id,
 						lengthsong: infor.duration,
 						datecreated: new Date(),
+						linkoriginsong: linkyoutubeoriginal,
 						reviewed: reviewed
 					})
 					await songsave.save()

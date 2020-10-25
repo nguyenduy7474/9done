@@ -48,12 +48,14 @@ function acceptSongsAdmin(){
           namesong: $("#namesong").val().trim(), 
           singgername: $("#singgername").val().trim(), 
           songtags: $("#songtags").val(),
-          linkyoutube: $("#linkyoutube").val().trim(), 
+          linkyoutube: $("#linkyoutube").val().trim(),
+          linkyoutubeoriginal: $("#linkyoutubeoriginal").val().trim(),
         }
     $("#namesong").val("")
     $("#singgername").val("")
     $("#linkyoutube").val("")
     $("#songtags").val("")
+    $("#linkyoutubeoriginal").val("")
     $("#done").html("Đang xử lý...")
     $.ajax({
         url: '/adminadnewsong',
