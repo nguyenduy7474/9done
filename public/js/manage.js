@@ -36,10 +36,10 @@ function searchsong(paging_num){
                       <td>${allsongs[i].songname}</td>
                       <td>${allsongs[i].singger}</td>
                       <td>${allsongs[i].songid}</td>
-                      <td>
-                        <button type="button" class="btn btn-success" onclick="editsong('${allsongs[i].songid}', '${allsongs[i].songname}', '${allsongs[i].singger}', '${songtags}', '${allsongs[i].linkoriginsong}')">Sửa</button>
-                        <button type="button" class="btn btn-danger" onclick="deletesong('${allsongs[i].songid}')">Xóa</button>
-                      </td>
+                      <td>` +
+                        '<button type="button" class="btn btn-success" onclick="editsong(`' + allsongs[i].songid + '`, `' + allsongs[i].songname + '`, `' + allsongs[i].singger + '`, `' + songtags + '`, `' + allsongs[i].linkoriginsong + '`)">Sửa</button>'
+                        + '<button type="button" class="btn btn-danger" onclick="deletesong(`' + allsongs[i].songid + '`)">Xóa</button>'
+                      + `</td>
                     </tr>`
         }
         $("#datatable").html(string)
