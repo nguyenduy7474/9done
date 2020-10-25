@@ -273,6 +273,7 @@ function chooseSong(idsong){
         player.poster('/thumbnails/'+idsong+'.jpg');
         player.autoplay(true)
         player.controls(true)
+        $("#thongtinbaihat").width(width)
         $("#thongtinbaihat").html(`${res.songname} - ${res.counttimesing} lượt hát <br>
           Link bài hát gốc: <a href="${res.linkoriginsong}" target="_blank">${res.linkoriginsong}</a>`)
     })
