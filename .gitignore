@@ -2,5 +2,7 @@
 /public/songhandled/
 /public/videos/
 /public/allsongs/
+/public/thumbnails/
+/public/users
 /node_modules/
 /package-lock.json
