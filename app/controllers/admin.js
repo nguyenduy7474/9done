@@ -152,7 +152,6 @@ class AdminPage{
 			res.send("Hệ thống đã có bài hát này rồi")
 			return
 		}
-		res.send("Hệ thống đã nhận lát anh check lại nha anh admin")
 
 		if(found){
 			found.reviewed = 1
@@ -161,7 +160,12 @@ class AdminPage{
 			found.singger = singger
 			found.datecreated = new Date()
 			found.linkoriginsong = linkyoutubeoriginal
-			await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
+			try{
+				await downloadVideoAndMix(`https://www.youtube.com/watch?v=${found.songid}`, found.songid)
+			}catch(e){
+				console.log(e)
+				res.send("Lỗi downloadVideoAndMix")
+			}
 			fs.unlinkSync(`./${found.songid}.mp4`)
 			if (fs.existsSync(`./${found.songid}480.mp4`)) {
 				fs.unlinkSync(`./${found.songid}480.mp4`)
@@ -176,8 +180,10 @@ class AdminPage{
 			}
 
 			await found.save()
+			res.send("ok gòi")
 		}else{
 			await AddSong(1)
+			res.send("ok gòi")
 		}
 
 		function checkYtURLandDBexist(url){
@@ -221,8 +227,22 @@ class AdminPage{
 				}
 				if(extractVideoID(linkyoutube)){
 					let songid = extractVideoID(linkyoutube)
-					let infor = await getall.downloadMp3AndThumnailAndGetID(linkyoutube, "public/allsongs/", "public/thumbnails/")
-					await downloadVideoAndMix(linkyoutube, songid)
+					let infor
+
+					try{
+						infor = await getall.downloadMp3AndThumnailAndGetID(linkyoutube, "public/allsongs/", "public/thumbnails/")
+					}catch(e){
+						console.log(e)
+						res.send("Lỗi downloadMp3AndThumnailAndGetID")
+					}
+
+					try{
+						await downloadVideoAndMix(linkyoutube, songid)
+					}catch(e){
+						console.log(e)
+						res.send("Lỗi downloadVideoAndMix")
+					}
+
 
 					let songsave = Songs({
 						songname: songname,
@@ -261,6 +281,10 @@ class AdminPage{
 			console.log("linkyoutube" + songid)
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
+					if(!info){
+						notok("false")
+						return
+					}
 					var arrwebm = []
 					var arrmp4 = []
 					var arrwebm480 = []
