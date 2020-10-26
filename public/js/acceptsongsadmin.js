@@ -51,11 +51,11 @@ function acceptSongsAdmin(){
           linkyoutube: $("#linkyoutube").val().trim(),
           linkyoutubeoriginal: $("#linkyoutubeoriginal").val().trim(),
         }
-    $("#namesong").val("")
+/*    $("#namesong").val("")
     $("#singgername").val("")
     $("#linkyoutube").val("")
     $("#songtags").val("")
-    $("#linkyoutubeoriginal").val("")
+    $("#linkyoutubeoriginal").val("")*/
     $("#done").html("Đang xử lý...")
     $.ajax({
         url: '/adminadnewsong',
