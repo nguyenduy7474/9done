@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en" >
+<head>
+    <meta charset="UTF-8">
+    <title>9done</title>
+    <link rel="icon" href="/imgs/icon.ico">
+    <!-- HEADER -->
+    <style>
+        #vipsilip {
+            cursor: pointer; /* or the one which you would like to have */
+        }
+        #showname{
+            font-size: 150%;
+            cursor: pointer; /* or the one which you would like to have */
+        }
+        .form-control {
+            display: inline;
+        }
+        #buttonlogin:hover{
+            color: white;
+            background-color: #007bff;
+        }
+    </style>
+    <header>
+        <div class="netflixLogo">
+            <a id="logo" href="/"><img src="/imgs/logo.png" id="logo" alt="Logo Image"></a>
+        </div>
+        <nav class="main-nav">
+            <a href="/acceptsongs">Yêu cầu bài hát</a>
+            <a href="/FAQ">FAQ</a>
+    </header>
+    <!-- END OF HEADER -->
+
+</head>
+<body>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="/css/netflix.css">
+<style>
+    /* Style inputs, select elements and textareas */
+    input[type=text], select, textarea{
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+        resize: vertical;
+    }
+
+    /* Style the label to display next to the inputs */
+    label {
+        padding: 12px 12px 12px 0;
+        display: inline-block;
+    }
+
+    /* Style the submit button */
+    input[type=submit] {
+        background-color: #4CAF50;
+        color: white;
+        padding: 12px 20px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        float: right;
+    }
+
+    /* Style the container */
+    .container {
+        border-radius: 5px;
+        padding: 20px;
+    }
+
+    /* Floating column for labels: 25% width */
+    .col-25 {
+        float: left;
+        width: 25%;
+        margin-top: 6px;
+    }
+
+    /* Floating column for inputs: 75% width */
+    .col-75 {
+        float: left;
+        width: 75%;
+        margin-top: 6px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+    @media screen and (max-width: 600px) {
+        .col-25, .col-75, input[type=submit] {
+            width: 100%;
+            margin-top: 0;
+        }
+    }
+
+</style>
+</br>
+<center>
+    <h2>Nếu bạn không sống vì điều gì, bạn sẽ chết mà chẳng có gì</h2>
+    <p id="alert" style="color: red"></p>
+    <div class="container">
+        <div class="row">
+            <div style="width: 15%">
+                <label for="fname">*Tiêu Đề</label>
+            </div>
+            <div style="width: 85%">
+                <input type="text" id="title">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div style="width: 15%">
+                <label for="lname">* Nội Dung</label>
+            </div>
+            <div style="width: 85%">
+                <textarea name="editor1"></textarea>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div style="width: 15%">
+                <label for="lname">* Thumbnail</label>
+            </div>
+            <div style="width: 85%">
+                <input type="text" id="urlthumbnail" onchange="imagein()">
+                <br>
+                <br>
+                <img src="" id="checkthubmnail" width="300px">
+            </div>
+        </div>
+        <div id="thongbao"></div>
+    </div>
+    <button class="btn btn-success btn-lg " type="button" onclick="AddnewPost()">Đăng Bài Viết</button>
+    <h4 id="done"></h4>
+
+</center>
+<% include ./footer %>
+<script src="/js/jquery.min.js"></script>
+<script src="/ckeditor/ckeditor.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+<script>
+    CKEDITOR.replace( 'editor1' );
+
+    function AddnewPost(){
+        var data = CKEDITOR.instances.editor1.getData()
+        var datasend = {
+            title: $("#title").val(),
+            content: data,
+            thumbnail: $("#urlthumbnail").val()
+        }
+        $.ajax({
+            url: '/addnewpost/',
+            type: 'POST',
+            data: datasend
+        }).then(res => {
+            console.log(res)
+            $("#thongbao").html("Đã thêm bài viết")
+        })
+    }
+
+    function imagein() {
+        var urlthumbnail = $("#urlthumbnail").val()
+        $("#checkthubmnail").attr("src", urlthumbnail)
+    }
+
+</script>
+</body>
+</html>

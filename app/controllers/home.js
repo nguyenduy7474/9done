@@ -65,7 +65,10 @@ class Home {
     }
 
     static async searchSongs(req, res) {
-        var namesong = req.body.namesong.trim()
+        var namesong = ""
+        if(req.body.namesong){
+            namesong = req.body.namesong.trim()
+        }
         var sizepageadmin = parseInt(req.body.pagesize)
         var singer
         if (req.body.singer) {

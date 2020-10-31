@@ -6,6 +6,7 @@
     "start": "node app.js"
   },
   "dependencies": {
+    "@ckeditor/ckeditor5-image": "^23.1.0",
     "@ffmpeg-installer/ffmpeg": "^1.0.20",
     "async": "latest",
     "basic-auth-connect": "latest",

@@ -19,9 +19,9 @@ var upload = Multer({ storage: storage})
 module.exports = function (app, passport) {
     app.get('/duylogin', AdminPage.adminLogin);
     app.get('/manage9done', AdminPage.checkAdmin, AdminPage.manage9Done);
+
     app.post('/deletesong', AdminPage.checkAdmin, AdminPage.deleteSong);
     app.post('/logout', AdminPage.checkAdmin, AdminPage.logout);
-
     app.post('/editsong', AdminPage.checkAdmin, AdminPage.editSong);
 
     //app.post('/getAllSongs', AdminPage.checkAdmin, AdminPage.getAllSongs);
@@ -36,6 +36,13 @@ module.exports = function (app, passport) {
 
     app.get('/adminsongreview', AdminPage.checkAdmin, AdminPage.adminSongReview);
     app.post('/adminadnewsong', AdminPage.checkAdmin, AdminPage.adminAdNewSong);
+
+    app.get('/addnewpostpage', AdminPage.checkAdmin, AdminPage.AddNewPostPage);
+    app.get('/manageposts', AdminPage.checkAdmin, AdminPage.manageposts);
+    app.post('/getallposts', AdminPage.checkAdmin, AdminPage.getAllPosts);
+    app.post('/addnewpost', AdminPage.checkAdmin, AdminPage.AddNewPost);
+    app.post('/editpost', AdminPage.checkAdmin, AdminPage.editPost);
+    app.post('/deletepost', AdminPage.checkAdmin, AdminPage.deletePost);
 
     passport.serializeUser(function(user, done) {
         done(null, user);

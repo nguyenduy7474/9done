@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" >
+    <% include ./header %>
+<meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Netflix</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/netflix.css">
+    <link href="https://vjs.zencdn.net/7.8.3/video-js.css" rel="stylesheet" />
+    <!-- If you'd like to support IE8 (for Video.js versions prior to v7) -->
+<link href="https://unpkg.com/@videojs/themes@1/dist/city/index.css" rel="stylesheet">
+    <link href="https://unpkg.com/@videojs/themes@1/dist/sea/index.css" rel="stylesheet">
+    <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/css/videojs-resolution-switcher.css">
+    <body>
+
+    <center>
+    <div>
+    <button type="button" class="btn btn-primary"><a href="/addnewpostpage" style="color: white">Thêm bài viết mới</a></button>
+<button type="button" class="btn btn-success"><a href="/manage9done" style="color: white">Quản Lý Bài Hát</a></button>
+<button type="button" class="btn btn-danger" onclick="logout()">Đăng Xuất</button></div>
+<br>
+<div style="width: 80%">
+    <div class="box">
+    <input class="form-control p-3 mr-3" type="text" id="searchpost" placeholder="Tìm bài viết..."
+aria-label="Search">
+    </div><br>
+    <table class="table">
+    <thead>
+    <tr>
+    <th scope="col">#</th>
+    <th scope="col">Title</th>
+    <th scope="col">Ngày upload</th>
+    <th scope="col">Thao Tác</th>
+</tr>
+</thead>
+<tbody id="datatable">
+
+    </tbody>
+    </table>
+    </div>
+    <div style="color: #06121e;margin: 0 auto; ;display: table;margin-top: 1rem" class="pagination"></div>
+    </center>
+    <div class="modal" tabindex="-1" role="dialog" id="modaledit" style="color: black">
+    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+    <h5 class="modal-title">Chỉnh sửa</h5>
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+    <span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="modal-body">
+    <label for="recipient-name" class="col-form-label">Title:</label>
+<input type="text" class="form-control" id="title">
+    <label for="recipient-name" class="col-form-label">Nội dung:</label>
+    <textarea name="editor1"></textarea>
+    <label for="recipient-name" class="col-form-label">Link ảnh thumbnails mới:</label>
+    <input type="text" class="form-control" id="urlthumbnail" onchange="imagein()"><br>
+    <img src="" id="checkthubmnail" width="300px">
+    <input type="hidden" class="form-control" id="postid">
+    </div>
+    <div class="modal-footer">
+    <button type="button" class="btn btn-primary" onclick="editsave()">Save lại</button>
+<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+    </div>
+    </div>
+    </div>
+    </div>
+    <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
+    <script src="/js/videojs-resolution-switcher.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="/ckeditor/ckeditor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+    <script src="/js/managepost.js"></script>
+
+    </body>
+    </html>

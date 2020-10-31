@@ -76,7 +76,7 @@ $( document ).ready(function() {
     for (var i in types) {
         console.log( "Is " + types[i] + " supported? " + (MediaRecorder.isTypeSupported(types[i]) ? "Maybe!" : "Nope :("));
     }*/
-    connection.addEventListener('change', updateConnectionStatus)
+    //connection.addEventListener('change', updateConnectionStatus)
 });
 
 var explainarr = ["",
@@ -123,12 +123,12 @@ function blurloading(done){
 
 
 
-var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+/*var connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 var type = connection.effectiveType;
 
 function updateConnectionStatus() {
     type = connection.effectiveType;
-}
+}*/
 
 
 
@@ -227,6 +227,7 @@ function chooseSong(idsong){
 
     stopAudio()
     $("#remindChooseSong").css("display", "none");
+    $("#containerplayer").css("display", "")
     $("#countdown").css("display", "none");
     goToByScroll("jumpto");
     stopRecording("change")
@@ -845,7 +846,9 @@ function fiveSecondsForSing(seconds){
 
 function stopAudio(){
     $("#volumebackgroundmusic").css("display", "none")
-    player.pause()
+    if(player){
+        player.pause()
+    }
     //stop audio khi nghe bài hát
     if(audios){
         for(var i = 0, len = audios.length; i < len;i++){

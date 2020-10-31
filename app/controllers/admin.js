@@ -18,8 +18,61 @@ const ytdl = require('ytdl-core');
 var ffmpeg = require('fluent-ffmpeg');
 const download = require('download');
 const downloadfromurl = require('image-downloader')
+var Posts = require('../models/posts');
 
 class AdminPage{
+
+	static async deletePost(req, res){
+		let postid = req.body.postid
+		let thumbnail = req.body.thumbnail
+		Posts.deleteOne({_id: postid}, (err) => {
+			if(err){
+				console.log(err)
+				return
+			}
+			console.log(thumbnail)
+			console.log(fs.existsSync(`./public${thumbnail}`))
+			if (fs.existsSync(`./public${thumbnail}`)) {
+				console.log("test")
+				fs.unlinkSync(`./public${thumbnail}`)
+			}
+			res.send("success")
+		})
+	}
+
+	static async editPost(req, res){
+		var postid = req.body.postid
+		var title = req.body.title
+		var content = req.body.content
+		var urlthumbnail = req.body.urlthumbnail
+
+		if(req.body.urlthumbnail){
+			let options = {
+				url: urlthumbnail,
+				dest: './public/thumbnails/' + postid + '.jpg'
+			}
+			await downloadimg(options)
+			/*			console.log("ok")
+                        fs.unlinkSync('./public/thumbnails/' + req.body.songid + '.jpg')
+                        fs.renameSync('./public/' + req.file.filename,'./public/thumbnails/' + req.body.songid + '.jpg')
+                        //fs.unlinkSync('./public/' + req.file.filename)*/
+		}
+		urlthumbnail = '/thumbnails/' + postid + '.jpg'
+		Posts.updateOne({_id: postid}, {$set: {title: title, content: content, thumbnail: urlthumbnail}}, (err) => {
+			if(err) throw err
+			res.send("success")
+		})
+
+		function downloadimg(options){
+			return new Promise((ok, notok) => {
+				downloadfromurl.image(options)
+					.then(({ filename }) => {
+						ok()
+					})
+					.catch(ok())
+			})
+		}
+	}
 
 	static async editSong(req, res){
 		var songid = req.body.songid
@@ -59,6 +112,105 @@ class AdminPage{
 					.catch(ok())
 			})
 		}
+	}
+
+	static async AddNewPost(req, res){
+		let title = req.body.title
+		let content = req.body.content
+		let thumbnail = req.body.thumbnail
+
+
+		let newpost = Posts({
+			title: title,
+			content: content,
+			datecreated: new Date()
+		})
+		let data = await newpost.save()
+		let options = {
+			url: thumbnail,
+			dest: './public/thumbnails/' + data._id + '.jpg'
+		}
+		await downloadimg(options)
+		thumbnail = '/thumbnails/' + data._id + '.jpg'
+		data.thumbnail = thumbnail
+		await data.save()
+		res.send("success")
+
+		function downloadimg(options){
+			return new Promise((ok, notok) => {
+				downloadfromurl.image(options)
+					.then(({ filename }) => {
+						ok()
+					})
+					.catch(ok())
+			})
+		}
+	}
+
+	static async getAllPosts(req, res){
+
+			var searchpost = req.body.searchpost.trim()
+			var sizepageadmin = parseInt(req.body.pagesize)
+
+			let match = {
+				$and: [{datatype: 'post'}]
+			}
+			// defined data will send to client
+			let project = {
+				title: '$title',
+				content: '$content',
+				thumbnail: '$thumbnail',
+				datecreated: '$datecreated',
+			}
+			let sort = {
+				datecreated: -1
+			}
+			if (searchpost) {
+				match.$and.push({
+					$or: [
+						{'title': {$regex: searchpost, $options: "i"}}
+						]
+				})
+			}
+
+			try {
+				//set default variables
+				let pageSize = 12
+				if (sizepageadmin) {
+					pageSize = sizepageadmin
+				}
+				let currentPage = req.body.paging_num || 1
+
+				// find total item
+				let pages = await Posts.find(match).countDocuments()
+
+
+				// find total pages
+				let pageCount = Math.ceil(pages / pageSize)
+				let data = await Posts.aggregate([{$match: match}, {$project: project}, {$sort: sort}, {$skip: (pageSize * currentPage) - pageSize}, {$limit: pageSize}])
+				res.send({data, pageSize, pageCount, currentPage});
+			} catch (err) {
+				console.log(err)
+				res.send({"fail": "fail"});
+			}
+	}
+
+	static async manageposts(req, res){
+
+
+		res.render('managepost.ejs', {
+			error : req.flash("error"),
+			success: req.flash("success"),
+			userinfo: req.session.user
+		});
+	}
+
+	static AddNewPostPage(req, res){
+		res.render('addnewpost.ejs', {
+			error : req.flash("error"),
+			success: req.flash("success"),
+			userinfo: req.session.user,
+		});
 	}
 
 	static manage9Done(req, res){
@@ -278,7 +430,6 @@ class AdminPage{
 		}
 
 		function downloadVideoAndMix(linkyoutube, songid){
-			console.log("linkyoutube" + songid)
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
 					if(!info){

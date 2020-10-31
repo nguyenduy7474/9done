@@ -73,25 +73,26 @@
     <div id="voicerecord">
     <center><div id="controls">
         <p style="color: #d81f26; font-weight: bold; font-size: 110%" id="jumpto">*Cần có tai nghe để thu âm*</p>
-        <div id="divbocngoai" style="width: fit-content">
-          <select class="form-control form-control-lg" id="selecttyperecord" style="width:auto; margin-bottom: 10px;display: ''">
+        <p style="color: #d81f26; font-weight: bold; font-size: 110%" id="jumpto">*Mac/Iphone đang bị lỗi*</p>
+        <div id="divbocngoai" style="width: fit-content;display: table;">
+          <select class="form-control form-control-lg" id="selecttyperecord" style="width: auto; margin-bottom: 10px;display: ''">
             <option value="withvideo">Thu âm với camera</option>
             <option value="novideo">Thu âm không camera</option>
           </select>
           <!-- <button id="listensong" class="btn btn-primary"><b>Nghe</b></button> -->
           <button id="recordButton" class="btn btn-lg" style="width: 100%"><i class="fas fa-microphone-alt"></i>&nbsp;<b>Thu âm luôn</b></button>
-          <button id="stopButton" class="btn btn-success btn-lg" style="display: none;width: 100%"><i class="fas fa-microphone-alt-slash"></i>&nbsp;<b>Kết thúc sớm</b></button>
+          <button id="stopButton" class="btn btn-success btn-lg" style="display: none"><i class="fas fa-microphone-alt-slash"></i>&nbsp;<b>Kết thúc sớm</b></button>
         </div><br>
           <span id="remindChooseSong" style="color: red; display: none">*Hãy chọn bài hát<br></span>
         <span id="countdown" style="font-size: 150%"></span>
         <span id="dangtai" style="font-size: 150%;display: none">Đang xử lý...</span>
       </div>
-      <div id="containerplayer">
+      <div id="containerplayer" style="display: none;">
         <div id="volumebackgroundmusic" style="float: left;display: none">
           <div id="slider-vertical"><div id="custom-handle" class="ui-slider-handle"></div></div>
           <img src="https://img.icons8.com/color/48/000000/audio-wave2.png"/>
         </div>
-        <video id="my-player" class="video-js">
+        <video id="my-player"  class="video-js">
         </video>
         <video id="uservideo" style="display: none;padding-top: 10px"></video>
       </div>
