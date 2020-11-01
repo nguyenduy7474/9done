@@ -22,7 +22,7 @@ var {Readable} = require('stream');
 const {spawn} = require('child_process');
 var mv = require('mv');
 var getDimensions = require('get-video-dimensions');
-
+var Posts = require('../models/posts');
 
 class Home {
 
@@ -299,6 +299,46 @@ class Home {
             userinfo = req.session.user
         }
         res.render('acceptsongs.ejs', {
+            error: req.flash("error"),
+            success: req.flash("success"),
+            userinfo: userinfo,
+
+        });
+    }
+//----------------------------------------------
+    static async showBaiViet(req, res) {
+        let userinfo
+        if (req.session.user) {
+            userinfo = req.session.user
+        }
+        res.render('showbaiviet.ejs', {
+            error: req.flash("error"),
+            success: req.flash("success"),
+            userinfo: userinfo,
+
+        });
+    }
+
+    static async showBaiVietChiTiet(req, res) {
+        let postId = req.query.postId;
+        let match = {
+            $and: [{datatype: 'post'},{_id:postId}]
+        }
+        let project = {
+            title: '$title',
+            content: '$content',
+            thumbnail: '$thumbnail',
+            datecreated: '$datecreated',
+        }
+        let data = await Posts.aggregate([{$match: match}, {$project: project}])
+
+        console.log(data)
+        let userinfo
+        if (req.session.user) {
+            userinfo = req.session.user
+        }
+        res.render('showbaivietchitiet.ejs', {
+
             error: req.flash("error"),
             success: req.flash("success"),
             userinfo: userinfo,

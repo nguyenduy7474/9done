@@ -36,6 +36,9 @@ const uploadImage = Multer({
 module.exports = function (app, passport) {
     app.get('/', home.checkLogin, home.home);
     app.get('/acceptsongs', home.checkLogin, home.acceptSongs);
+    //show bai viet
+    app.get('/showbaiviet', home.checkLogin, home.showBaiViet);
+    app.get('/showbaivietchitiet', home.checkLogin, home.showBaiVietChiTiet);
 
     app.post('/searchsongs', home.searchSongs);
     app.post('/uploadtorank', home.checkLogin, home.uploadToRank);
