@@ -30,10 +30,7 @@ class AdminPage{
 				console.log(err)
 				return
 			}
-			console.log(thumbnail)
-			console.log(fs.existsSync(`./public${thumbnail}`))
 			if (fs.existsSync(`./public${thumbnail}`)) {
-				console.log("test")
 				fs.unlinkSync(`./public${thumbnail}`)
 			}
 			res.send("success")
@@ -304,7 +301,6 @@ class AdminPage{
 			res.send("Hệ thống đã có bài hát này rồi")
 			return
 		}
-
 		if(found){
 			found.reviewed = 1
 			found.songtags = songtags
@@ -341,7 +337,6 @@ class AdminPage{
 		function checkYtURLandDBexist(url){
 			return new Promise(function(ok, notok){
 				youtubedl.getInfo(url, [],  function(err, info) {
-
 					if(err || info == undefined){console.log("err" + err); ok(false);return}
 					Songs.findOne({songid: info.id, reviewed: 1}, (err2, found)=>{
 						if(err2) {console.log("err2" + err2); ok(false)}
@@ -367,9 +362,9 @@ class AdminPage{
 		}
 
 		function AddSong(reviewed){
-
 			return new Promise(async(ok, notok) =>{
 				var getall = new DownloadYTMp3AndThumbnail()
+
 				let flag = "OK gòi"
 				var check = await checkYtURLandDBexist(linkyoutube)
 				if(!check){
@@ -413,7 +408,10 @@ class AdminPage{
 				}else{
 					flag = "Link Youtube không chính xác"
 				}
-				fs.unlinkSync(`./${songid}.mp4`)
+				if (fs.existsSync(`./${songid}.mp4`)) {
+					fs.unlinkSync(`./${songid}.mp4`)
+				}
+
 				if (fs.existsSync(`./${songid}480.mp4`)) {
 					fs.unlinkSync(`./${songid}480.mp4`)
 				}

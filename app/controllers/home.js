@@ -338,12 +338,12 @@ class Home {
                 videowitheffect = "ffmpeg -i ./public" + pathrecord + " -i ./public" + pathrecordwavaddeffect + " -map 0:0 -map 1:0 -c:v copy ./public" + pathrecordwav + duoifilevideo
                 console.log(videowitheffect)
 				await excutecmd(videowitheffect)
-/*				if (fs.existsSync("./public" + pathrecordwav + ".wav")) {
+				if (fs.existsSync("./public" + pathrecordwav + ".wav")) {
 					fs.unlinkSync("./public" + pathrecordwav + ".wav");
 				}
 				if (fs.existsSync("./public" + pathrecordwavaddeffect)) {
 					fs.unlinkSync("./public" + pathrecordwavaddeffect);
-				}*/
+				}
 			}
         	if(checkvp8 == "true"){
                 await SongGuestSing.updateOne({handlednameweb: "public" + pathrecord}, {$set: {reverb: "public" + pathrecordwav + duoifilevideo}})

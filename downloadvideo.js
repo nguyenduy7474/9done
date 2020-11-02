@@ -8,6 +8,7 @@ const download = require('image-downloader')
 class DownloadYTMp3AndThumbnail{
 
 	async downloadMp3AndThumnailAndGetID(url, desmp3, desthumbnail){
+		console.log("what")
 		await this.getMp3(url, desmp3)
 		console.log("mp3 done")
 		await this.getThumbnail(url, desthumbnail)
@@ -21,7 +22,9 @@ class DownloadYTMp3AndThumbnail{
 			youtubedl.getInfo(url, [],  function(err, info) {
 				console.log(desmp3)
 				youtubedl.exec(url, ['-x', '--audio-format', 'mp3', "-o"+ desmp3 + info.id + ".mp3"], {}, function(err, output) {
+					console.log("---------------------")
 					if(err) console.log(err)
+					console.log("----------------------")
 					ok()
 				})
 			})
