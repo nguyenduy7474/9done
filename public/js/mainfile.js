@@ -168,6 +168,7 @@ if(!window.mobilecheck()){
     width = window.screen.width
     height = window.screen.width * 9 / 16
 }
+
 var effectchoose = 0
 
 
@@ -327,7 +328,7 @@ function searchsong(paging_num){
                     }
                 }
 /*                if (currentPage != pageCount){
-                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${pageCount}')">${pageCount}</a></li>`
+                    pageination += `<li class="page-item"><a xclass="page-link" onclick="searchsong('${pageCount}')">${pageCount}</a></li>`
                 }*/
                 pageination += `</ul>`
             }
@@ -595,6 +596,12 @@ function uploadToServer(blob, length){
             $( "#soundeffect" ).val(effectchoose).change();
             $("#dangtai").css("display", "none");
             $("#studiomodal").modal('toggle');
+            if(!window.mobilecheck()){
+                $(".modal-lg").css("max-width", width/2)
+            }else{
+                $(".modal-lg").css("max-width", width)
+            }
+
             blurloading("done")
 
 

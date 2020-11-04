@@ -4,6 +4,7 @@ var mongoose = require('mongoose');
 var Posts = mongoose.Schema({
     datatype: { type : String , "default" : "post" },
     title: String,
+    slug: String,
     content: String,
     thumbnail: String,
     datecreated: Date

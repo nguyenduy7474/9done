@@ -13,6 +13,7 @@ $( document ).ready(function() {
 
 })
 
+var datacontent = []
 
 function searchsong(paging_num){
     var searchpost = $("#searchpost").val()
@@ -23,19 +24,22 @@ function searchsong(paging_num){
     })
         .then(res => {
             allsongs = res.data
+            datacontent = []
             let date
             let pageCount = res.pageCount
             let currentPage = res.currentPage
             var string = ``
             for(var i=0; i<allsongs.length; i++){
+                datacontent.push(allsongs[i].content)
                 date = new Date(allsongs[i].datecreated);
                 date = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear()
+                allsongs[i].content = allsongs[i].content.toString()
                 string += `<tr>
                       <th>${i+1}</th>
                       <td>${allsongs[i].title}</td>
                       <td>${date}</td>
                       <td>` +
-                    '<button type="button" class="btn btn-success" onclick="editpost(`' + allsongs[i]._id + '`,`' + allsongs[i].title + '`, `' + allsongs[i].content + '`, `' + allsongs[i].thumbnail + '`)">Sửa</button>'
+                    '<button type="button" class="btn btn-success" onclick="editpost(`' + allsongs[i]._id + '`,`' + allsongs[i].title + '`, `' + i + '`, `' + allsongs[i].thumbnail + '`)">Sửa</button>'
                     + '<button type="button" class="btn btn-danger" onclick="deletepost(`' + allsongs[i]._id + '`, `' + allsongs[i].thumbnail + '`)">Xóa</button>'
                     + `</td>
                     </tr>`
@@ -94,13 +98,13 @@ function deletepost(postid, thumbnail){
     })
 }
 
-function editpost(id, title, content, thumbnail){
+function editpost(id, title, contentposition, thumbnail){
     $("#modaledit").modal('toggle');
 
     $("#postid").val(id)
     $("#title").val(title)
     CKEDITOR.replace( 'editor1' );
-    CKEDITOR.instances.editor1.setData(content)
+    CKEDITOR.instances.editor1.setData(datacontent[contentposition])
     $("#urlthumbnail").val(thumbnail)
     $("#checkthubmnail").attr("src", thumbnail)
 }

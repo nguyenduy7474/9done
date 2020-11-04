@@ -37,8 +37,10 @@ module.exports = function (app, passport) {
     app.get('/', home.checkLogin, home.home);
     app.get('/acceptsongs', home.checkLogin, home.acceptSongs);
     //show bai viet
-    app.get('/showbaiviet', home.checkLogin, home.showBaiViet);
-    app.get('/showbaivietchitiet', home.checkLogin, home.showBaiVietChiTiet);
+    app.get('/posts', home.checkLogin, home.showBaiViet);
+    app.get('/post-detail/:slug', home.checkLogin, home.showBaiVietChiTiet);
+    app.post('/getallposts', home.checkLogin, home.getAllPosts);
+    app.post('/getpostbyslug', home.checkLogin, home.getPostBySlug);
 
     app.post('/searchsongs', home.searchSongs);
     app.post('/uploadtorank', home.checkLogin, home.uploadToRank);

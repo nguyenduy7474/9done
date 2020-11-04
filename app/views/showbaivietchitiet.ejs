@@ -14,59 +14,57 @@
     <script src="https://vjs.zencdn.net/ie8/1.1.2/videojs-ie8.min.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="/css/videojs-resolution-switcher.css">
+    <style>
+        #datecratess{
+            font-size: 20px;
+        }
+    </style>
     <body>
+    <div id="databaiviet">
 
-    <center>
-    <div>
-<br>
-<div style="width: 80%">
-    <div class="box">
-    <input class="form-control p-3 mr-3" type="text" id="searchpost"/>
-    </div><br>
-    <table class="table">
-    <thead>
-   
-</thead>
-<tbody id="datatable">
-
-    </tbody>
-    </table>
     </div>
+    <div id="contentbaiviet" style="color: #d9d9d9; font-size: 22px ; font-family: 'Nunito Sans,Roboto,-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji'"></div>
     <div style="color: #06121e;margin: 0 auto; ;display: table;margin-top: 1rem" class="pagination"></div>
-    </center>
-    <div class="modal" tabindex="-1" role="dialog" id="modaledit" style="color: black">
-    <div class="modal-dialog modal-lg" role="document">
-    <div class="modal-content">
-    <div class="modal-header">
-    <h5 class="modal-title">Chỉnh sửa</h5>
-<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-    <span aria-hidden="true">&times;</span>
-</button>
-</div>
-<div class="modal-body">
-    <label for="recipient-name" class="col-form-label">Title:</label>
-<input type="text" class="form-control" id="title">
-    <label for="recipient-name" class="col-form-label">Nội dung:</label>
-    <textarea name="editor1"></textarea>
-    <label for="recipient-name" class="col-form-label">Link ảnh thumbnails mới:</label>
-    <input type="text" class="form-control" id="urlthumbnail" onchange="imagein()"><br>
-    <img src="" id="checkthubmnail" width="300px">
-    <input type="hidden" class="form-control" id="postid">
-    </div>
-    <div class="modal-footer">
-    <button type="button" class="btn btn-primary" onclick="editsave()">Save lại</button>
-<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-    </div>
-    </div>
-    </div>
-    </div>
     <script src="https://vjs.zencdn.net/7.8.3/video.js"></script>
     <script src="/js/videojs-resolution-switcher.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="/ckeditor/ckeditor.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
-    <script src="/js/managebaivietchitiet.js"></script>
+    <script>
+        let width
+        let height
 
+        if(!window.mobilecheck()){
+
+            width = window.screen.width * 50/100
+            height = width * 9 / 16
+
+        }else{
+
+            width = window.screen.width * 90/100
+            height = width * 9 / 16
+        }
+        let margin = (window.screen.width - width) / 2
+        $("#databaiviet").css("width", width)
+        $("#databaiviet").css("margin-left", margin)
+
+        $("#contentbaiviet").css("width", width)
+        $("#contentbaiviet").css("margin-left", margin)
+        let post = <%-JSON.stringify(post)%>
+        console.log(post)
+        var string = ``
+        let date = new Date(post.datecreated);
+        date = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear()
+        string += `
+                  <h1 style="font-size: 40px; text-align:left; color: #d9d9d9 ;font-family: 'Nunito Sans,Roboto,-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji'"/>${post.title}</h1>
+                  <p id="datecratess" style="color: #8c8c8c;">Ngày đăng: ${date}<p>
+                  <br>
+                  <img src="${post.thumbnail}" width="${width}" height="${height}"/>
+                    `
+        $("#databaiviet").html(string)
+        $("#contentbaiviet").html(post.content)
+
+    </script>
     </body>
     </html>

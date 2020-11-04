@@ -39,7 +39,6 @@ module.exports = function (app, passport) {
 
     app.get('/addnewpostpage', AdminPage.checkAdmin, AdminPage.AddNewPostPage);
     app.get('/manageposts', AdminPage.checkAdmin, AdminPage.manageposts);
-    app.post('/getallposts', AdminPage.checkAdmin, AdminPage.getAllPosts);
     app.post('/addnewpost', AdminPage.checkAdmin, AdminPage.AddNewPost);
     app.post('/editpost', AdminPage.checkAdmin, AdminPage.editPost);
     app.post('/deletepost', AdminPage.checkAdmin, AdminPage.deletePost);

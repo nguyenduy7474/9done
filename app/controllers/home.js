@@ -26,6 +26,54 @@ var Posts = require('../models/posts');
 
 class Home {
 
+    static async getAllPosts(req, res){
+
+        var searchpost = req.body.searchpost.trim()
+        var sizepageadmin = parseInt(req.body.pagesize)
+        let match = {
+            $and: [{datatype: 'post'}]
+        }
+        // defined data will send to client
+        let project = {
+            title: '$title',
+            content: '$content',
+            slug: '$slug',
+            thumbnail: '$thumbnail',
+            datecreated: '$datecreated',
+        }
+        let sort = {
+            datecreated: -1
+        }
+        if (searchpost) {
+            match.$and.push({
+                $or: [
+                    {'title': {$regex: searchpost, $options: "i"}}
+                ]
+            })
+        }
+
+        try {
+            //set default variables
+            let pageSize = 12
+            if (sizepageadmin) {
+                pageSize = sizepageadmin
+            }
+            let currentPage = req.body.paging_num || 1
+
+            // find total item
+            let pages = await Posts.find(match).countDocuments()
+
+
+            // find total pages
+            let pageCount = Math.ceil(pages / pageSize)
+            let data = await Posts.aggregate([{$match: match}, {$project: project}, {$sort: sort}, {$skip: (pageSize * currentPage) - pageSize}, {$limit: pageSize}])
+            res.send({data, pageSize, pageCount, currentPage});
+        } catch (err) {
+            console.log(err)
+            res.send({"fail": "fail"});
+        }
+    }
+
     static async effectDone(req, res) {
         if (req.session.user) {
             var songid = req.body.songid.split("_")
@@ -315,35 +363,31 @@ class Home {
             error: req.flash("error"),
             success: req.flash("success"),
             userinfo: userinfo,
-
         });
+
     }
 
     static async showBaiVietChiTiet(req, res) {
-        let postId = req.query.postId;
-        let match = {
-            $and: [{datatype: 'post'},{_id:postId}]
-        }
-        let project = {
-            title: '$title',
-            content: '$content',
-            thumbnail: '$thumbnail',
-            datecreated: '$datecreated',
-        }
-        let data = await Posts.aggregate([{$match: match}, {$project: project}])
-
-        console.log(data)
+        let slug = req.params.slug
+        let post = await Posts.findOne({slug: slug})
+        console.log(post)
         let userinfo
         if (req.session.user) {
             userinfo = req.session.user
         }
-        res.render('showbaivietchitiet.ejs', {
 
+        res.render('showbaivietchitiet.ejs', {
             error: req.flash("error"),
             success: req.flash("success"),
             userinfo: userinfo,
-
+            post: post
         });
+    }
+
+    static async getPostBySlug(req, res) {
+        let slug = req.body.slug
+
+
     }
 
     static async changeEffectRecord(req, res) {

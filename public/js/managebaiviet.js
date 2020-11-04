@@ -13,58 +13,81 @@ $( document ).ready(function() {
 
 })
 
+let width
+let height
+
+if(!window.mobilecheck()){
+
+    width = window.screen.width * 50/100
+    height = width * 9 / 16
+}else{
+
+    width = window.screen.width * 90/100
+    height = width * 9 / 16
+}
+$("#searchpost").css("width", width)
+
 
 function searchsong(paging_num){
     var searchpost = $("#searchpost").val()
+    window.scrollTo(0, 0);
     $.ajax({
         url: '/getallposts',
         type: 'POST',
-        data: {searchpost: searchpost}
+        data: {searchpost: searchpost, paging_num: paging_num, pagesize: 5}
     })
         .then(res => {
+            console.log(res.data)
             allsongs = res.data
             let pageCount = res.pageCount
             let currentPage = res.currentPage
             var string = ``
-            console.log(allsongs)
+
             for(var i=0; i<allsongs.length; i++){
-                string += `<tr>
-                      <th><a href="/showbaivietchitiet?postId=${allsongs[i]._id}"/><img src="${allsongs[i].thumbnail}"/></th>
-                      <td><a href="/showbaivietchitiet?postId=${allsongs[i]._id}"/>${allsongs[i].title}</td>
-                    </tr>`
+                date = new Date(allsongs[i].datecreated);
+                date = date.getDate() + "/" + (date.getMonth()+1) + "/" + date.getFullYear()
+                string += `<div  style="margin: auto; border-bottom: 1px solid white; width: ${width}px; padding-bottom: 30px; margin-top: 30px">
+                      
+                      <a class="titlepost" href="/post-detail/${allsongs[i].slug}" style="font-size: 40px; color: #d9d9d9; text-decoration: none;font-family: 'Nunito Sans,Roboto,-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji'"/>${allsongs[i].title}</a><br>
+                      <p style="font-size: 20px; color: #8c8c8c;">Ngày đăng: ${date}<p>
+                      <br>
+                      <a href="/post-detail/${allsongs[i].slug}"/><img src="${allsongs[i].thumbnail}" width="${width}" height="${height}"/></a><br><br>
+                      <center><a href="/post-detail/${allsongs[i].slug}" style="border-radius: 10px; padding: 15px;background-color: #d81f26; color: white; font-weight: 600; text-decoration: none; font-size: 20px ;font-family: "Arial Black", arial-black "/><span>ĐỌC THÊM</span></a></center>
+                      </div>`
             }
             $("#datatable").html(string)
-
+            $(".titlepost").hover(function(){
+                $(this).css("color", "#ff4f56");
+            }, function(){
+                $(this).css("color", "#d9d9d9");
+            });
             let pageination = ''
             if (pageCount > 1) {
-                let i = Number(currentPage) > 5 ? (Number(currentPage) - 4) : 1
-                pageination += `<ul class="pagination pg-blue">`
-                if (currentPage == 1){
-                    pageination += `<li class="page-item disabled"><a class="page-link" href="#">First</a></li>`
-                }else{
-                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('1')">First</a></li>`
-                }
+                let i = Number(currentPage) > 4 ? (Number(currentPage) - 2) : 1
+                pageination += `<ul class="pagination flex-wrap">`
+                /*                if (currentPage != 1){
+                                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('1')">1</a></li>`
+                                }*/
                 if (i != 1) {
-                    pageination += `<li class="page-item disabled"><a class="page-link" href="#">...</a></li>`
+                    pageination += `<li class="page-item" style="margin-right: 10px;"><a class="page-link" onclick="searchsong('1')">1</a></li>`
+                    pageination += `<li class="page-item disabled" style="margin-right: 5px;"><a class="page-link" style="border-color: #06121e; background-color: #06121e">...</a></li>`
                 }
-                for (; i<= (Number(currentPage) + 4) && i <= pageCount; i++) {
+                for (; i<= (Number(currentPage) + 2) && i <= pageCount; i++) {
 
                     if (currentPage == i) {
-                        pageination += `<li class="page-item active"><a class="page-link">${i}</a></li>`
+                        pageination += `<li class="page-item active" style="margin-left: 5px; margin-right: 5px"><a class="page-link">${i}</a></li>`
                     } else {
-                        pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${i}')">${i}</a></li>`
+                        pageination += `<li class="page-item" style="margin-left: 5px; margin-right: 5px"><a class="page-link" onclick="searchsong('${i}')">${i}</a></li>`
                     }
-                    if (i == Number(currentPage) + 4 && i < pageCount) {
-                        pageination += `<li class="page-item disabled"><a class="page-link" href="#">...</a></li>`
+                    if (i == Number(currentPage) + 2 && i < pageCount) {
+                        pageination += `<li class="page-item disabled" style="margin-left: 5px; "><a class="page-link" style="border-color: #06121e; background-color: #06121e">...</a></li>`
+                        pageination += `<li class="page-item" style="margin-left: 10px;"><a class="page-link" onclick="searchsong('${pageCount}')">${pageCount}</a></li>`
                         break
                     }
                 }
-                if (currentPage == pageCount){
-                    pageination += `<li class="page-item disabled"><a class="page-link"">Last</a></li>`
-                }else{
-                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${i-1}')">Last</a></li>`
-                }
-
+                /*                if (currentPage != pageCount){
+                                    pageination += `<li class="page-item"><a class="page-link" onclick="searchsong('${pageCount}')">${pageCount}</a></li>`
+                                }*/
                 pageination += `</ul>`
             }
 

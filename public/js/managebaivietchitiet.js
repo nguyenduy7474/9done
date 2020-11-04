@@ -15,11 +15,13 @@ $( document ).ready(function() {
 
 
 function searchsong(paging_num){
-    var searchpost = $("#searchpost").val()
+    var pathname = window.location.pathname;
+    console.log(pathname)
+    /*var searchpost = $("#searchpost").val()
     $.ajax({
         url: '/getallposts',
         type: 'POST',
-        data: {searchpost: searchpost}
+        data: {slugpost: searchpost}
     })
         .then(res => {
             allsongs = res.data
@@ -28,8 +30,8 @@ function searchsong(paging_num){
             var string = ``
             for(var i=0; i<allsongs.length; i++){
                 string += `<tr>
-                      <th><a href="/showbaivietchitiet"/><img src="${allsongs[i].thumbnail}"/></th>
-                      <td><a href="/showbaivietchitiet"/>${allsongs[i].title}</td>
+                      <th><a href="/showbaivietchitiet?postId=${allsongs[i]._id}"/><img src="${allsongs[i].thumbnail}"/></th>
+                      <td><a href="/showbaivietchitiet?postId=${allsongs[i]._id}"/>${allsongs[i].title}</td>
                     </tr>`
             }
             $("#datatable").html(string)
@@ -69,7 +71,7 @@ function searchsong(paging_num){
 
 
             $(".pagination").html(pageination)
-        });
+        });*/
 }
 
 function deletepost(postid, thumbnail){

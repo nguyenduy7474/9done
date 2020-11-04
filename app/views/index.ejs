@@ -76,12 +76,12 @@
         <p style="color: #d81f26; font-weight: bold; font-size: 110%" id="jumpto">*Mac/Iphone đang bị lỗi*</p>
         <div id="divbocngoai" style="width: fit-content;display: table;">
           <select class="form-control form-control-lg" id="selecttyperecord" style="width: auto; margin-bottom: 10px;display: ''">
-            <option value="withvideo">Thu âm với camera</option>
             <option value="novideo">Thu âm không camera</option>
+            <option value="withvideo">Thu âm với camera</option>
           </select>
           <!-- <button id="listensong" class="btn btn-primary"><b>Nghe</b></button> -->
           <button id="recordButton" class="btn btn-lg" style="width: 100%"><i class="fas fa-microphone-alt"></i>&nbsp;<b>Thu âm luôn</b></button>
-          <button id="stopButton" class="btn btn-success btn-lg" style="display: none"><i class="fas fa-microphone-alt-slash"></i>&nbsp;<b>Kết thúc sớm</b></button>
+          <button id="stopButton" class="btn btn-success btn-lg" style="display: none; width: 100%"><i class="fas fa-microphone-alt-slash"></i>&nbsp;<b>Kết thúc sớm</b></button>
         </div><br>
           <span id="remindChooseSong" style="color: red; display: none">*Hãy chọn bài hát<br></span>
         <span id="countdown" style="font-size: 150%"></span>
@@ -99,7 +99,7 @@
       </br>
       <div id="thongtinbaihat" style="font-size: 130%; text-align: left">
       </div>
-      <div id="dsthuam" style="display: none; font-size: 150%; padding-top: 20px">Các bài vừa thu âm(sẽ tự xóa sau 3 tiếng nếu không đăng nhập)</div>
+      <div id="dsthuam" style="display: none; font-size: 150%; padding-top: 20px">Các bài vừa thu âm(đăng nhập trước khi hát sẽ lưu lại bài hát trên tài khoản)</div>
       <!-- <ol id="recordingsList"></ol> -->
       <!-- inserting these scripts at the end to be able to use all the elements in the DOM -->
 
@@ -154,7 +154,7 @@
   <div id="fb-root"></div>
 
   <div class="modal fade" id="studiomodal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false" style="color: black">
-    <div class="modal-dialog" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content" id="studiomodalstylecontent">
         <div class="modal-header" id="studiomodalstyleheader">
           <h5 class="modal-title" id="exampleModalLabel" style="font-size: 180%">

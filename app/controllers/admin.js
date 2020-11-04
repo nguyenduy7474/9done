@@ -115,18 +115,21 @@ class AdminPage{
 		let title = req.body.title
 		let content = req.body.content
 		let thumbnail = req.body.thumbnail
-
+		let slug = ChangeToSlug(title)
 
 		let newpost = Posts({
 			title: title,
+			slug: slug,
 			content: content,
 			datecreated: new Date()
 		})
+
 		let data = await newpost.save()
 		let options = {
 			url: thumbnail,
 			dest: './public/thumbnails/' + data._id + '.jpg'
 		}
+
 		await downloadimg(options)
 		thumbnail = '/thumbnails/' + data._id + '.jpg'
 		data.thumbnail = thumbnail
@@ -142,55 +145,40 @@ class AdminPage{
 					.catch(ok())
 			})
 		}
+
+		function ChangeToSlug(title)
+		{
+			var slug;
+
+			//Đổi chữ hoa thành chữ thường
+			slug = title.toLowerCase();
+
+			//Đổi ký tự có dấu thành không dấu
+			slug = slug.replace(/á|à|ả|ạ|ã|ă|ắ|ằ|ẳ|ẵ|ặ|â|ấ|ầ|ẩ|ẫ|ậ/gi, 'a');
+			slug = slug.replace(/é|è|ẻ|ẽ|ẹ|ê|ế|ề|ể|ễ|ệ/gi, 'e');
+			slug = slug.replace(/i|í|ì|ỉ|ĩ|ị/gi, 'i');
+			slug = slug.replace(/ó|ò|ỏ|õ|ọ|ô|ố|ồ|ổ|ỗ|ộ|ơ|ớ|ờ|ở|ỡ|ợ/gi, 'o');
+			slug = slug.replace(/ú|ù|ủ|ũ|ụ|ư|ứ|ừ|ử|ữ|ự/gi, 'u');
+			slug = slug.replace(/ý|ỳ|ỷ|ỹ|ỵ/gi, 'y');
+			slug = slug.replace(/đ/gi, 'd');
+			//Xóa các ký tự đặt biệt
+			slug = slug.replace(/\`|\~|\!|\@|\#|\||\$|\%|\^|\&|\*|\(|\)|\+|\=|\,|\.|\/|\?|\>|\<|\'|\"|\:|\;|_/gi, '');
+			//Đổi khoảng trắng thành ký tự gạch ngang
+			slug = slug.replace(/ /gi, "-");
+			//Đổi nhiều ký tự gạch ngang liên tiếp thành 1 ký tự gạch ngang
+			//Phòng trường hợp người nhập vào quá nhiều ký tự trắng
+			slug = slug.replace(/\-\-\-\-\-/gi, '-');
+			slug = slug.replace(/\-\-\-\-/gi, '-');
+			slug = slug.replace(/\-\-\-/gi, '-');
+			slug = slug.replace(/\-\-/gi, '-');
+			//Xóa các ký tự gạch ngang ở đầu và cuối
+			slug = '@' + slug + '@';
+			slug = slug.replace(/\@\-|\-\@|\@/gi, '');
+			//In slug ra textbox có id “slug”
+			return slug
+		}
 	}
 
-	static async getAllPosts(req, res){
-
-			var searchpost = req.body.searchpost.trim()
-			var sizepageadmin = parseInt(req.body.pagesize)
-
-			let match = {
-				$and: [{datatype: 'post'}]
-			}
-			// defined data will send to client
-			let project = {
-				title: '$title',
-				content: '$content',
-				thumbnail: '$thumbnail',
-				datecreated: '$datecreated',
-			}
-			let sort = {
-				datecreated: -1
-			}
-			if (searchpost) {
-				match.$and.push({
-					$or: [
-						{'title': {$regex: searchpost, $options: "i"}}
-						]
-				})
-			}
-
-			try {
-				//set default variables
-				let pageSize = 12
-				if (sizepageadmin) {
-					pageSize = sizepageadmin
-				}
-				let currentPage = req.body.paging_num || 1
-
-				// find total item
-				let pages = await Posts.find(match).countDocuments()
-
-
-				// find total pages
-				let pageCount = Math.ceil(pages / pageSize)
-				let data = await Posts.aggregate([{$match: match}, {$project: project}, {$sort: sort}, {$skip: (pageSize * currentPage) - pageSize}, {$limit: pageSize}])
-				res.send({data, pageSize, pageCount, currentPage});
-			} catch (err) {
-				console.log(err)
-				res.send({"fail": "fail"});
-			}
-	}
 
 	static async manageposts(req, res){
 
