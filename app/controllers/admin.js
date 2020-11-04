@@ -319,16 +319,15 @@ class AdminPage{
 			res.send("ok gòi")
 		}else{
 			await AddSong(1)
-			res.send("ok gòi")
 		}
 
 		function checkYtURLandDBexist(url){
 			return new Promise(function(ok, notok){
 				youtubedl.getInfo(url, [],  function(err, info) {
-					if(err || info == undefined){console.log("err" + err); ok(false);return}
+					if(err || info == undefined){console.log("err" + err); ok("falseww");return}
 					Songs.findOne({songid: info.id, reviewed: 1}, (err2, found)=>{
-						if(err2) {console.log("err2" + err2); ok(false)}
-						if(found) {console.log("found" + found); ok(false)}
+						if(err2) {console.log("err2" + err2); ok("false2")}
+						if(found) {console.log("found" + found); ok("false3")}
 						ok(true)
 					})
 				})
@@ -418,6 +417,11 @@ class AdminPage{
 		function downloadVideoAndMix(linkyoutube, songid){
 			return new Promise((ok, notok) => {
 				ytdl.getInfo(linkyoutube, {downloadURL: true}, async (err, info) => {
+					if(err){
+						notok("false")
+						console.log(err)
+						return
+					}
 					if(!info){
 						notok("false")
 						return
