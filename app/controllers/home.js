@@ -260,13 +260,10 @@ class Home {
                     let combineaudiowithimage = "ffmpeg -i ./thumnails/" + req.body.songid + ".jpg -i ./" + pathmergerfile + "-acodec copy " +
                     await mixaudio(ffmpegcmd)
                 }*/
-        console.log(ffmpegcmd)
         var arrsplit = ffmpegcmd.split("./")
         var pathfile = arrsplit[arrsplit.length-1]
         var newpathfile = pathfile.split(".")[0] + "_logo." + pathfile.split(".")[1]
-        console.log(newpathfile)
         const dimensions = await getDimensions('./' + pathfile)
-        console.log(dimensions.width);
         if(dimensions.width < 1000){
             var placewitdh = dimensions.width - 30
             ffmpegcmd = 'ffmpeg -i ./' + pathfile + ' -i logo_20.png -max_muxing_queue_size 99999 -filter_complex "overlay='+ placewitdh +':10,pad=ceil(iw/2)*2:ceil(ih/2)*2" -crf 10 -preset slow -c:a copy -strict -2 ./' + newpathfile
@@ -370,7 +367,6 @@ class Home {
     static async showBaiVietChiTiet(req, res) {
         let slug = req.params.slug
         let post = await Posts.findOne({slug: slug})
-        console.log(post)
         let userinfo
         if (req.session.user) {
             userinfo = req.session.user
@@ -403,7 +399,6 @@ class Home {
 		}
         if (effectnumber == 1) {//reverb
 			var pathrecordwav = pathrecord.split(".")[0]
-            console.log(pathrecord)
         	if(!fs.existsSync("./public" + pathrecordwav + "_reverb.mp4") && !fs.existsSync("./public" + pathrecordwav + "_reverb.webm")){
 				var splittowav = "ffmpeg -i ./public" + pathrecord + " ./public" + pathrecordwav + ".wav"
 				await excutecmd(splittowav)
@@ -415,12 +410,8 @@ class Home {
                 if(checkvp8 == "true"){
                     duoifilevideo = "_reverb.webm"
                 }
-        	    console.log(pathrecordwav)
-                console.log(pathrecordwavaddeffect)
-                console.log(duoifilevideo)
 
                 videowitheffect = "ffmpeg -i ./public" + pathrecord + " -i ./public" + pathrecordwavaddeffect + " -map 0:0 -map 1:0 -c:v copy ./public" + pathrecordwav + duoifilevideo
-                console.log(videowitheffect)
 				await excutecmd(videowitheffect)
 				if (fs.existsSync("./public" + pathrecordwav + ".wav")) {
 					fs.unlinkSync("./public" + pathrecordwav + ".wav");
@@ -662,7 +653,6 @@ class Home {
 
     static checkLogin(req, res, next) {
         try {
-            console.log()
             if (req.session.user) {
                 let data = req.session.user;
                 data.user_public_folder = "/public/users/" + data._id;
@@ -690,7 +680,6 @@ class Home {
 
     static async checkToGetTypeVideo(req, res) {
         let songinfo = await Songs.findOne({songid: req.body.idsong})
-        console.log(songinfo)
         if (fs.existsSync(`./public/videos/${req.body.idsong}_verzip.mp4`)) {
             if (fs.existsSync(`./public/videos/${req.body.idsong}480_verzip.mp4`)) {
                 res.send({
@@ -703,11 +692,18 @@ class Home {
                     linkoriginsong: songinfo.linkoriginsong
                 })
                 return
-            }
-            res.send({check480: false, verzip: true, link: `${req.body.idsong}_verzip.mp4`, songname: songinfo.songname, counttimesing: songinfo.counttimesing, linkoriginsong: songinfo.linkoriginsong})
-            return
-        }
+            }else{
+                if (fs.existsSync(`./public/videos/${req.body.idsong}480.mp4`)) {
+                    res.send({check480: true, verzip: true, link: `${req.body.idsong}_verzip.mp4`, link480: `${req.body.idsong}480.mp4`, songname: songinfo.songname, counttimesing: songinfo.counttimesing, linkoriginsong: songinfo.linkoriginsong})
+                    return
+                }else{
+                    res.send({check480: false, verzip: true, link: `${req.body.idsong}_verzip.mp4`, songname: songinfo.songname, counttimesing: songinfo.counttimesing, linkoriginsong: songinfo.linkoriginsong})
+                    return
+                }
 
+            }
+
+        }
         if (fs.existsSync(`./public/videos/${req.body.idsong}480.mp4`)) {
             res.send({
                 check480: true,
@@ -720,7 +716,6 @@ class Home {
             })
             return
         }
-        console.log("test11")
 
         res.send({check480: false, verzip: false, link: `${req.body.idsong}.mp4`, songname: songinfo.songname, counttimesing: songinfo.counttimesing, linkoriginsong: songinfo.linkoriginsong})
     }

@@ -18,18 +18,27 @@ class DownloadYTMp3AndThumbnail{
 	}
 
 	getMp3(url, desmp3){
+		console.log(url)
 		return new Promise(function(ok, notok){
+			console.log("Sss")
 			youtubedl.getInfo(url, [],  function(err, info) {
-				console.log(desmp3)
-				youtubedl.exec(url, ['-x', '--audio-format', 'mp3', "-o"+ desmp3 + info.id + ".mp3"], {}, function(err, output) {
+				let id = extractVideoID(url)
+				youtubedl.exec(url, ['-x', '--audio-format', 'mp3', "-o"+ desmp3 + id + ".mp3"], {}, function(err, output) {
 					console.log("---------------------")
 					if(err) console.log(err)
 					console.log("----------------------")
 					ok()
 				})
 			})
-
 		})
+
+		function extractVideoID(url){
+			var regExp = /(?:youtu\.be\/|youtube\.com(?:\/embed\/|\/v\/|\/watch\?v=|\/user\/\S+|\/ytscreeningroom\?v=|\/sandalsResorts#\w\/\w\/.*\/))([^\/&]{10,12})/;
+			var match = url.match(regExp);
+			if(match){
+				return match[1]
+			}
+		}
 	}
 
 	getThumbnail(url, desthumbnail){
