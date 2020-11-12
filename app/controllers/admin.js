@@ -43,7 +43,9 @@ class AdminPage{
 		var content = req.body.content
 		var showpost = 0
 		var urlthumbnail = req.body.urlthumbnail
-		if(req.body.showpost == true){
+		console.log(req.body.showpost)
+		if(req.body.showpost == "true"){
+			console.log("ee")
 			showpost = 1
 		}
 		if(req.body.urlthumbnail){
