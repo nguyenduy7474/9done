@@ -277,10 +277,14 @@ function chooseSong(idsong){
         player.controls(true)
         $("#thongtinbaihat").width(width)
         $("#thongtinbaihat").html(`${res.songname} - ${res.counttimesing} lượt hát <br>
-          Link bài hát gốc: <a href="${res.linkoriginsong}" target="_blank">${res.linkoriginsong}</a>`)
+          Link bài hát gốc: <a href="${res.linkoriginsong}" target="_blank" onclick="listensong()">${res.linkoriginsong}</a>`)
     })
 
 
+}
+
+function listensong(){
+    player.pause()
 }
 
 

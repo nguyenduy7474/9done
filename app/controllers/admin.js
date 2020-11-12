@@ -41,8 +41,11 @@ class AdminPage{
 		var postid = req.body.postid
 		var title = req.body.title
 		var content = req.body.content
+		var showpost = 0
 		var urlthumbnail = req.body.urlthumbnail
-
+		if(req.body.showpost == true){
+			showpost = 1
+		}
 		if(req.body.urlthumbnail){
 			let options = {
 				url: urlthumbnail,
@@ -55,7 +58,7 @@ class AdminPage{
                         //fs.unlinkSync('./public/' + req.file.filename)*/
 		}
 		urlthumbnail = '/thumbnails/' + postid + '.jpg'
-		Posts.updateOne({_id: postid}, {$set: {title: title, content: content, thumbnail: urlthumbnail}}, (err) => {
+		Posts.updateOne({_id: postid}, {$set: {title: title, content: content, thumbnail: urlthumbnail, showpost: showpost}}, (err) => {
 			if(err) throw err
 			res.send("success")
 		})

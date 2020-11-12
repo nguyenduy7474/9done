@@ -7,6 +7,7 @@ var Posts = mongoose.Schema({
     slug: String,
     content: String,
     thumbnail: String,
+    showpost: { type : Number , "default" : 0},
     datecreated: Date
 });
 

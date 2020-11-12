@@ -39,7 +39,7 @@ function searchsong(paging_num){
                       <td>${allsongs[i].title}</td>
                       <td>${date}</td>
                       <td>` +
-                    '<button type="button" class="btn btn-success" onclick="editpost(`' + allsongs[i]._id + '`,`' + allsongs[i].title + '`, `' + i + '`, `' + allsongs[i].thumbnail + '`)">Sửa</button>'
+                    '<button type="button" class="btn btn-success" onclick="editpost(`' + allsongs[i]._id + '`,`' + allsongs[i].title + '`, `' + i + '`, `' + allsongs[i].thumbnail + '`, `' + allsongs[i].showpost + '`)">Sửa</button>'
                     + '<button type="button" class="btn btn-danger" onclick="deletepost(`' + allsongs[i]._id + '`, `' + allsongs[i].thumbnail + '`)">Xóa</button>'
                     + `</td>
                     </tr>`
@@ -98,7 +98,10 @@ function deletepost(postid, thumbnail){
     })
 }
 
-function editpost(id, title, contentposition, thumbnail){
+function editpost(id, title, contentposition, thumbnail, showpost){
+    if(showpost == 1){
+        $("#showpost").prop('checked', true);
+    }
     $("#modaledit").modal('toggle');
 
     $("#postid").val(id)
@@ -120,10 +123,12 @@ function editsave() {
     var title = $("#title").val()
     var urlthumbnail = $("#urlthumbnail").val()
     var content = CKEDITOR.instances.editor1.getData()
+    var showpost = $('#showpost').is(":checked")
 
     var data = {
         postid: postid,
         title: title,
+        showpost: showpost,
         content: content,
         urlthumbnail: urlthumbnail,
     }

@@ -30,9 +30,7 @@ class Home {
 
         var searchpost = req.body.searchpost.trim()
         var sizepageadmin = parseInt(req.body.pagesize)
-        let match = {
-            $and: [{datatype: 'post'}]
-        }
+
         // defined data will send to client
         let project = {
             title: '$title',
@@ -41,6 +39,19 @@ class Home {
             thumbnail: '$thumbnail',
             datecreated: '$datecreated',
         }
+
+        let match
+        if(req.session.user.role == "admin"){
+            match = {
+                $and: [{datatype: 'post'}]
+            }
+            project.showpost = "$showpost"
+        }else{
+            match = {
+                $and: [{datatype: 'post', showpost: 1}]
+            }
+        }
+
         let sort = {
             datecreated: -1
         }
