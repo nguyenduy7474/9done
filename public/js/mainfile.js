@@ -230,7 +230,7 @@ function chooseSong(idsong){
     $("#remindChooseSong").css("display", "none");
     $("#containerplayer").css("display", "")
     $("#countdown").css("display", "none");
-    goToByScroll("jumpto");
+    goToByScroll("divbocngoai");
     stopRecording("change")
     if(rec != null){
         pause = false
