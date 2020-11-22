@@ -40,7 +40,6 @@ function searchsong(paging_num){
                       <td>${date}</td>
                       <td>` +
                     '<button type="button" class="btn btn-success" onclick="editpost(`' + allsongs[i]._id + '`,`' + allsongs[i].title + '`, `' + i + '`, `' + allsongs[i].thumbnail + '`, `' + allsongs[i].showpost + '`)">Sửa</button>'
-                    + '<button type="button" class="btn btn-danger" onclick="deletepost(`' + allsongs[i]._id + '`, `' + allsongs[i].thumbnail + '`)">Xóa</button>'
                     + `</td>
                     </tr>`
             }
